@@ -1,0 +1,158 @@
+{
+  "config": {
+    "alpha": 0.72,
+    "batch": 64,
+    "corruptions": false,
+    "degree": 8,
+    "epochs": 10,
+    "fanout": 4,
+    "gain": 1.05,
+    "hidden": 64,
+    "learn_sensory": false,
+    "lr": 0.002,
+    "model": "sparse_brain",
+    "neurons": 256,
+    "sensory_gain": 2.0,
+    "steps": 16,
+    "test_size": 2000,
+    "theta": 0.05,
+    "thetas": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "train_size": 10000,
+    "weight_decay": 0.0001,
+    "weight_scale": 0.18
+  },
+  "device": "cpu",
+  "experiment": "mnist",
+  "metrics": {
+    "activity": [
+      {
+        "accuracy": 0.923828125,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 1.0,
+        "active_neuron_fraction": 1.0,
+        "theta": 0.0
+      },
+      {
+        "accuracy": 0.923828125,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 0.3975496054881841,
+        "active_neuron_fraction": 0.3973240852355957,
+        "theta": 0.02
+      },
+      {
+        "accuracy": 0.919921875,
+        "accuracy_delta_vs_matrix": -0.00390625,
+        "active_edge_fraction": 0.2076202240749378,
+        "active_neuron_fraction": 0.20819854736328125,
+        "theta": 0.05
+      },
+      {
+        "accuracy": 0.921875,
+        "accuracy_delta_vs_matrix": -0.001953125,
+        "active_edge_fraction": 0.10340078173585199,
+        "active_neuron_fraction": 0.10389041900634766,
+        "theta": 0.1
+      },
+      {
+        "accuracy": 0.904296875,
+        "accuracy_delta_vs_matrix": -0.01953125,
+        "active_edge_fraction": 0.040261886368936566,
+        "active_neuron_fraction": 0.04068326950073242,
+        "theta": 0.2
+      }
+    ],
+    "degree": 8,
+    "edges": 2010,
+    "epochs": 10,
+    "fixed_params": 17706,
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 1.314279659461975,
+        "seconds": 2.6281830999068916,
+        "train_acc": 0.7177
+      },
+      {
+        "epoch": 2,
+        "loss": 0.5389746762752533,
+        "seconds": 4.982360999798402,
+        "train_acc": 0.8566
+      },
+      {
+        "epoch": 3,
+        "loss": 0.4308699092388153,
+        "seconds": 7.4428165999706835,
+        "train_acc": 0.8796
+      },
+      {
+        "epoch": 4,
+        "loss": 0.3829106191635132,
+        "seconds": 9.696828599786386,
+        "train_acc": 0.889
+      },
+      {
+        "epoch": 5,
+        "loss": 0.34807609004974366,
+        "seconds": 11.978688400005922,
+        "train_acc": 0.9007
+      },
+      {
+        "epoch": 6,
+        "loss": 0.32472938590049744,
+        "seconds": 14.386924099875614,
+        "train_acc": 0.9068
+      },
+      {
+        "epoch": 7,
+        "loss": 0.3067558701992035,
+        "seconds": 16.7606814999599,
+        "train_acc": 0.9103
+      },
+      {
+        "epoch": 8,
+        "loss": 0.29198988136053083,
+        "seconds": 19.10207279981114,
+        "train_acc": 0.9169
+      },
+      {
+        "epoch": 9,
+        "loss": 0.27846484146118167,
+        "seconds": 21.46706399996765,
+        "train_acc": 0.9201
+      },
+      {
+        "epoch": 10,
+        "loss": 0.26685883615016937,
+        "seconds": 24.05227159988135,
+        "train_acc": 0.9241
+      }
+    ],
+    "matched_mlp_hidden": 6,
+    "mean_ms": 1.1468466681738694,
+    "p50_ms": 1.1036999057978392,
+    "p95_ms": 1.668000128120184,
+    "p99_ms": 1.668000128120184,
+    "samples_per_second": 4157.611008792299,
+    "sensory_edges": 3136,
+    "state_mean": 0.4993947148323059,
+    "state_saturated_fraction": 0.0092010498046875,
+    "storage_bytes": 50296,
+    "test_accuracy": 0.9115,
+    "train_accuracy": 0.9262,
+    "train_seconds": 24.05227419990115,
+    "trainable_params": 4580
+  },
+  "run_id": "mnist_steps_mnist_alpha=0p72_batch=64_corruptions=False_degree=8_epochs=10_fanout=4_gain=1p05_hidden=64_lear_fcaf496bff_seed0",
+  "seed": 0,
+  "timing": {
+    "data_seconds": 24.645284000085667,
+    "total_seconds": 24.64532080013305
+  },
+  "_wall_seconds": 27.31313190003857
+}

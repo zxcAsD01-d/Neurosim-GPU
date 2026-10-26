@@ -11,6 +11,5 @@ dist/
 
 # experiment artifacts: datasets are re-downloadable, checkpoints are caches
 data/
-results/raw/
 results/checkpoints/
 *.log

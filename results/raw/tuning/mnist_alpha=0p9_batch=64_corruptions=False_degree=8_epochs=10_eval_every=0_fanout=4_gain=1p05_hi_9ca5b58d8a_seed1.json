@@ -1,0 +1,158 @@
+{
+  "experiment": "mnist",
+  "run_id": "mnist_alpha=0p9_batch=64_corruptions=False_degree=8_epochs=10_eval_every=0_fanout=4_gain=1p05_hi_9ca5b58d8a_seed1",
+  "config": {
+    "model": "sparse_brain",
+    "neurons": 256,
+    "degree": 8,
+    "steps": 8,
+    "fanout": 4,
+    "sensory_gain": 2.0,
+    "hidden": 64,
+    "learn_sensory": false,
+    "lr": 0.002,
+    "weight_decay": 0.0001,
+    "epochs": 10,
+    "batch": 64,
+    "train_size": 10000,
+    "test_size": 2000,
+    "alpha": 0.9,
+    "gain": 1.05,
+    "weight_scale": 0.18,
+    "theta": 0.05,
+    "thetas": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "eval_every": 0,
+    "corruptions": false
+  },
+  "seed": 1,
+  "device": "cpu",
+  "metrics": {
+    "test_accuracy": 0.9,
+    "train_accuracy": 0.9048,
+    "trainable_params": 4588,
+    "fixed_params": 17738,
+    "storage_bytes": 50488,
+    "train_seconds": 13.782077000010759,
+    "samples_per_second": 7255.800413821657,
+    "epochs": 10,
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 1.3794497848510743,
+        "train_acc": 0.688,
+        "seconds": 1.3993532999884337
+      },
+      {
+        "epoch": 2,
+        "loss": 0.7077882286071777,
+        "train_acc": 0.8295,
+        "seconds": 2.7361659000162035
+      },
+      {
+        "epoch": 3,
+        "loss": 0.5581611939430237,
+        "train_acc": 0.8557,
+        "seconds": 4.093078300124034
+      },
+      {
+        "epoch": 4,
+        "loss": 0.4868705033302307,
+        "train_acc": 0.8661,
+        "seconds": 5.486258700024337
+      },
+      {
+        "epoch": 5,
+        "loss": 0.44450593781471254,
+        "train_acc": 0.8776,
+        "seconds": 7.028514600126073
+      },
+      {
+        "epoch": 6,
+        "loss": 0.41515162308216097,
+        "train_acc": 0.8825,
+        "seconds": 8.34531050012447
+      },
+      {
+        "epoch": 7,
+        "loss": 0.39400247416496276,
+        "train_acc": 0.8869,
+        "seconds": 9.704347799997777
+      },
+      {
+        "epoch": 8,
+        "loss": 0.3770300043106079,
+        "train_acc": 0.8922,
+        "seconds": 11.12163359997794
+      },
+      {
+        "epoch": 9,
+        "loss": 0.3629338614940643,
+        "train_acc": 0.8956,
+        "seconds": 12.437583700055256
+      },
+      {
+        "epoch": 10,
+        "loss": 0.35083907651901247,
+        "train_acc": 0.9004,
+        "seconds": 13.782074500108138
+      }
+    ],
+    "p50_ms": 0.6961999461054802,
+    "p95_ms": 1.1585000902414322,
+    "p99_ms": 1.1585000902414322,
+    "mean_ms": 0.7335133540133635,
+    "edges": 2018,
+    "sensory_edges": 3136,
+    "degree": 8,
+    "matched_mlp_hidden": 6,
+    "activity": [
+      {
+        "theta": 0.0,
+        "accuracy": 0.890625,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 1.0,
+        "active_neuron_fraction": 1.0
+      },
+      {
+        "theta": 0.02,
+        "accuracy": 0.892578125,
+        "accuracy_delta_vs_matrix": 0.001953125,
+        "active_edge_fraction": 0.6912778886505823,
+        "active_neuron_fraction": 0.6903724670410156
+      },
+      {
+        "theta": 0.05,
+        "accuracy": 0.892578125,
+        "accuracy_delta_vs_matrix": 0.001953125,
+        "active_edge_fraction": 0.36038084001796333,
+        "active_neuron_fraction": 0.35947227478027344
+      },
+      {
+        "theta": 0.1,
+        "accuracy": 0.888671875,
+        "accuracy_delta_vs_matrix": -0.001953125,
+        "active_edge_fraction": 0.17248426272918732,
+        "active_neuron_fraction": 0.17226886749267578
+      },
+      {
+        "theta": 0.2,
+        "accuracy": 0.888671875,
+        "accuracy_delta_vs_matrix": -0.001953125,
+        "active_edge_fraction": 0.06909385356014619,
+        "active_neuron_fraction": 0.0691213607788086
+      }
+    ],
+    "state_mean": 0.5071204900741577,
+    "state_saturated_fraction": 0.0052032470703125
+  },
+  "timing": {
+    "data_seconds": 14.259852800052613,
+    "total_seconds": 14.259893199894577
+  }
+}

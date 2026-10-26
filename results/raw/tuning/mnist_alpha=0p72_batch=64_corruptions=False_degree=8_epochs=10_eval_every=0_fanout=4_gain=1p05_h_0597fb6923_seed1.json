@@ -1,0 +1,158 @@
+{
+  "experiment": "mnist",
+  "run_id": "mnist_alpha=0p72_batch=64_corruptions=False_degree=8_epochs=10_eval_every=0_fanout=4_gain=1p05_h_0597fb6923_seed1",
+  "config": {
+    "model": "sparse_brain",
+    "neurons": 256,
+    "degree": 8,
+    "steps": 16,
+    "fanout": 4,
+    "sensory_gain": 2.0,
+    "hidden": 64,
+    "learn_sensory": false,
+    "lr": 0.002,
+    "weight_decay": 0.0001,
+    "epochs": 10,
+    "batch": 64,
+    "train_size": 10000,
+    "test_size": 2000,
+    "alpha": 0.72,
+    "gain": 1.05,
+    "weight_scale": 0.18,
+    "theta": 0.05,
+    "thetas": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "eval_every": 0,
+    "corruptions": false
+  },
+  "seed": 1,
+  "device": "cpu",
+  "metrics": {
+    "test_accuracy": 0.91,
+    "train_accuracy": 0.9273,
+    "trainable_params": 4588,
+    "fixed_params": 17738,
+    "storage_bytes": 50488,
+    "train_seconds": 24.997598000103608,
+    "samples_per_second": 4000.3843569124333,
+    "epochs": 10,
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 1.2663958187103272,
+        "train_acc": 0.7192,
+        "seconds": 2.8693578999955207
+      },
+      {
+        "epoch": 2,
+        "loss": 0.5410679972648621,
+        "train_acc": 0.8539,
+        "seconds": 5.441575200064108
+      },
+      {
+        "epoch": 3,
+        "loss": 0.43689340443611147,
+        "train_acc": 0.8782,
+        "seconds": 7.882010000059381
+      },
+      {
+        "epoch": 4,
+        "loss": 0.38507571988105777,
+        "train_acc": 0.8908,
+        "seconds": 10.31600910006091
+      },
+      {
+        "epoch": 5,
+        "loss": 0.3542173213005066,
+        "train_acc": 0.8981,
+        "seconds": 12.680160199990496
+      },
+      {
+        "epoch": 6,
+        "loss": 0.33126048834323885,
+        "train_acc": 0.9042,
+        "seconds": 15.019564100075513
+      },
+      {
+        "epoch": 7,
+        "loss": 0.3122821469426155,
+        "train_acc": 0.909,
+        "seconds": 17.603878499940038
+      },
+      {
+        "epoch": 8,
+        "loss": 0.29588545970916746,
+        "train_acc": 0.9142,
+        "seconds": 20.18754000007175
+      },
+      {
+        "epoch": 9,
+        "loss": 0.28334847111701966,
+        "train_acc": 0.9173,
+        "seconds": 22.580771199893206
+      },
+      {
+        "epoch": 10,
+        "loss": 0.27035890543460844,
+        "train_acc": 0.9219,
+        "seconds": 24.99759480007924
+      }
+    ],
+    "p50_ms": 0.9936001151800156,
+    "p95_ms": 2.151499968022108,
+    "p99_ms": 2.151499968022108,
+    "mean_ms": 1.1049800086766481,
+    "edges": 2018,
+    "sensory_edges": 3136,
+    "degree": 8,
+    "matched_mlp_hidden": 6,
+    "activity": [
+      {
+        "theta": 0.0,
+        "accuracy": 0.908203125,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 1.0,
+        "active_neuron_fraction": 1.0
+      },
+      {
+        "theta": 0.02,
+        "accuracy": 0.91015625,
+        "accuracy_delta_vs_matrix": 0.001953125,
+        "active_edge_fraction": 0.3780755306731603,
+        "active_neuron_fraction": 0.37734174728393555
+      },
+      {
+        "theta": 0.05,
+        "accuracy": 0.912109375,
+        "accuracy_delta_vs_matrix": 0.00390625,
+        "active_edge_fraction": 0.19816270266817393,
+        "active_neuron_fraction": 0.19843196868896484
+      },
+      {
+        "theta": 0.1,
+        "accuracy": 0.91015625,
+        "accuracy_delta_vs_matrix": 0.001953125,
+        "active_edge_fraction": 0.0987548828125,
+        "active_neuron_fraction": 0.09903955459594727
+      },
+      {
+        "theta": 0.2,
+        "accuracy": 0.90625,
+        "accuracy_delta_vs_matrix": -0.001953125,
+        "active_edge_fraction": 0.03797009773367815,
+        "active_neuron_fraction": 0.03824758529663086
+      }
+    ],
+    "state_mean": 0.5071204900741577,
+    "state_saturated_fraction": 0.0052032470703125
+  },
+  "timing": {
+    "data_seconds": 25.59285519993864,
+    "total_seconds": 25.592894400004297
+  }
+}

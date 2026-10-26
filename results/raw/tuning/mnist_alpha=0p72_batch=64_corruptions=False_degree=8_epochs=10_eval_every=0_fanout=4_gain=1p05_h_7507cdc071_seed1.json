@@ -1,0 +1,158 @@
+{
+  "experiment": "mnist",
+  "run_id": "mnist_alpha=0p72_batch=64_corruptions=False_degree=8_epochs=10_eval_every=0_fanout=4_gain=1p05_h_7507cdc071_seed1",
+  "config": {
+    "model": "sparse_brain",
+    "neurons": 256,
+    "degree": 8,
+    "steps": 8,
+    "fanout": 4,
+    "sensory_gain": 2.0,
+    "hidden": 64,
+    "learn_sensory": false,
+    "lr": 0.002,
+    "weight_decay": 0.0001,
+    "epochs": 10,
+    "batch": 64,
+    "train_size": 20000,
+    "test_size": 2000,
+    "alpha": 0.72,
+    "gain": 1.05,
+    "weight_scale": 0.18,
+    "theta": 0.05,
+    "thetas": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "eval_every": 0,
+    "corruptions": false
+  },
+  "seed": 1,
+  "device": "cpu",
+  "metrics": {
+    "test_accuracy": 0.92,
+    "train_accuracy": 0.9294,
+    "trainable_params": 4588,
+    "fixed_params": 17738,
+    "storage_bytes": 50488,
+    "train_seconds": 25.873696099966764,
+    "samples_per_second": 7729.858124145507,
+    "epochs": 10,
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 0.9277204877376556,
+        "train_acc": 0.7797,
+        "seconds": 2.470443399855867
+      },
+      {
+        "epoch": 2,
+        "loss": 0.45065071597099304,
+        "train_acc": 0.8726,
+        "seconds": 5.080076599959284
+      },
+      {
+        "epoch": 3,
+        "loss": 0.3835201070785522,
+        "train_acc": 0.88855,
+        "seconds": 7.564217699924484
+      },
+      {
+        "epoch": 4,
+        "loss": 0.34625131957530975,
+        "train_acc": 0.89895,
+        "seconds": 10.11114599998109
+      },
+      {
+        "epoch": 5,
+        "loss": 0.3225469925403595,
+        "train_acc": 0.90575,
+        "seconds": 12.644475699868053
+      },
+      {
+        "epoch": 6,
+        "loss": 0.3062358063220978,
+        "train_acc": 0.91005,
+        "seconds": 15.263936399947852
+      },
+      {
+        "epoch": 7,
+        "loss": 0.288307577419281,
+        "train_acc": 0.91575,
+        "seconds": 17.835890999995172
+      },
+      {
+        "epoch": 8,
+        "loss": 0.27663848938941954,
+        "train_acc": 0.9194,
+        "seconds": 20.426142599899322
+      },
+      {
+        "epoch": 9,
+        "loss": 0.2653608800649643,
+        "train_acc": 0.9221,
+        "seconds": 23.161256899824366
+      },
+      {
+        "epoch": 10,
+        "loss": 0.2560318997859955,
+        "train_acc": 0.92535,
+        "seconds": 25.873694099951535
+      }
+    ],
+    "p50_ms": 0.6625999230891466,
+    "p95_ms": 0.7877999451011419,
+    "p99_ms": 0.7877999451011419,
+    "mean_ms": 0.670373315612475,
+    "edges": 2018,
+    "sensory_edges": 3136,
+    "degree": 8,
+    "matched_mlp_hidden": 6,
+    "activity": [
+      {
+        "theta": 0.0,
+        "accuracy": 0.9140625,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 1.0,
+        "active_neuron_fraction": 1.0
+      },
+      {
+        "theta": 0.02,
+        "accuracy": 0.91796875,
+        "accuracy_delta_vs_matrix": 0.00390625,
+        "active_edge_fraction": 0.5898587517034193,
+        "active_neuron_fraction": 0.5894536972045898
+      },
+      {
+        "theta": 0.05,
+        "accuracy": 0.91796875,
+        "accuracy_delta_vs_matrix": 0.00390625,
+        "active_edge_fraction": 0.3561827826901635,
+        "active_neuron_fraction": 0.35495567321777344
+      },
+      {
+        "theta": 0.1,
+        "accuracy": 0.9140625,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 0.1926498186245664,
+        "active_neuron_fraction": 0.19173812866210938
+      },
+      {
+        "theta": 0.2,
+        "accuracy": 0.916015625,
+        "accuracy_delta_vs_matrix": 0.001953125,
+        "active_edge_fraction": 0.07953878956578295,
+        "active_neuron_fraction": 0.07896900177001953
+      }
+    ],
+    "state_mean": 0.5071204900741577,
+    "state_saturated_fraction": 0.0052032470703125
+  },
+  "timing": {
+    "data_seconds": 26.45079410006292,
+    "total_seconds": 26.450835600029677
+  }
+}

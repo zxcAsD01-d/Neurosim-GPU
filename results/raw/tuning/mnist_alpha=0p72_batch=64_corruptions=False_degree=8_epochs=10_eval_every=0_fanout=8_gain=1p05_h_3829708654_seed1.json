@@ -1,0 +1,158 @@
+{
+  "experiment": "mnist",
+  "run_id": "mnist_alpha=0p72_batch=64_corruptions=False_degree=8_epochs=10_eval_every=0_fanout=8_gain=1p05_h_3829708654_seed1",
+  "config": {
+    "model": "sparse_brain",
+    "neurons": 256,
+    "degree": 8,
+    "steps": 8,
+    "fanout": 8,
+    "sensory_gain": 2.0,
+    "hidden": 64,
+    "learn_sensory": false,
+    "lr": 0.002,
+    "weight_decay": 0.0001,
+    "epochs": 10,
+    "batch": 64,
+    "train_size": 10000,
+    "test_size": 2000,
+    "alpha": 0.72,
+    "gain": 1.05,
+    "weight_scale": 0.18,
+    "theta": 0.05,
+    "thetas": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "eval_every": 0,
+    "corruptions": false
+  },
+  "seed": 1,
+  "device": "cpu",
+  "metrics": {
+    "test_accuracy": 0.9185,
+    "train_accuracy": 0.9239,
+    "trainable_params": 4588,
+    "fixed_params": 27146,
+    "storage_bytes": 50488,
+    "train_seconds": 12.963107799878344,
+    "samples_per_second": 7714.199522504818,
+    "epochs": 10,
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 1.266831452178955,
+        "train_acc": 0.7316,
+        "seconds": 1.2829784997738898
+      },
+      {
+        "epoch": 2,
+        "loss": 0.5484098897457123,
+        "train_acc": 0.86,
+        "seconds": 2.646817199885845
+      },
+      {
+        "epoch": 3,
+        "loss": 0.4417901631832123,
+        "train_acc": 0.8785,
+        "seconds": 3.9729435998015106
+      },
+      {
+        "epoch": 4,
+        "loss": 0.3907940230846405,
+        "train_acc": 0.8894,
+        "seconds": 5.231926099862903
+      },
+      {
+        "epoch": 5,
+        "loss": 0.36062495884895324,
+        "train_acc": 0.899,
+        "seconds": 6.50454799993895
+      },
+      {
+        "epoch": 6,
+        "loss": 0.33838516390323636,
+        "train_acc": 0.9041,
+        "seconds": 7.826477599795908
+      },
+      {
+        "epoch": 7,
+        "loss": 0.3225279345989227,
+        "train_acc": 0.9065,
+        "seconds": 9.137913999846205
+      },
+      {
+        "epoch": 8,
+        "loss": 0.3082854099750519,
+        "train_acc": 0.9125,
+        "seconds": 10.439883799990639
+      },
+      {
+        "epoch": 9,
+        "loss": 0.2957431022644043,
+        "train_acc": 0.9149,
+        "seconds": 11.717301499797031
+      },
+      {
+        "epoch": 10,
+        "loss": 0.28707840614318847,
+        "train_acc": 0.9184,
+        "seconds": 12.963104599853978
+      }
+    ],
+    "p50_ms": 0.5093000363558531,
+    "p95_ms": 0.6842000875622034,
+    "p99_ms": 0.6842000875622034,
+    "mean_ms": 0.5297400212536255,
+    "edges": 2018,
+    "sensory_edges": 6272,
+    "degree": 8,
+    "matched_mlp_hidden": 6,
+    "activity": [
+      {
+        "theta": 0.0,
+        "accuracy": 0.916015625,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 1.0,
+        "active_neuron_fraction": 1.0
+      },
+      {
+        "theta": 0.02,
+        "accuracy": 0.91796875,
+        "accuracy_delta_vs_matrix": 0.001953125,
+        "active_edge_fraction": 0.5763216500712339,
+        "active_neuron_fraction": 0.5768318176269531
+      },
+      {
+        "theta": 0.05,
+        "accuracy": 0.921875,
+        "accuracy_delta_vs_matrix": 0.005859375,
+        "active_edge_fraction": 0.32830756105209363,
+        "active_neuron_fraction": 0.3296785354614258
+      },
+      {
+        "theta": 0.1,
+        "accuracy": 0.9140625,
+        "accuracy_delta_vs_matrix": -0.001953125,
+        "active_edge_fraction": 0.16840004897330277,
+        "active_neuron_fraction": 0.16934585571289062
+      },
+      {
+        "theta": 0.2,
+        "accuracy": 0.91796875,
+        "accuracy_delta_vs_matrix": 0.001953125,
+        "active_edge_fraction": 0.0647802589197225,
+        "active_neuron_fraction": 0.06528663635253906
+      }
+    ],
+    "state_mean": 0.49328482151031494,
+    "state_saturated_fraction": 0.004486083984375
+  },
+  "timing": {
+    "data_seconds": 13.403782600071281,
+    "total_seconds": 13.403821099782363
+  }
+}

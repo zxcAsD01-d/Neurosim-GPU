@@ -1,0 +1,158 @@
+{
+  "config": {
+    "alpha": 0.72,
+    "batch": 64,
+    "corruptions": false,
+    "degree": 8,
+    "epochs": 10,
+    "fanout": 4,
+    "gain": 1.05,
+    "hidden": 64,
+    "learn_sensory": false,
+    "lr": 0.002,
+    "model": "sparse_brain",
+    "neurons": 256,
+    "sensory_gain": 2.0,
+    "steps": 4,
+    "test_size": 2000,
+    "theta": 0.05,
+    "thetas": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "train_size": 10000,
+    "weight_decay": 0.0001,
+    "weight_scale": 0.18
+  },
+  "device": "cpu",
+  "experiment": "mnist",
+  "metrics": {
+    "activity": [
+      {
+        "accuracy": 0.91796875,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 1.0,
+        "active_neuron_fraction": 1.0,
+        "theta": 0.0
+      },
+      {
+        "accuracy": 0.91796875,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 0.7798961734297264,
+        "active_neuron_fraction": 0.7816486358642578,
+        "theta": 0.02
+      },
+      {
+        "accuracy": 0.91796875,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 0.5658280861318408,
+        "active_neuron_fraction": 0.5680580139160156,
+        "theta": 0.05
+      },
+      {
+        "accuracy": 0.9140625,
+        "accuracy_delta_vs_matrix": -0.00390625,
+        "active_edge_fraction": 0.32652193135883084,
+        "active_neuron_fraction": 0.3282661437988281,
+        "theta": 0.1
+      },
+      {
+        "accuracy": 0.908203125,
+        "accuracy_delta_vs_matrix": -0.009765625,
+        "active_edge_fraction": 0.13362533037935323,
+        "active_neuron_fraction": 0.1335124969482422,
+        "theta": 0.2
+      }
+    ],
+    "degree": 8,
+    "edges": 2010,
+    "epochs": 10,
+    "fixed_params": 17706,
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 1.3519136174201964,
+        "seconds": 0.6497923000715673,
+        "train_acc": 0.7098
+      },
+      {
+        "epoch": 2,
+        "loss": 0.6429953163146973,
+        "seconds": 1.3213432000484318,
+        "train_acc": 0.8436
+      },
+      {
+        "epoch": 3,
+        "loss": 0.509996798658371,
+        "seconds": 2.0429467000067234,
+        "train_acc": 0.8665
+      },
+      {
+        "epoch": 4,
+        "loss": 0.4501956125259399,
+        "seconds": 2.7641386000905186,
+        "train_acc": 0.8764
+      },
+      {
+        "epoch": 5,
+        "loss": 0.4131543038368225,
+        "seconds": 3.5834701999556273,
+        "train_acc": 0.8867
+      },
+      {
+        "epoch": 6,
+        "loss": 0.3863054845809937,
+        "seconds": 4.400540200062096,
+        "train_acc": 0.8936
+      },
+      {
+        "epoch": 7,
+        "loss": 0.36732568073272703,
+        "seconds": 5.220680100144818,
+        "train_acc": 0.8975
+      },
+      {
+        "epoch": 8,
+        "loss": 0.3530099274158478,
+        "seconds": 6.048138099955395,
+        "train_acc": 0.9017
+      },
+      {
+        "epoch": 9,
+        "loss": 0.3391012184143066,
+        "seconds": 6.932892099954188,
+        "train_acc": 0.9052
+      },
+      {
+        "epoch": 10,
+        "loss": 0.32842803132534026,
+        "seconds": 7.643669200129807,
+        "train_acc": 0.906
+      }
+    ],
+    "matched_mlp_hidden": 6,
+    "mean_ms": 0.3893666745473941,
+    "p50_ms": 0.3193998709321022,
+    "p95_ms": 1.162900123745203,
+    "p99_ms": 1.162900123745203,
+    "samples_per_second": 13082.718338478368,
+    "sensory_edges": 3136,
+    "state_mean": 0.4993947148323059,
+    "state_saturated_fraction": 0.0092010498046875,
+    "storage_bytes": 50296,
+    "test_accuracy": 0.905,
+    "train_accuracy": 0.9085,
+    "train_seconds": 7.643671400146559,
+    "trainable_params": 4580
+  },
+  "run_id": "mnist_steps_mnist_alpha=0p72_batch=64_corruptions=False_degree=8_epochs=10_fanout=4_gain=1p05_hidden=64_lear_44164ed58a_seed0",
+  "seed": 0,
+  "timing": {
+    "data_seconds": 8.011012700153515,
+    "total_seconds": 8.011052299989387
+  },
+  "_wall_seconds": 10.472675299970433
+}

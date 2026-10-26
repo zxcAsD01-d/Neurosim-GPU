@@ -1,0 +1,115 @@
+{
+  "config": {
+    "alpha": 0.72,
+    "batch": 64,
+    "corruptions": false,
+    "degree": 8,
+    "epochs": 10,
+    "fanout": 4,
+    "gain": 1.05,
+    "hidden": 64,
+    "learn_sensory": false,
+    "lr": 0.002,
+    "model": "dense_rnn",
+    "neurons": 256,
+    "sensory_gain": 2.0,
+    "steps": 8,
+    "test_size": 2000,
+    "theta": 0.05,
+    "thetas": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "train_size": 10000,
+    "weight_decay": 0.0001,
+    "weight_scale": 0.18
+  },
+  "device": "cpu",
+  "experiment": "mnist",
+  "metrics": {
+    "epochs": 10,
+    "fixed_params": 0,
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 0.5565700208187103,
+        "seconds": 0.6963184999767691,
+        "train_acc": 0.8453
+      },
+      {
+        "epoch": 2,
+        "loss": 0.2492259565591812,
+        "seconds": 1.4688135001342744,
+        "train_acc": 0.9257
+      },
+      {
+        "epoch": 3,
+        "loss": 0.18363579810261726,
+        "seconds": 2.3232609000988305,
+        "train_acc": 0.9438
+      },
+      {
+        "epoch": 4,
+        "loss": 0.13675825313329695,
+        "seconds": 3.3153046001680195,
+        "train_acc": 0.9585
+      },
+      {
+        "epoch": 5,
+        "loss": 0.10357756645977498,
+        "seconds": 4.301544000161812,
+        "train_acc": 0.9681
+      },
+      {
+        "epoch": 6,
+        "loss": 0.0916831326752901,
+        "seconds": 5.154882299946621,
+        "train_acc": 0.9716
+      },
+      {
+        "epoch": 7,
+        "loss": 0.05786271024346352,
+        "seconds": 6.169778099982068,
+        "train_acc": 0.9818
+      },
+      {
+        "epoch": 8,
+        "loss": 0.04911914447173476,
+        "seconds": 7.186905900016427,
+        "train_acc": 0.9844
+      },
+      {
+        "epoch": 9,
+        "loss": 0.04885235203653574,
+        "seconds": 8.277645000023767,
+        "train_acc": 0.9844
+      },
+      {
+        "epoch": 10,
+        "loss": 0.04117935090661049,
+        "seconds": 9.384689500089735,
+        "train_acc": 0.9866
+      }
+    ],
+    "mean_ms": 0.6534333651264509,
+    "p50_ms": 0.6066998466849327,
+    "p95_ms": 1.3101999647915363,
+    "p99_ms": 1.3101999647915363,
+    "samples_per_second": 10655.650485805514,
+    "storage_bytes": 1076264,
+    "test_accuracy": 0.953,
+    "train_accuracy": 0.9951,
+    "train_seconds": 9.384692199993879,
+    "trainable_params": 269066
+  },
+  "run_id": "mnist_models_mnist_alpha=0p72_batch=64_corruptions=False_degree=8_epochs=10_fanout=4_gain=1p05_hidden=64_lear_f7c6c28393_seed2",
+  "seed": 2,
+  "timing": {
+    "data_seconds": 9.746564700035378,
+    "total_seconds": 9.746606200002134
+  },
+  "_wall_seconds": 12.206405599834397
+}

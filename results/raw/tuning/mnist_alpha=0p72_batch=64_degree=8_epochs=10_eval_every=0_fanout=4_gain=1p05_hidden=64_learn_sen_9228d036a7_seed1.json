@@ -1,0 +1,114 @@
+{
+  "experiment": "mnist",
+  "run_id": "mnist_alpha=0p72_batch=64_degree=8_epochs=10_eval_every=0_fanout=4_gain=1p05_hidden=64_learn_sen_9228d036a7_seed1",
+  "config": {
+    "model": "mlp",
+    "neurons": 256,
+    "degree": 8,
+    "steps": 8,
+    "fanout": 4,
+    "sensory_gain": 2.0,
+    "hidden": 64,
+    "learn_sensory": false,
+    "lr": 0.002,
+    "weight_decay": 0.0001,
+    "epochs": 10,
+    "batch": 64,
+    "train_size": 10000,
+    "test_size": 2000,
+    "alpha": 0.72,
+    "gain": 1.05,
+    "weight_scale": 0.18,
+    "theta": 0.05,
+    "thetas": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "eval_every": 0
+  },
+  "seed": 1,
+  "device": "cpu",
+  "metrics": {
+    "test_accuracy": 0.947,
+    "train_accuracy": 0.991,
+    "trainable_params": 50890,
+    "fixed_params": 0,
+    "storage_bytes": 203560,
+    "train_seconds": 5.658584600081667,
+    "samples_per_second": 17672.263837595845,
+    "epochs": 10,
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 0.6758631529808045,
+        "train_acc": 0.8243,
+        "seconds": 0.43197460006922483
+      },
+      {
+        "epoch": 2,
+        "loss": 0.30298143968582153,
+        "train_acc": 0.9122,
+        "seconds": 0.9227475998923182
+      },
+      {
+        "epoch": 3,
+        "loss": 0.24031575169563293,
+        "train_acc": 0.9309,
+        "seconds": 1.576187999919057
+      },
+      {
+        "epoch": 4,
+        "loss": 0.19135589015483856,
+        "train_acc": 0.9466,
+        "seconds": 2.377133799949661
+      },
+      {
+        "epoch": 5,
+        "loss": 0.1606501744747162,
+        "train_acc": 0.9533,
+        "seconds": 3.14455490000546
+      },
+      {
+        "epoch": 6,
+        "loss": 0.13469032101631165,
+        "train_acc": 0.9613,
+        "seconds": 3.8566725000273436
+      },
+      {
+        "epoch": 7,
+        "loss": 0.11666909668743611,
+        "train_acc": 0.9675,
+        "seconds": 4.565586700104177
+      },
+      {
+        "epoch": 8,
+        "loss": 0.09496269562244415,
+        "train_acc": 0.9742,
+        "seconds": 4.95434940000996
+      },
+      {
+        "epoch": 9,
+        "loss": 0.08410809611082078,
+        "train_acc": 0.9771,
+        "seconds": 5.232408700045198
+      },
+      {
+        "epoch": 10,
+        "loss": 0.06904047702848912,
+        "train_acc": 0.9828,
+        "seconds": 5.658582800067961
+      }
+    ],
+    "p50_ms": 0.10760012082755566,
+    "p95_ms": 0.27570012025535107,
+    "p99_ms": 0.27570012025535107,
+    "mean_ms": 0.12932002233962217
+  },
+  "timing": {
+    "data_seconds": 5.9936915000434965,
+    "total_seconds": 5.99372939998284
+  }
+}

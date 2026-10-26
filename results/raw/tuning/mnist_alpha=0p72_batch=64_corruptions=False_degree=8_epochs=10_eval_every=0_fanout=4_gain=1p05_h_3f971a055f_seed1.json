@@ -1,0 +1,158 @@
+{
+  "experiment": "mnist",
+  "run_id": "mnist_alpha=0p72_batch=64_corruptions=False_degree=8_epochs=10_eval_every=0_fanout=4_gain=1p05_h_3f971a055f_seed1",
+  "config": {
+    "model": "sparse_brain",
+    "neurons": 256,
+    "degree": 8,
+    "steps": 2,
+    "fanout": 4,
+    "sensory_gain": 2.0,
+    "hidden": 64,
+    "learn_sensory": false,
+    "lr": 0.002,
+    "weight_decay": 0.0001,
+    "epochs": 10,
+    "batch": 64,
+    "train_size": 10000,
+    "test_size": 2000,
+    "alpha": 0.72,
+    "gain": 1.05,
+    "weight_scale": 0.18,
+    "theta": 0.05,
+    "thetas": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "eval_every": 0,
+    "corruptions": false
+  },
+  "seed": 1,
+  "device": "cpu",
+  "metrics": {
+    "test_accuracy": 0.8935,
+    "train_accuracy": 0.8988,
+    "trainable_params": 4588,
+    "fixed_params": 17738,
+    "storage_bytes": 50488,
+    "train_seconds": 4.454588199965656,
+    "samples_per_second": 22448.764175501336,
+    "epochs": 10,
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 1.434667680168152,
+        "train_acc": 0.6747,
+        "seconds": 0.47225739993155
+      },
+      {
+        "epoch": 2,
+        "loss": 0.768467069530487,
+        "train_acc": 0.8222,
+        "seconds": 0.9307814999483526
+      },
+      {
+        "epoch": 3,
+        "loss": 0.6033593852043152,
+        "train_acc": 0.8477,
+        "seconds": 1.352501600049436
+      },
+      {
+        "epoch": 4,
+        "loss": 0.5244598876476287,
+        "train_acc": 0.8578,
+        "seconds": 1.7920254000928253
+      },
+      {
+        "epoch": 5,
+        "loss": 0.4773761559009552,
+        "train_acc": 0.8711,
+        "seconds": 2.218447200022638
+      },
+      {
+        "epoch": 6,
+        "loss": 0.44533037297725675,
+        "train_acc": 0.8753,
+        "seconds": 2.6876972001045942
+      },
+      {
+        "epoch": 7,
+        "loss": 0.42199259297847747,
+        "train_acc": 0.8805,
+        "seconds": 3.1145115999970585
+      },
+      {
+        "epoch": 8,
+        "loss": 0.4040262490272522,
+        "train_acc": 0.8846,
+        "seconds": 3.5612018001265824
+      },
+      {
+        "epoch": 9,
+        "loss": 0.38855621042251587,
+        "train_acc": 0.8902,
+        "seconds": 4.018144400091842
+      },
+      {
+        "epoch": 10,
+        "loss": 0.3758170195102692,
+        "train_acc": 0.8947,
+        "seconds": 4.454584900056943
+      }
+    ],
+    "p50_ms": 0.20119990222156048,
+    "p95_ms": 0.27629989199340343,
+    "p99_ms": 0.27629989199340343,
+    "mean_ms": 0.19880000812311968,
+    "edges": 2018,
+    "sensory_edges": 3136,
+    "degree": 8,
+    "matched_mlp_hidden": 6,
+    "activity": [
+      {
+        "theta": 0.0,
+        "accuracy": 0.88671875,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 1.0,
+        "active_neuron_fraction": 1.0
+      },
+      {
+        "theta": 0.02,
+        "accuracy": 0.88671875,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 0.9237690860381566,
+        "active_neuron_fraction": 0.9231681823730469
+      },
+      {
+        "theta": 0.05,
+        "accuracy": 0.88671875,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 0.8119178371221506,
+        "active_neuron_fraction": 0.8109092712402344
+      },
+      {
+        "theta": 0.1,
+        "accuracy": 0.88671875,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 0.5834520564915758,
+        "active_neuron_fraction": 0.5827522277832031
+      },
+      {
+        "theta": 0.2,
+        "accuracy": 0.880859375,
+        "accuracy_delta_vs_matrix": -0.005859375,
+        "active_edge_fraction": 0.25819818895564917,
+        "active_neuron_fraction": 0.2582206726074219
+      }
+    ],
+    "state_mean": 0.5071204900741577,
+    "state_saturated_fraction": 0.0052032470703125
+  },
+  "timing": {
+    "data_seconds": 4.758406299864873,
+    "total_seconds": 4.758444000035524
+  }
+}

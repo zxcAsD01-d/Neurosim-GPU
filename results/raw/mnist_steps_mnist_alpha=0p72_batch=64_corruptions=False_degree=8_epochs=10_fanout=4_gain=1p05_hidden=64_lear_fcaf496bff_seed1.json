@@ -1,0 +1,158 @@
+{
+  "config": {
+    "alpha": 0.72,
+    "batch": 64,
+    "corruptions": false,
+    "degree": 8,
+    "epochs": 10,
+    "fanout": 4,
+    "gain": 1.05,
+    "hidden": 64,
+    "learn_sensory": false,
+    "lr": 0.002,
+    "model": "sparse_brain",
+    "neurons": 256,
+    "sensory_gain": 2.0,
+    "steps": 16,
+    "test_size": 2000,
+    "theta": 0.05,
+    "thetas": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "train_size": 10000,
+    "weight_decay": 0.0001,
+    "weight_scale": 0.18
+  },
+  "device": "cpu",
+  "experiment": "mnist",
+  "metrics": {
+    "activity": [
+      {
+        "accuracy": 0.908203125,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 1.0,
+        "active_neuron_fraction": 1.0,
+        "theta": 0.0
+      },
+      {
+        "accuracy": 0.91015625,
+        "accuracy_delta_vs_matrix": 0.001953125,
+        "active_edge_fraction": 0.3780755306731603,
+        "active_neuron_fraction": 0.37734174728393555,
+        "theta": 0.02
+      },
+      {
+        "accuracy": 0.912109375,
+        "accuracy_delta_vs_matrix": 0.00390625,
+        "active_edge_fraction": 0.19816270266817393,
+        "active_neuron_fraction": 0.19843196868896484,
+        "theta": 0.05
+      },
+      {
+        "accuracy": 0.91015625,
+        "accuracy_delta_vs_matrix": 0.001953125,
+        "active_edge_fraction": 0.0987548828125,
+        "active_neuron_fraction": 0.09903955459594727,
+        "theta": 0.1
+      },
+      {
+        "accuracy": 0.90625,
+        "accuracy_delta_vs_matrix": -0.001953125,
+        "active_edge_fraction": 0.03797009773367815,
+        "active_neuron_fraction": 0.03824758529663086,
+        "theta": 0.2
+      }
+    ],
+    "degree": 8,
+    "edges": 2018,
+    "epochs": 10,
+    "fixed_params": 17738,
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 1.2663958187103272,
+        "seconds": 2.5798430000431836,
+        "train_acc": 0.7192
+      },
+      {
+        "epoch": 2,
+        "loss": 0.5410679972648621,
+        "seconds": 5.583493700018153,
+        "train_acc": 0.8539
+      },
+      {
+        "epoch": 3,
+        "loss": 0.43689340443611147,
+        "seconds": 8.45974800013937,
+        "train_acc": 0.8782
+      },
+      {
+        "epoch": 4,
+        "loss": 0.38507571988105777,
+        "seconds": 11.022949800128117,
+        "train_acc": 0.8908
+      },
+      {
+        "epoch": 5,
+        "loss": 0.3542173213005066,
+        "seconds": 13.605608200188726,
+        "train_acc": 0.8981
+      },
+      {
+        "epoch": 6,
+        "loss": 0.33126048834323885,
+        "seconds": 16.5585040000733,
+        "train_acc": 0.9042
+      },
+      {
+        "epoch": 7,
+        "loss": 0.3122821469426155,
+        "seconds": 19.235736600123346,
+        "train_acc": 0.909
+      },
+      {
+        "epoch": 8,
+        "loss": 0.29588545970916746,
+        "seconds": 21.751715200021863,
+        "train_acc": 0.9142
+      },
+      {
+        "epoch": 9,
+        "loss": 0.28334847111701966,
+        "seconds": 24.280474200146273,
+        "train_acc": 0.9173
+      },
+      {
+        "epoch": 10,
+        "loss": 0.27035890543460844,
+        "seconds": 27.11295780004002,
+        "train_acc": 0.9219
+      }
+    ],
+    "matched_mlp_hidden": 6,
+    "mean_ms": 1.5647000167518854,
+    "p50_ms": 1.3597998768091202,
+    "p95_ms": 3.6243998911231756,
+    "p99_ms": 3.6243998911231756,
+    "samples_per_second": 3688.2729259914668,
+    "sensory_edges": 3136,
+    "state_mean": 0.5071204900741577,
+    "state_saturated_fraction": 0.0052032470703125,
+    "storage_bytes": 50488,
+    "test_accuracy": 0.91,
+    "train_accuracy": 0.9273,
+    "train_seconds": 27.112961000064388,
+    "trainable_params": 4588
+  },
+  "run_id": "mnist_steps_mnist_alpha=0p72_batch=64_corruptions=False_degree=8_epochs=10_fanout=4_gain=1p05_hidden=64_lear_fcaf496bff_seed1",
+  "seed": 1,
+  "timing": {
+    "data_seconds": 27.818905600113794,
+    "total_seconds": 27.818950399989262
+  },
+  "_wall_seconds": 30.906198100186884
+}

@@ -1,0 +1,158 @@
+{
+  "experiment": "mnist",
+  "run_id": "mnist_alpha=0p72_batch=64_corruptions=False_degree=8_epochs=10_eval_every=0_fanout=4_gain=1p05_h_788be9d7fa_seed0",
+  "config": {
+    "model": "sparse_brain",
+    "neurons": 512,
+    "degree": 8,
+    "steps": 8,
+    "fanout": 4,
+    "sensory_gain": 2.0,
+    "hidden": 64,
+    "learn_sensory": false,
+    "lr": 0.002,
+    "weight_decay": 0.0001,
+    "epochs": 10,
+    "batch": 64,
+    "train_size": 10000,
+    "test_size": 2000,
+    "alpha": 0.72,
+    "gain": 1.05,
+    "weight_scale": 0.18,
+    "theta": 0.05,
+    "thetas": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "eval_every": 0,
+    "corruptions": false
+  },
+  "seed": 0,
+  "device": "cpu",
+  "metrics": {
+    "test_accuracy": 0.925,
+    "train_accuracy": 0.9364,
+    "trainable_params": 9191,
+    "fixed_params": 26166,
+    "storage_bytes": 101568,
+    "train_seconds": 19.701422200072557,
+    "samples_per_second": 5075.775697027178,
+    "epochs": 10,
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 1.0155151789665222,
+        "train_acc": 0.7678,
+        "seconds": 2.053970000008121
+      },
+      {
+        "epoch": 2,
+        "loss": 0.43540030994415285,
+        "train_acc": 0.8812,
+        "seconds": 4.282139400020242
+      },
+      {
+        "epoch": 3,
+        "loss": 0.36355377852916715,
+        "train_acc": 0.8986,
+        "seconds": 6.290349399903789
+      },
+      {
+        "epoch": 4,
+        "loss": 0.3268595359325409,
+        "train_acc": 0.9069,
+        "seconds": 8.27874179999344
+      },
+      {
+        "epoch": 5,
+        "loss": 0.3017264259338379,
+        "train_acc": 0.9164,
+        "seconds": 10.167221199953929
+      },
+      {
+        "epoch": 6,
+        "loss": 0.28106243716478346,
+        "train_acc": 0.9217,
+        "seconds": 12.035114099970087
+      },
+      {
+        "epoch": 7,
+        "loss": 0.2674905676364899,
+        "train_acc": 0.9232,
+        "seconds": 13.941958399955183
+      },
+      {
+        "epoch": 8,
+        "loss": 0.2559029384016991,
+        "train_acc": 0.9266,
+        "seconds": 15.85008140001446
+      },
+      {
+        "epoch": 9,
+        "loss": 0.24262408337593078,
+        "train_acc": 0.9319,
+        "seconds": 17.81593449995853
+      },
+      {
+        "epoch": 10,
+        "loss": 0.2309007502436638,
+        "train_acc": 0.9338,
+        "seconds": 19.70142009994015
+      }
+    ],
+    "p50_ms": 0.5026999861001968,
+    "p95_ms": 0.6834000814706087,
+    "p99_ms": 0.6834000814706087,
+    "mean_ms": 0.5331266516198715,
+    "edges": 4061,
+    "sensory_edges": 3136,
+    "degree": 8,
+    "matched_mlp_hidden": 12,
+    "activity": [
+      {
+        "theta": 0.0,
+        "accuracy": 0.9296875,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 1.0,
+        "active_neuron_fraction": 1.0
+      },
+      {
+        "theta": 0.02,
+        "accuracy": 0.927734375,
+        "accuracy_delta_vs_matrix": -0.001953125,
+        "active_edge_fraction": 0.658751163891283,
+        "active_neuron_fraction": 0.6590065956115723
+      },
+      {
+        "theta": 0.05,
+        "accuracy": 0.931640625,
+        "accuracy_delta_vs_matrix": 0.001953125,
+        "active_edge_fraction": 0.3926517699804543,
+        "active_neuron_fraction": 0.3945889472961426
+      },
+      {
+        "theta": 0.1,
+        "accuracy": 0.92578125,
+        "accuracy_delta_vs_matrix": -0.00390625,
+        "active_edge_fraction": 0.20597587234132603,
+        "active_neuron_fraction": 0.20821332931518555
+      },
+      {
+        "theta": 0.2,
+        "accuracy": 0.919921875,
+        "accuracy_delta_vs_matrix": -0.009765625,
+        "active_edge_fraction": 0.08425118024347451,
+        "active_neuron_fraction": 0.08585023880004883
+      }
+    ],
+    "state_mean": 0.4996589720249176,
+    "state_saturated_fraction": 0.0113677978515625
+  },
+  "timing": {
+    "data_seconds": 20.20562469982542,
+    "total_seconds": 20.205669400049374
+  }
+}

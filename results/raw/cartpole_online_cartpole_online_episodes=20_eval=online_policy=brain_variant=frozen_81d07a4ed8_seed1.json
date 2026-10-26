@@ -1,0 +1,299 @@
+{
+  "config": {
+    "alpha": 0.72,
+    "baseline_decay": 0.9,
+    "batch": 128,
+    "bc_samples": 20000,
+    "change_episode": 10,
+    "change_force_mag": 1.0,
+    "change_length_scale": 3.0,
+    "deadzone": 0.05,
+    "degree": 8,
+    "delay": 0,
+    "eligibility_decay": 0.9,
+    "episodes": 20,
+    "epochs": 12,
+    "eval": "online",
+    "gain": 1.05,
+    "hard": false,
+    "hard_force_mag": 6.0,
+    "hard_other_range": 0.1,
+    "hard_theta_range": 0.15,
+    "hidden": 64,
+    "impulse_first": 60,
+    "impulse_last": 140,
+    "impulse_steps": 3,
+    "impulse_strength": 3.0,
+    "initial_state": "sigmoid",
+    "latency_iterations": 25,
+    "length_scale": 1.0,
+    "lr": 0.003,
+    "mass_scale": 1.0,
+    "neurons": 128,
+    "noise": 0.0,
+    "noise_prob": 0.1,
+    "online_change": "force",
+    "online_lr": 0.001,
+    "policy": "brain",
+    "sensory_fanout": 8,
+    "sensory_scale": 1.5,
+    "steps": 2,
+    "variant": "frozen",
+    "weight_scale": 0.15
+  },
+  "device": "cpu",
+  "experiment": "cartpole",
+  "metrics": {
+    "adaptation_gain": -48.69999999999999,
+    "adaptation_verdict": "neutral",
+    "bc_accuracy": 0.866,
+    "bc_test_accuracy": 0.866,
+    "bc_train_accuracy": 0.8679375,
+    "episodes": 20,
+    "eval_kind": "online",
+    "expert_success_rate": 1.0,
+    "expert_survival_mean": 200.0,
+    "hard": true,
+    "initial_weight_l2": 11.46059513092041,
+    "latency_mean_ms": 0.2667759917676449,
+    "neurons": 128,
+    "online_shift": {
+      "description": "actuator authority 6 -> 1 N",
+      "kind": "force",
+      "value": 1.0
+    },
+    "p50_ms": 0.27279998175799847,
+    "p95_ms": 0.31209993176162243,
+    "p99_ms": 0.34629995934665203,
+    "per_episode": [
+      {
+        "episode": 0,
+        "force_mag": 6.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.9508278512787907,
+        "shifted": false,
+        "steps": 200
+      },
+      {
+        "episode": 1,
+        "force_mag": 6.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.9445664937619175,
+        "shifted": false,
+        "steps": 200
+      },
+      {
+        "episode": 2,
+        "force_mag": 6.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.9606531207014544,
+        "shifted": false,
+        "steps": 200
+      },
+      {
+        "episode": 3,
+        "force_mag": 6.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.9082605345851504,
+        "shifted": false,
+        "steps": 200
+      },
+      {
+        "episode": 4,
+        "force_mag": 6.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.9053901373590749,
+        "shifted": false,
+        "steps": 200
+      },
+      {
+        "episode": 5,
+        "force_mag": 6.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.8616027358265772,
+        "shifted": false,
+        "steps": 200
+      },
+      {
+        "episode": 6,
+        "force_mag": 6.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.9544874164033246,
+        "shifted": false,
+        "steps": 200
+      },
+      {
+        "episode": 7,
+        "force_mag": 6.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.9119712500854856,
+        "shifted": false,
+        "steps": 200
+      },
+      {
+        "episode": 8,
+        "force_mag": 6.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.8579844863573451,
+        "shifted": false,
+        "steps": 200
+      },
+      {
+        "episode": 9,
+        "force_mag": 6.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.8776371319508047,
+        "shifted": false,
+        "steps": 200
+      },
+      {
+        "episode": 10,
+        "force_mag": 1.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.911012913852242,
+        "shifted": true,
+        "steps": 200
+      },
+      {
+        "episode": 11,
+        "force_mag": 1.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.8388055130371458,
+        "shifted": true,
+        "steps": 200
+      },
+      {
+        "episode": 12,
+        "force_mag": 1.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.3823078880271183,
+        "shifted": true,
+        "steps": 61
+      },
+      {
+        "episode": 13,
+        "force_mag": 1.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.9551695542824755,
+        "shifted": true,
+        "steps": 200
+      },
+      {
+        "episode": 14,
+        "force_mag": 1.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.3106144550227214,
+        "shifted": true,
+        "steps": 35
+      },
+      {
+        "episode": 15,
+        "force_mag": 1.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.9318771372317164,
+        "shifted": true,
+        "steps": 200
+      },
+      {
+        "episode": 16,
+        "force_mag": 1.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.9009238592314344,
+        "shifted": true,
+        "steps": 200
+      },
+      {
+        "episode": 17,
+        "force_mag": 1.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.18442288393303924,
+        "shifted": true,
+        "steps": 17
+      },
+      {
+        "episode": 18,
+        "force_mag": 1.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.9178737022614102,
+        "shifted": true,
+        "steps": 200
+      },
+      {
+        "episode": 19,
+        "force_mag": 1.0,
+        "hard": true,
+        "length_scale": 1.0,
+        "mean_reward": 0.9120055273879359,
+        "shifted": true,
+        "steps": 200
+      }
+    ],
+    "policy_kind": "brain",
+    "post_change_delta": 0.0,
+    "recovery_episode": 10,
+    "recurrent_ablation_success_rate": 1.0,
+    "recurrent_ablation_survival": 200.0,
+    "recurrent_contribution": 0.0,
+    "recurrent_edges": 992,
+    "recurrent_full_survival": 200.0,
+    "recurrent_steps": 2,
+    "requested_variant": "frozen",
+    "sensory_edges": 32,
+    "survival_post": 151.3,
+    "survival_pre": 200.0,
+    "trainable_params": 1379,
+    "variants": {
+      "frozen": {
+        "adaptation_gain": -48.69999999999999,
+        "episodes": 20,
+        "initial_weight_l2": 11.46059513092041,
+        "recovery_episode": 10,
+        "survival_post": 151.3,
+        "survival_pre": 200.0,
+        "weight_change_l2": 0.0,
+        "weight_change_max": 0.0
+      },
+      "online": {
+        "adaptation_gain": -48.69999999999999,
+        "episodes": 20,
+        "initial_weight_l2": 11.46059513092041,
+        "recovery_episode": 10,
+        "survival_post": 151.3,
+        "survival_pre": 200.0,
+        "weight_change_l2": 0.3650763928890228,
+        "weight_change_max": 0.17533600330352783
+      }
+    },
+    "weight_change_l2": 0.0,
+    "weight_change_max": 0.0
+  },
+  "notes": "LQR expert (DARE, 742 iterations, K=[-2.78, -5.32, -46.44, -12.05]) balanced 200.0/200 over 100 seeded episodes. Hard protocol: theta~U(-0.15,0.15), other states~U(-0.10,0.10), 6.0 N actuator, seeded +-3.0 N kick for 3 steps at a per-episode step in [60,140]. eval=online forces the hard protocol. BC on 20000 transitions (80/20 split): train 0.868, test 0.866; BC checkpoint reused. brain has 992 recurrent edges (degree 8) and 32 fixed sensory edges (fanout 8/input, scale 1.5, sigmoid init); recurrent weights + readout trained. Online plasticity neutral under the hard protocol (actuator authority 6 -> 1 N): pre 200.0 -> post online 151.3 vs frozen 151.3 (delta +0.0 steps); online recurrent weight change L2 3.65e-01 (3% of the initial L2 1.15e+01, max |dw| 1.75e-01), readout frozen. The difference is small relative to the 200-step horizon, so read it as no measurable benefit rather than a robust effect. Recurrent ablation: zeroing the learned edges leaves survival 200.0 vs 200.0 full (contribution +0.0 steps). The learned recurrence is nearly dispensable, so the plasticity rule has little behavioural leverage: the policy is carried by the sensory projection and the frozen readout. plant change at episode 10: actuator authority 6 -> 1 N.",
+  "seed": 1,
+  "timing": {
+    "collect_seconds": 0.0,
+    "eval_seconds": 5.464741799980402,
+    "total_seconds": 6.338624499971047,
+    "train_seconds": 0.0
+  },
+  "_wall_seconds": 8.130798599915579,
+  "run_id": "cartpole_online_cartpole_online_episodes=20_eval=online_policy=brain_variant=frozen_81d07a4ed8_seed1"
+}

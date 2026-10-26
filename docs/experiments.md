@@ -48,8 +48,10 @@ closed-loop, not teacher-forced.
 | `cartpole_robustness` | 4 | noise, action delay, pole length/mass mismatch, impulse |
 | `cartpole_online` | 6 | frozen vs dopamine-gated online plasticity after a plant change |
 
-105 grid runs in total, plus roughly 77 exploratory runs kept under
-`results/raw/tuning/` and excluded from the aggregates.
+105 grid runs in total, plus roughly 77 exploratory runs. Every payload is
+committed under `results/raw/` (grid runs) and `results/raw/tuning/`
+(exploratory runs, excluded from the aggregates), so `analyze.py` can rebuild
+`results/TABLES.md` without re-running anything.
 
 ```powershell
 python experiments/run_suite.py --list      # grid inventory

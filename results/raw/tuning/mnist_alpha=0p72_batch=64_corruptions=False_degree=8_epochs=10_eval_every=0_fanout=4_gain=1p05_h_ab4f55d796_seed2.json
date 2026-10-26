@@ -1,0 +1,158 @@
+{
+  "experiment": "mnist",
+  "run_id": "mnist_alpha=0p72_batch=64_corruptions=False_degree=8_epochs=10_eval_every=0_fanout=4_gain=1p05_h_ab4f55d796_seed2",
+  "config": {
+    "model": "sparse_brain",
+    "neurons": 256,
+    "degree": 8,
+    "steps": 8,
+    "fanout": 4,
+    "sensory_gain": 2.0,
+    "hidden": 64,
+    "learn_sensory": false,
+    "lr": 0.002,
+    "weight_decay": 0.0001,
+    "epochs": 10,
+    "batch": 64,
+    "train_size": 10000,
+    "test_size": 2000,
+    "alpha": 0.72,
+    "gain": 1.05,
+    "weight_scale": 0.18,
+    "theta": 0.05,
+    "thetas": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "eval_every": 0,
+    "corruptions": false
+  },
+  "seed": 2,
+  "device": "cpu",
+  "metrics": {
+    "test_accuracy": 0.913,
+    "train_accuracy": 0.9162,
+    "trainable_params": 4589,
+    "fixed_params": 17742,
+    "storage_bytes": 50512,
+    "train_seconds": 19.262394499965012,
+    "samples_per_second": 5191.462567137312,
+    "epochs": 10,
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 1.2721257908821106,
+        "train_acc": 0.7263,
+        "seconds": 1.7781257999595255
+      },
+      {
+        "epoch": 2,
+        "loss": 0.5622181492805481,
+        "train_acc": 0.8571,
+        "seconds": 3.5784739998634905
+      },
+      {
+        "epoch": 3,
+        "loss": 0.4495959683418274,
+        "train_acc": 0.8763,
+        "seconds": 5.583823999855667
+      },
+      {
+        "epoch": 4,
+        "loss": 0.4023598968982697,
+        "train_acc": 0.8877,
+        "seconds": 7.493053499842063
+      },
+      {
+        "epoch": 5,
+        "loss": 0.36903742237091064,
+        "train_acc": 0.8949,
+        "seconds": 9.295559599995613
+      },
+      {
+        "epoch": 6,
+        "loss": 0.34942704110145567,
+        "train_acc": 0.8977,
+        "seconds": 11.129834099905565
+      },
+      {
+        "epoch": 7,
+        "loss": 0.33080552413463593,
+        "train_acc": 0.9007,
+        "seconds": 12.970914100063965
+      },
+      {
+        "epoch": 8,
+        "loss": 0.3159704331159592,
+        "train_acc": 0.9044,
+        "seconds": 14.887224500067532
+      },
+      {
+        "epoch": 9,
+        "loss": 0.30260766830444336,
+        "train_acc": 0.9092,
+        "seconds": 16.70201350003481
+      },
+      {
+        "epoch": 10,
+        "loss": 0.2921847710132599,
+        "train_acc": 0.9122,
+        "seconds": 19.262390800053254
+      }
+    ],
+    "p50_ms": 2.282500034198165,
+    "p95_ms": 74.17159993201494,
+    "p99_ms": 74.17159993201494,
+    "mean_ms": 16.299433338766296,
+    "edges": 2019,
+    "sensory_edges": 3136,
+    "degree": 8,
+    "matched_mlp_hidden": 6,
+    "activity": [
+      {
+        "theta": 0.0,
+        "accuracy": 0.9140625,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 1.0,
+        "active_neuron_fraction": 1.0
+      },
+      {
+        "theta": 0.02,
+        "accuracy": 0.912109375,
+        "accuracy_delta_vs_matrix": -0.001953125,
+        "active_edge_fraction": 0.6043938782735884,
+        "active_neuron_fraction": 0.6034460067749023
+      },
+      {
+        "theta": 0.05,
+        "accuracy": 0.91015625,
+        "accuracy_delta_vs_matrix": -0.00390625,
+        "active_edge_fraction": 0.3521733957095097,
+        "active_neuron_fraction": 0.3516225814819336
+      },
+      {
+        "theta": 0.1,
+        "accuracy": 0.908203125,
+        "accuracy_delta_vs_matrix": -0.005859375,
+        "active_edge_fraction": 0.18380246060859337,
+        "active_neuron_fraction": 0.18361949920654297
+      },
+      {
+        "theta": 0.2,
+        "accuracy": 0.90234375,
+        "accuracy_delta_vs_matrix": -0.01171875,
+        "active_edge_fraction": 0.07326504167440565,
+        "active_neuron_fraction": 0.07341289520263672
+      }
+    ],
+    "state_mean": 0.4970628619194031,
+    "state_saturated_fraction": 0.00848388671875
+  },
+  "timing": {
+    "data_seconds": 20.501660200068727,
+    "total_seconds": 20.50170210003853
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "experiment": "mnist",
+  "run_id": "mnist_alpha=0p72_batch=64_corruptions=False_degree=8_epochs=10_eval_every=0_fanout=4_gain=1p05_h_a8521b0b95_seed1",
+  "config": {
+    "model": "sparse_brain",
+    "neurons": 256,
+    "degree": 8,
+    "steps": 8,
+    "fanout": 4,
+    "sensory_gain": 2.0,
+    "hidden": 64,
+    "learn_sensory": false,
+    "lr": 0.002,
+    "weight_decay": 0.0001,
+    "epochs": 10,
+    "batch": 64,
+    "train_size": 2500,
+    "test_size": 2000,
+    "alpha": 0.72,
+    "gain": 1.05,
+    "weight_scale": 0.18,
+    "theta": 0.05,
+    "thetas": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ],
+    "eval_every": 0,
+    "corruptions": false
+  },
+  "seed": 1,
+  "device": "cpu",
+  "metrics": {
+    "test_accuracy": 0.865,
+    "train_accuracy": 0.8908,
+    "trainable_params": 4588,
+    "fixed_params": 17738,
+    "storage_bytes": 50488,
+    "train_seconds": 3.1318860000465065,
+    "samples_per_second": 7982.410598479244,
+    "epochs": 10,
+    "history": [
+      {
+        "epoch": 1,
+        "loss": 1.9920785135269166,
+        "train_acc": 0.5212,
+        "seconds": 0.32858830015175045
+      },
+      {
+        "epoch": 2,
+        "loss": 1.3799795873641967,
+        "train_acc": 0.7524,
+        "seconds": 0.6574113999959081
+      },
+      {
+        "epoch": 3,
+        "loss": 0.9503859298706054,
+        "train_acc": 0.7996,
+        "seconds": 0.959543599979952
+      },
+      {
+        "epoch": 4,
+        "loss": 0.751038281917572,
+        "train_acc": 0.828,
+        "seconds": 1.2596246001776308
+      },
+      {
+        "epoch": 5,
+        "loss": 0.6474780754089355,
+        "train_acc": 0.838,
+        "seconds": 1.5696566000115126
+      },
+      {
+        "epoch": 6,
+        "loss": 0.5903211352348328,
+        "train_acc": 0.8488,
+        "seconds": 1.8856796000618488
+      },
+      {
+        "epoch": 7,
+        "loss": 0.5387828629493714,
+        "train_acc": 0.8644,
+        "seconds": 2.194128000177443
+      },
+      {
+        "epoch": 8,
+        "loss": 0.5031015011787414,
+        "train_acc": 0.8724,
+        "seconds": 2.506213700165972
+      },
+      {
+        "epoch": 9,
+        "loss": 0.47962175273895263,
+        "train_acc": 0.8756,
+        "seconds": 2.8114402999635786
+      },
+      {
+        "epoch": 10,
+        "loss": 0.4532228425502777,
+        "train_acc": 0.8868,
+        "seconds": 3.131882700137794
+      }
+    ],
+    "p50_ms": 0.5154998507350683,
+    "p95_ms": 1.0906998068094254,
+    "p99_ms": 1.0906998068094254,
+    "mean_ms": 0.55781997119387,
+    "edges": 2018,
+    "sensory_edges": 3136,
+    "degree": 8,
+    "matched_mlp_hidden": 6,
+    "activity": [
+      {
+        "theta": 0.0,
+        "accuracy": 0.857421875,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 1.0,
+        "active_neuron_fraction": 1.0
+      },
+      {
+        "theta": 0.02,
+        "accuracy": 0.857421875,
+        "accuracy_delta_vs_matrix": 0.0,
+        "active_edge_fraction": 0.597145345213392,
+        "active_neuron_fraction": 0.5977134704589844
+      },
+      {
+        "theta": 0.05,
+        "accuracy": 0.861328125,
+        "accuracy_delta_vs_matrix": 0.00390625,
+        "active_edge_fraction": 0.32529197670187066,
+        "active_neuron_fraction": 0.32674598693847656
+      },
+      {
+        "theta": 0.1,
+        "accuracy": 0.865234375,
+        "accuracy_delta_vs_matrix": 0.0078125,
+        "active_edge_fraction": 0.16034667484824083,
+        "active_neuron_fraction": 0.1613178253173828
+      },
+      {
+        "theta": 0.2,
+        "accuracy": 0.86328125,
+        "accuracy_delta_vs_matrix": 0.005859375,
+        "active_edge_fraction": 0.05767223407303023,
+        "active_neuron_fraction": 0.058617591857910156
+      }
+    ],
+    "state_mean": 0.5071204900741577,
+    "state_saturated_fraction": 0.0052032470703125
+  },
+  "timing": {
+    "data_seconds": 3.453733599977568,
+    "total_seconds": 3.453775499947369
+  }
+}
