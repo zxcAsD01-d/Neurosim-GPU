@@ -3,8 +3,9 @@
 Hardware: NVIDIA GeForce RTX 5070 Laptop GPU (8 GiB), CUDA 13.1 toolkit,
 PyTorch 2.11 CUDA 13.0, FP32 runtime. Timings are medians after warmup.
 
-Interpretation rules, the cost model and the reproduced CPU reference baseline are
-in [performance](performance.md).
+`Runtime v0.3` labels the measurement snapshot; the package in this repository is
+version 0.1.0. Interpretation rules, the cost model and the reproduced CPU
+reference baseline are in [performance](performance.md).
 
 ## Correctness
 
