@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use NeuroSim GPU in academic work, please cite it using this metadata."
+title: "NeuroSim GPU: GPU-first sparse neural simulation with persistent synaptic currents"
+abstract: >-
+  A research prototype of a fixed-topology sparse neural simulator. It treats the
+  neural core as a sparse linear-algebra workload (O(BM + BN) per tick) and adds
+  bounded-error persistent-current event propagation, regional dopamine chemistry,
+  eligibility-based three-factor plasticity, delayed communication and a
+  multi-rate scheduler, with native fused CUDA kernels and measured performance
+  and accuracy reports.
+type: software
+version: 0.1.0
+date-released: 2026-10-26
+license: Apache-2.0
+keywords:
+  - computational neuroscience
+  - sparse neural simulation
+  - GPU
+  - CUDA
+  - spiking neural network
+  - dopamine
+  - eligibility trace
+  - event-driven simulation
+
+authors:
+  - name: "zxcAsD01"
+
+# repository-code: "<filled in when the public repository exists>"

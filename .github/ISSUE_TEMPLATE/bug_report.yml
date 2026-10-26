@@ -1,0 +1,68 @@
+name: Bug report
+description: Report a crash, wrong result or documentation error
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Performance issues are usually environment issues:
+        please include the exact command, graph size, batch, dtype and device.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: The observed behaviour, including the full error message.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: The smallest script or command that shows the problem.
+      render: python
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: "Python, PyTorch (`torch.__version__`, `torch.version.cuda`), OS, GPU/driver if relevant."
+      placeholder: "Python 3.12.12, torch 2.14.0+cpu, Windows 11"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: Runtime path
+      options:
+        - MatrixRuntime / DopamineMatrixRuntime
+        - HybridPELSRuntime / DopaminePersistentRuntime
+        - Native matrix (CUDA)
+        - Native event (CUDA)
+        - Scheduler / checkpoint / replay
+        - Experiments or benchmarks
+        - Documentation
+        - Not sure
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues
+          required: true
+        - label: I ran `python -m unittest discover -s tests -q`
+          required: false

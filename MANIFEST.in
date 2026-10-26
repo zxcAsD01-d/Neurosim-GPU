@@ -1,0 +1,21 @@
+include LICENSE
+include NOTICE
+include README.md
+include README.zh-CN.md
+include CHANGELOG.md
+include CONTRIBUTING.md
+include CODE_OF_CONDUCT.md
+include CITATION.cff
+include pyproject.toml
+include uv.lock
+
+recursive-include csrc *.cpp *.cu
+recursive-include docs *.md
+recursive-include scripts *.py *.bat
+recursive-include benchmarks *.py
+recursive-include experiments *.py
+recursive-include results *.md *.csv
+recursive-include tests *.py
+
+global-exclude __pycache__/*
+global-exclude *.py[cod]

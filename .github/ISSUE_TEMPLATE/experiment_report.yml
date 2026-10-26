@@ -1,0 +1,70 @@
+name: Experiment report
+description: Share a measurement, a reproduction, or a failed reproduction
+labels: [experiment]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for performance numbers, accuracy probes and
+        reproductions. A number without its stack and command cannot be added to
+        `docs/results.md`.
+
+  - type: textarea
+    id: claim
+    attributes:
+      label: What is being measured
+      description: The hypothesis or the number you are trying to reproduce.
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Exact command
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: stack
+    attributes:
+      label: Stack
+      description: |
+        Device, driver, CUDA toolkit, PyTorch build, Python version, and whether
+        the device was otherwise idle.
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Graph and workload
+      description: N neurons, M synapses (requested and coalesced), batch, dtype, activity level, ticks.
+    validations:
+      required: true
+
+  - type: textarea
+    id: result
+    attributes:
+      label: Result
+      description: Numbers with units, variance across runs, and any anomaly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: artefacts
+    attributes:
+      label: Artefacts
+      description: Paths to JSON/CSV output, logs or plots (attach or link).
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: honesty
+    attributes:
+      label: Interpretation
+      options:
+        - label: The device was isolated (no other GPU workload).
+          required: false
+        - label: I state what this result does **not** show.
+          required: true

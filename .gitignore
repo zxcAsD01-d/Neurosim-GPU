@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+*.so
+*.pyd
+*.dll
+
+# experiment artifacts: datasets are re-downloadable, checkpoints are caches
+data/
+results/raw/
+results/checkpoints/
+*.log
