@@ -14,7 +14,7 @@ promises, what has actually been measured, and what is explicitly out of scope.
 | Understand the runtime and state ownership | [design](design.md) → [architecture](architecture.md) |
 | Build the CUDA kernels | [native-build](native-build.md) |
 | Run the task-level experiments | [experiments](experiments.md) |
-| Check a performance number | [results](results.md) → [efficiency](efficiency.md) → [validation](validation.md) |
+| Check a performance number | [performance](performance.md) → [results](results.md) → [efficiency](efficiency.md) → [validation](validation.md) |
 | Know what is done and what is open | [status](status.md) |
 | Contribute | [../CONTRIBUTING.md](../CONTRIBUTING.md) → [validation](validation.md) |
 
@@ -32,6 +32,7 @@ promises, what has actually been measured, and what is explicitly out of scope.
 | [experiments](experiments.md) | researchers | Task-level probes (MNIST, inverted pendulum), how to run and read them |
 | [gomoku-protocol](gomoku-protocol.md) | researchers | CNN vs sparse-brain task protocol and interpretation limits |
 | [efficiency](efficiency.md) | performance work | Cost formulas, parity definitions, optimization analysis |
+| [performance](performance.md) | everyone quoting numbers | Cost model, GPU parity and event numbers, CPU reference baseline, how to measure |
 | [results](results.md) | everyone quoting numbers | Source of record for accepted measurements and their hardware |
 | [validation](validation.md) | contributors, CI | Required tests, tolerances, benchmark protocol |
 | [status](status.md) | users, contributors | Milestone scorecard and open work |

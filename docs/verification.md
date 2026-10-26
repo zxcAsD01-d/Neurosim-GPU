@@ -17,6 +17,7 @@ recorded in [results](results.md) and cannot be reproduced without a CUDA device
 | Experiment determinism | re-run `--suite mnist_models` and compare | identical accuracy per `(config, seed)` |
 | Cart-pole physics self-test | `python experiments/cartpole_experiments.py --self-test` | **7/7** checks passed (energy drift 1.62e-6 over 200 RK4 steps, LQR 200.0/200) |
 | Cart-pole smoke | `python experiments/cartpole_experiments.py --smoke` | `all_passed` |
+| CPU performance grid | `python benchmarks/performance_suite.py --device cpu --json results/performance_cpu.json` | 12 configurations × 6 runtime rows; payload committed, tables in [performance](performance.md) |
 | Native CUDA validation | `python benchmarks/validate_native.py` | **PASS** on the reference workstation (RTX 5070 Laptop, CUDA 13.1); not runnable on a CPU-only install |
 
 ### What the experiment grid covered
@@ -31,6 +32,9 @@ limitations are in [experiments](experiments.md) and
 ### Reproduction notes
 
 - Tests and experiments are CPU-only and need no extra packages.
+- The performance grid (`benchmarks/performance_suite.py`) runs on CPU or CUDA;
+  its CPU payload is committed as `results/performance_cpu.json`. Latency numbers
+  move with machine load and thread count, throughput ratios much less so.
 - The MNIST suite downloads the official idx files on first use and caches them
   under `data/mnist/`; the directory is ignored by git.
 - Experiment latency numbers depend on machine load; accuracy and survival

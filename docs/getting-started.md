@@ -89,11 +89,18 @@ python experiments/cartpole_experiments.py --smoke
 
 Full grids and the recorded results are described in [experiments](experiments.md).
 
-## GPU benchmarks
+## Benchmarks
 
-The benchmark harness and the accepted numbers live in
-[results](results.md); the commands are in [efficiency](efficiency.md). A short
-version:
+A device-agnostic grid that runs on CPU or CUDA, and reports the tick cost
+against a raw sparse multiplication:
+
+```powershell
+python benchmarks/performance_suite.py --device cpu --json results/performance_cpu.json
+```
+
+The CUDA-only harness and the accepted numbers live in
+[results](results.md); the commands are in [efficiency](efficiency.md) and the
+interpretation in [performance](performance.md). A short version:
 
 ```powershell
 python benchmarks/benchmark.py --neurons 100000 --edges 5000000 --steps 100

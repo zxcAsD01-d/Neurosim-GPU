@@ -94,21 +94,44 @@ Native kernels need a CUDA build of PyTorch and compile on first use:
 runtime still scans all `M` edges per tick — whole-tick event sparsity requires
 eligibility disabled and no weight update on that tick.
 
-## What has been measured
+## Performance
 
-Accepted numbers (hardware, graph size and command recorded with each) are in
-[docs/results.md](docs/results.md); their interpretation is
-[docs/efficiency.md](docs/efficiency.md).
+The core claim fits in one line: **a complete neural tick costs about the same
+as one sparse matrix multiplication of the same size.**
 
-- fixed-core forward at batch 1: **0.74–0.82×** the cost of a same-parameter
-  sparse kernel at 10–25M edges;
-- low-activity event propagation: **3–4.5×** faster than the matrix path near
-  2.6% active edges;
-- MNIST emitted-event threshold: **21% of edges active, −0.12 accuracy points**
-  (forward pass only).
+| N | M | batch | complete neural tick | vs cuSPARSE raw SpMM | vs matching custom SpMM |
+|---:|---:|---:|---:|---:|---:|
+| 166k | 10.00M | 1 | 0.595 ms | **0.82×** | 1.07× |
+| 166k | 24.99M | 1 | 1.350 ms | **0.74×** | 1.03× |
+| 166k | 49.95M | 1 | 2.466 ms | **0.75×** | 0.92× |
+| 50k | 1.00M | 8 | 0.513 ms | 1.15× | 1.12× |
 
-Task-level probes ([docs/experiments.md](docs/experiments.md), full report in
-[results/REPORT.md](results/REPORT.md)):
+RTX 5070 Laptop, CUDA 13.1, FP32, medians after warmup. The neural update
+(tanh, leak, gain, clip) adds 2.8–6.6% over the matching custom SpMM; at batch 1
+the fused tick beats the cuSPARSE denominator because it fuses work cuSPARSE
+cannot.
+
+- **Event sparsity:** with 2.64% of edges emitting (`theta=0.05`), the native
+  event kernel is **3.0–4.5×** faster than the matrix tick (0.200 ms vs
+  0.595 ms at 10M edges).
+- **Training:** forward + backward is **1.075×** a same-parameter sparse RNN with
+  the native pointwise adjoint (93% efficiency); the missing piece is a fused
+  whole-rollout adjoint.
+- **Memory:** 24 B/synapse mutable, ≈16 B/synapse read-only; 125M edges projects
+  to 3.0 GB / 2.0 GB. The 125M point itself has **not** been executed end to end.
+- **CPU reference baseline** (no GPU required): the tick stays at 1.18–1.82× a raw
+  sparse multiplication, but the Python event scatter is 5–80× slower than the
+  dense path — event sparsity is a native-kernel property, not a reference-path
+  one.
+
+Full tables, methodology, the cost model and the reproduction commands:
+[docs/performance.md](docs/performance.md). Accepted GPU numbers and their
+hardware: [docs/results.md](docs/results.md).
+
+### Validation on real tasks
+
+These probes check that the stack learns and controls; they are not performance
+measurements ([details](docs/experiments.md), [report](results/REPORT.md)):
 
 | Probe | Result |
 |---|---|

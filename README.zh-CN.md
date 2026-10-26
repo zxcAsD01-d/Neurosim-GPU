@@ -81,17 +81,37 @@ flowchart LR
 原生内核需要 CUDA 版 PyTorch，首次调用时编译，见[原生构建](docs/native-build.md)。
 注意：启用 eligibility 时多巴胺运行时每个 tick 仍扫描全部 `M` 条边。
 
-## 已测结果
+## 性能
 
-带硬件、图规模与命令的正式数字见[docs/results.md](docs/results.md)，解读见
-[docs/efficiency.md](docs/efficiency.md)。
+核心主张只有一句话：**一个完整神经 tick 的成本约等于一次同规模稀疏矩阵乘法。**
 
-- 固定核前向（B=1）：10–25M 边时为同参数稀疏核成本的 **0.74–0.82×**；
-- 低活动事件传播：活跃边约 2.6% 时比矩阵路径快 **3–4.5×**；
-- MNIST 发放阈值：**21% 的边活跃，精度损失 0.12 个点**（仅前向）。
+| N | M | batch | 完整神经 tick | 对比 cuSPARSE 原始 SpMM | 对比同参数自研 SpMM |
+|---:|---:|---:|---:|---:|---:|
+| 166k | 10.00M | 1 | 0.595 ms | **0.82×** | 1.07× |
+| 166k | 24.99M | 1 | 1.350 ms | **0.74×** | 1.03× |
+| 166k | 49.95M | 1 | 2.466 ms | **0.75×** | 0.92× |
+| 50k | 1.00M | 8 | 0.513 ms | 1.15× | 1.12× |
 
-任务级实验（详见[docs/experiments.md](docs/experiments.md) 与
-[results/REPORT.md](results/REPORT.md)）：
+RTX 5070 Laptop、CUDA 13.1、FP32，warmup 后取中位数。神经更新（tanh、leak、gain、
+clip）只比同参数自研 SpMM 多 2.8–6.6%；batch=1 时融合 tick 反而快于 cuSPARSE
+分母，因为它把 cuSPARSE 无法融合的部分做在了同一个核里。
+
+- **事件稀疏**：`theta=0.05`、约 2.64% 的边发射时，原生事件核比矩阵 tick 快
+  **3.0–4.5×**（10M 边：0.200 ms vs 0.595 ms）。
+- **训练**：前向+反向是同参数稀疏 RNN 的 **1.075×**（93% 效率，原生逐点 adjoint）；
+  还差的是整段 rollout 的融合 adjoint。
+- **内存**：可变拓扑 24 B/突触，只读视图约 16 B/突触；125M 边外推为 3.0 GB /
+  2.0 GB。**125M 这个点本身尚未端到端跑过。**
+- **CPU 参考基线**（无需 GPU）：tick 仍是原始稀疏乘法的 1.18–1.82×，但 Python
+  事件散射比稠密路径慢 5–80×——事件稀疏是原生内核的性质，不是参考路径的。
+
+完整表格、方法论、成本模型与复现命令见[docs/performance.md](docs/performance.md)；
+带硬件的正式 GPU 数字见[docs/results.md](docs/results.md)。
+
+### 真实任务上的验证
+
+这些探针验证"能不能学会/控制"，不是性能测量（详见[docs/experiments.md](docs/experiments.md)
+与 [results/REPORT.md](results/REPORT.md)）：
 
 | 实验 | 结果 |
 |---|---|
