@@ -27,6 +27,7 @@ state = clamp(alpha * state + (1 - alpha) * gain * tanh(current + drive))
 | 依赖 | 仅 PyTorch ≥ 2.7 |
 | Python | 3.10 – 3.13 |
 | 许可 | Apache-2.0 |
+| tick 成本 | 10–50M 边时为同参数 cuSPARSE 层的 0.74–0.82×（GPU） |
 | 状态 | v0.1.0 研究原型 |
 
 ## 快速开始
