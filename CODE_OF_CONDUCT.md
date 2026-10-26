@@ -59,9 +59,10 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported privately to the project maintainer at
-liurunnning@gmail.com. All complaints will be reviewed and
-investigated promptly and fairly.
+reported privately to the project maintainer through GitHub: open a private
+security advisory from the repository's Security tab, or contact the maintainer's
+GitHub account directly. All complaints will be reviewed and investigated
+promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the
 reporter of any incident.
