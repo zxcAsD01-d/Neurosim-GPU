@@ -37,8 +37,12 @@ dependencies = ["torch>=2.7"]
 [project.optional-dependencies]
 dev = ["build>=1.2"]
 
-# [project.urls] is intentionally omitted until the public repository exists.
-# Add "Homepage", "Documentation", "Issues" and "Changelog" here at that point.
+[project.urls]
+Homepage = "https://github.com/zxcAsD01-d/Neurosim-GPU"
+Documentation = "https://github.com/zxcAsD01-d/Neurosim-GPU/tree/main/docs"
+Repository = "https://github.com/zxcAsD01-d/Neurosim-GPU"
+Issues = "https://github.com/zxcAsD01-d/Neurosim-GPU/issues"
+Changelog = "https://github.com/zxcAsD01-d/Neurosim-GPU/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["src"]

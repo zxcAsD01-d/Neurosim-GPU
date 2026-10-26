@@ -1,5 +1,9 @@
 # NeuroSim GPU
 
+[![CI](https://github.com/zxcAsD01-d/Neurosim-GPU/actions/workflows/ci.yml/badge.svg)](https://github.com/zxcAsD01-d/Neurosim-GPU/actions/workflows/ci.yml)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
+
 GPU-first sparse neural simulation: a fixed-topology neural core with
 persistent-current event propagation, regional dopamine chemistry,
 eligibility-based plasticity and a multi-rate scheduler.
