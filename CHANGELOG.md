@@ -6,6 +6,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Minimum Python is now **3.11**. Python 3.10 is end-of-life and blocked the patched
+  `filelock` release that the lockfile needs.
+- Updated `filelock` to 4.2.4 and `setuptools` to 84.2.1 (security advisories), and
+  bumped the CI actions to `actions/checkout@v7` and `actions/setup-python@v7`.
+
 ## [0.1.0] - 2026-10-26
 
 Initial public prototype.

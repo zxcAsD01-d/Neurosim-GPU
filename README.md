@@ -27,7 +27,7 @@ state = clamp(alpha * state + (1 - alpha) * gain * tanh(current + drive))
 | 运行时 | 可移植矩阵 · 持久电流（PELS） · 融合 CUDA 矩阵 · 融合 CUDA 事件 |
 | 回归测试 | 107 个（无 CUDA 时跳过 1 个） |
 | 依赖 | 仅 PyTorch ≥ 2.7 |
-| Python | 3.10 – 3.13 |
+| Python | 3.11 – 3.13 |
 | 许可 | Apache-2.0 |
 | tick 成本 | 10–50M 边时为同参数 cuSPARSE 层的 0.74–0.82×（GPU） |
 | 状态 | v0.1.0 研究原型 |

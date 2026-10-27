@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/zxcAsD01-d/Neurosim-GPU/actions/workflows/ci.yml/badge.svg)](https://github.com/zxcAsD01-d/Neurosim-GPU/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
 
 **English** | [中文](README.md)
 
@@ -30,7 +30,7 @@ state and documented cost.
 | Runtimes | portable matrix · persistent current (PELS) · native fused matrix · native event |
 | Regression tests | 107 (1 CUDA-only test skipped on CPU) |
 | Dependencies | PyTorch ≥ 2.7, nothing else |
-| Python | 3.10 – 3.13 |
+| Python | 3.11 – 3.13 |
 | License | Apache-2.0 |
 | Tick cost | 0.74–0.82× a same-parameter cuSPARSE layer at 10–50M edges (GPU) |
 | Status | v0.1.0 research prototype |

@@ -4,7 +4,8 @@
 
 | Component | Requirement |
 |---|---|
-| Python | 3.10 or newer |
+| Python | 3.11 or newer |
+
 | PyTorch | 2.7 or newer (`pip install torch`; a CUDA build is only needed for the native kernels) |
 | C++ toolchain | optional — only for the native CUDA/C++ extension, see [native-build](native-build.md) |
 
