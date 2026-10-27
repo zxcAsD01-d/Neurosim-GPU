@@ -165,7 +165,7 @@ Each tick produces a state delta $\Delta s = s_{t+1} - s^{\text{emit}}$. Edges
 whose source delta is below a threshold $\theta$ are not traversed; instead the
 persistent current is updated by scattering only the retained deltas:
 \begin{equation}
-  c \leftarrow c + W\,\mathbb{1}[|\Delta s| \ge \theta] \odot \Delta s .
+  c \leftarrow c + W\,\mathbf{1}[|\Delta s| \ge \theta] \odot \Delta s .
 \end{equation}
 With $\theta = 0$ this is the matrix path. With $\theta > 0$ the error is bounded
 per tick by the suppressed delta mass, but it compounds across ticks; the
@@ -285,7 +285,7 @@ The mutable topology stores two endpoints, two weight views, two row-pointer
 arrays and a permutation: $24M + 8N$ bytes, or $3.0$\,GB at $125$M synapses. A
 read-only inference view uses one weight array plus event indices, about
 $16M + 8N$ bytes, or $2.0$\,GB. Measured bytes per synapse range from $24.2$ to
-$25.0$ for $N = 2$k--$32$k, consistent with the layout. These constants are
+$25.0$ for $N$ between 2k and 32k, consistent with the layout. These constants are
 structural, not implementation accidents: removing a view or an index array
 changes the constant, not the scaling.
 
