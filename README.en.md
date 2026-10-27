@@ -204,6 +204,32 @@ scale or self-play strength; its performance numbers are bound to the hardware
 and graph size recorded with them, and CPU results are about correctness and
 parameter efficiency rather than throughput. See [docs/scope.md](docs/scope.md).
 
+## What we claim (and what would refute it)
+
+One sentence:
+
+> On a GPU, a fixed-topology sparse neural simulator can keep the per-tick
+> neural-update overhead to a few percent of a same-size sparse multiplication,
+> and can cut tick cost at low activity with native event propagation.
+
+The full ledger — every claim, its status (supported / partial / unverified /
+refuted), the evidence, and the experiment that would falsify it — is in
+[docs/claims.md](docs/claims.md). Three items remain open: 125M synapses end to
+end, an activity sweep with automatic path selection, and a same-task comparison
+against a mature simulator.
+
+## Relationship to the other "NeuroSim" projects
+
+This repository is **unrelated** to, and does not compete with:
+
+- [grasp-lyrl/neurosim](https://github.com/grasp-lyrl/neurosim) — a simulator for
+  neuromorphic robot perception;
+- [neurosim/neurosim](https://github.com/neurosim/neurosim) — a compute-in-memory
+  hardware evaluation framework.
+
+NeuroSim-GPU studies the cost/accuracy trade-off of fixed-topology sparse rate
+dynamics, persistent-current event propagation and regional neurochemistry. No
+performance ranking against those projects is claimed.
 ## Roadmap
 
 - Execute the 125M-edge prebuilt-topology point end to end.

@@ -51,6 +51,14 @@ Relative to the *matching* custom SpMM, the neural dynamics adds 2.9–6.6% at
 10–25M edges. At batch one the complete tick is 18–26% faster than the cuSPARSE
 denominator because it fuses operations cuSPARSE cannot.
 
+> **What the denominator is.** `raw-spmm` is the PyTorch CSR multiplication
+> (`torch.sparse.mm` over the topology's CSR arrays) as invoked by our harness,
+> **not** a hand-tuned cuSPARSE kernel. PyTorch's sparse CSR support is beta and
+> may not select the fastest library path, so `0.74–0.82×` means "faster than the
+> library call we can express from PyTorch", not "faster than cuSPARSE at its
+> best". The claim that holds either way is the matching-SpMM comparison: the
+> neural update adds 2.8–6.6%.
+
 Event path after 20 warmup ticks at `theta=0.05` (≈2.64% of edges emitting):
 
 | N | M | B | matrix tick | native event tick | speedup |
@@ -143,6 +151,9 @@ scripts\native_env.bat python benchmarks/realtime_latency.py --mode matrix
 
 # Forward + backward parity against a same-parameter sparse RNN
 python benchmarks/training_parity.py
+
+# Where does the event path overtake the matrix path? (device-agnostic)
+python benchmarks/activity_sweep.py --device cpu --json results/activity_cpu.json
 ```
 
 Record with every number: device and driver, CUDA toolkit and PyTorch build,
