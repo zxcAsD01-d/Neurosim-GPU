@@ -1,0 +1,25 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Robustness grid on the hard protocol (40 episodes per condition, 2 seeds): mean survival steps out of 200. Both policies sit at the ceiling for most conditions; the failures are informative.}
+\label{tab:robustness}
+\begin{tabular}{lrr}
+\toprule
+Condition & Sparse brain & MLP \\
+\midrule
+nominal & 200.0 & 200.0 \\
+impulse & 200.0 & 200.0 \\
+noise=0.1 & 197.3 & 200.0 \\
+noise=0.2 & 102.2 & 127.9 \\
+delay=1 & 200.0 & 200.0 \\
+delay=2 & 200.0 & 200.0 \\
+delay=4 & 162.8 & 200.0 \\
+delay=6 & 37.2 & 29.1 \\
+length\_scale=0.5 & 200.0 & 200.0 \\
+length\_scale=2 & 193.7 & 200.0 \\
+length\_scale=4 & 198.7 & 38.8 \\
+mass\_scale=0.3 & 200.0 & 200.0 \\
+mass\_scale=3 & 200.0 & 200.0 \\
+\bottomrule
+\end{tabular}
+\end{table}

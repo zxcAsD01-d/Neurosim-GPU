@@ -1,0 +1,18 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Cart-pole closed-loop evaluation (100 episodes, 3 seeds). Survival is out of 200 steps; success requires $\geq 195$ steps. Angle RMS is in degrees. BC accuracy is the held-out imitation accuracy.}
+\label{tab:cartpole}
+\begin{tabular}{llrrrr}
+\toprule
+Policy & Protocol & Survival & Success (\%) & Angle RMS & BC (\%) \\
+\midrule
+LQR & nominal & 200.0 & 100 & 0.36 & -- \\
+MLP (BC) & nominal & 200.0 & 100 & 0.36 & 96.7 \\
+Sparse brain (BC) & nominal & 200.0 & 100 & 0.36 & 88.7 \\
+LQR & hard & 200.0 & 100 & 0.96 & -- \\
+MLP (BC) & hard & 200.0 & 100 & 0.97 & 96.2 \\
+Sparse brain (BC) & hard & 200.0 & 100 & 1.12 & 85.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
