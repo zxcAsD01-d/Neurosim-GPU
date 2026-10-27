@@ -15,6 +15,7 @@ promises, what has actually been measured, and what is explicitly out of scope.
 | Build the CUDA kernels | [native-build](native-build.md) |
 | Run the task-level experiments | [experiments](experiments.md) |
 | Check a performance number | [performance](performance.md) → [results](results.md) → [efficiency](efficiency.md) → [validation](validation.md) |
+| Know what is claimed, and what would refute it | [claims](claims.md) |
 | Know what is done and what is open | [status](status.md) |
 | Contribute | [../CONTRIBUTING.md](../CONTRIBUTING.md) → [validation](validation.md) |
 
@@ -35,6 +36,7 @@ promises, what has actually been measured, and what is explicitly out of scope.
 | [performance](performance.md) | everyone quoting numbers | Cost model, GPU parity and event numbers, CPU reference baseline, how to measure |
 | [results](results.md) | everyone quoting numbers | Source of record for accepted measurements and their hardware |
 | [validation](validation.md) | contributors, CI | Required tests, tolerances, benchmark protocol |
+| [claims](claims.md) | reviewers, users | Claim ledger: status of each claim, evidence, falsifier |
 | [status](status.md) | users, contributors | Milestone scorecard and open work |
 | [verification](verification.md) | maintainers | Release verification log (what was run, on which stack, what passed) |
 

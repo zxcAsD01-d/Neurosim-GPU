@@ -246,6 +246,13 @@ $N$ & $M$ & $B$ & raw (ms) & canonical (ms) & fused (ms) & fused/raw \\
 \end{tabular}
 \end{table}
 
+A caveat on the library denominator: ``\texttt{cuSPARSE}'' here means the
+PyTorch CSR invocation (\texttt{torch.sparse.mm}), whose sparse support is in
+beta and may not select the fastest library routine. $\rho_{\text{lib}} < 1$
+therefore says that fusion beats the library call we can express from PyTorch;
+it is not a claim about \texttt{cuSPARSE} at its best. The matching ratio is the
+robust statement, and we recommend reporting it alongside the library ratio.
+
 At batch eight the picture changes: $1.148\times$ the library denominator and
 $1.115\times$ the matching SpMM. The elementwise work now has more data per
 synapse to move, and the fused kernel loses the batch-one advantage. This is the
