@@ -393,7 +393,7 @@ def main() -> None:
         FIGURES / "tick_parity.tex": fig_tick(),
     }
     for path, text in outputs.items():
-        path.write_text(text, encoding="utf-8")
+        path.write_text(text, encoding="utf-8", newline="\n")
         print(f"wrote {path.relative_to(ROOT)} ({len(text)} bytes)")
 
 
