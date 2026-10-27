@@ -17,6 +17,8 @@ recursive-include benchmarks *.py
 recursive-include experiments *.py
 recursive-include results *.md *.csv
 recursive-include tests *.py
+recursive-include paper *.tex *.bib *.csv *.md *.py
+include paper/main.pdf
 
 global-exclude __pycache__/*
 global-exclude *.py[cod]

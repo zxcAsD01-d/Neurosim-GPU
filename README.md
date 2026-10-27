@@ -170,6 +170,7 @@ results/            报告、聚合表、原始载荷
 | [成本模型](docs/efficiency.md) · [结果](docs/results.md) · [验证](docs/validation.md) | 成本公式、已测数字、验收标准 |
 | [实验](docs/experiments.md) · [五子棋协议](docs/gomoku-protocol.md) | 任务级实验与协议 |
 | [状态](docs/status.md) · [发布验证](docs/verification.md) | 里程碑记分卡、验证记录 |
+| [技术报告](paper/main.pdf) | 成本归一化评估论文；LaTeX 源码与生成脚本在 paper/ |
 
 ## 边界声明
 

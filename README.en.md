@@ -193,6 +193,7 @@ Start at [docs/index.md](docs/index.md). The short version:
 | [efficiency](docs/efficiency.md) · [results](docs/results.md) · [validation](docs/validation.md) | cost model, accepted measurements, acceptance criteria |
 | [experiments](docs/experiments.md) · [gomoku-protocol](docs/gomoku-protocol.md) | task-level probes and protocols |
 | [status](docs/status.md) · [verification](docs/verification.md) | milestone scorecard, release verification log |
+| [Technical report](paper/main.pdf) | cost-normalized evaluation paper; LaTeX source and generator in paper/ |
 
 中文说明见 [README.md](README.md)。
 

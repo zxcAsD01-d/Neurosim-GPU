@@ -13,3 +13,12 @@ dist/
 data/
 results/checkpoints/
 *.log
+
+# LaTeX build artifacts (the compiled PDF is committed)
+paper/main.aux
+paper/main.bbl
+paper/main.blg
+paper/main.log
+paper/main.out
+paper/main.xdv
+paper/main.synctex.gz

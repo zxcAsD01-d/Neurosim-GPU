@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\small
+\caption{MNIST test accuracy (10{,}000 training samples, 10 epochs, 3 seeds; mean $\pm$ population standard deviation). ``Params'' counts trainable scalars; ``synapses'' counts coalesced edges of the fixed topology.}
+\label{tab:models}
+\begin{tabular}{lrrr}
+\toprule
+Model & Test accuracy (\%) & Params & Synapses \\
+\midrule
+Logistic regression & 91.8\,$\pm$\,0.3 & 7,850 & -- \\
+MLP, $h=6$ & 87.3\,$\pm$\,0.9 & 4,780 & -- \\
+MLP, $h=64$ & 94.7\,$\pm$\,0.0 & 50,890 & -- \\
+Sparse brain ($N{=}256$, $d{=}8$, $T{=}8$) & 91.1\,$\pm$\,0.2 & 4,586 & 2,016 \\
+Dense RNN ($N{=}256$, $T{=}8$) & 95.0\,$\pm$\,0.3 & 269,066 & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
