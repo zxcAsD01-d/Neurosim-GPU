@@ -621,7 +621,7 @@ token → brain → readout → (drive=readout) × 4 thought ticks → decode
 找到并使用了本地 R1 蒸馏数据：
 
 ```text
-F:/归档/data/train_data/distill_r1_110k.jsonl
+本地 R1 蒸馏数据（676 MB，不提交）
 ```
 
 - 676 MB，字段 `input`、`reasoning_content`、`content`；

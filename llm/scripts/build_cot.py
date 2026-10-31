@@ -2,7 +2,7 @@
 """Build a small CoT corpus from the local R1-distillation file.
 
 Source (not committed):
-  F:/归档/data/train_data/distill_r1_110k.jsonl
+  local R1-distillation JSONL (not committed)
 Fields: input, reasoning_content, content.
 
 The output uses a deterministic prompt/answer format:
@@ -23,7 +23,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--source",
-        default="F:/归档/data/train_data/distill_r1_110k.jsonl",
+        default="data/cot_r1_source.jsonl",
     )
     parser.add_argument("--output", default="data/cot_r1")
     parser.add_argument("--count", type=int, default=4000)

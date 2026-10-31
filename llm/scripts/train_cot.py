@@ -299,7 +299,7 @@ def main() -> int:
         "before": before,
         "after": after,
         "history": history,
-        "source": "F:/归档/data/train_data/distill_r1_110k.jsonl",
+        "source": "local R1-distillation corpus (not committed)",
         "caveat": (
             "greedy output; CoT target format is synthetic; arithmetic transfer "
             "is a small synthetic test"
