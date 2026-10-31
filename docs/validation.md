@@ -8,10 +8,13 @@
 python -m unittest discover -s tests -v
 ```
 
-The current suite contains 107 tests across sparse dynamics, PELS, error
+The current suite contains 174 tests across sparse dynamics, PELS, error
 budgets, dopamine chemistry/receptors/plasticity, delayed communication,
-migration, structural connectome updates, and the Gomoku environment/learning
-probe. CPU and CUDA are both exercised where a CUDA device is available.
+migration, structural connectome updates, the Gomoku environment/learning
+probe, and the Cortex-LM pipeline contract. CPU and CUDA are both exercised
+where a CUDA device is available; one CUDA-only test skips without a GPU and
+eleven Cortex-LM tests skip when the optional `transformers` dependency is
+absent.
 
 The focused task-level checks are:
 

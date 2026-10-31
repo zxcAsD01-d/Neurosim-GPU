@@ -14,7 +14,7 @@ What Does a Neural Simulation Tick Cost? A Cost-Normalized Evaluation of a Spars
 **Authors**
 
 ```text
-zxcAsD01
+The NeuroSim GPU authors
 ```
 
 > arXiv requires an author name and, for a first submission, usually an

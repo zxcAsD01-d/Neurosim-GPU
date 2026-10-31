@@ -12,7 +12,14 @@ dist/
 # experiment artifacts: datasets are re-downloadable, checkpoints are caches
 data/
 results/checkpoints/
+runs/
 *.log
+
+# local, machine-specific demo assets (contain host paths)
+demo/
+
+# local exploratory probe images
+results/str_samples/
 
 # LaTeX build artifacts (the compiled PDF is committed)
 paper/main.aux

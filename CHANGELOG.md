@@ -6,12 +6,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Cortex-LM pipeline: Qwen3-0.6B keeps its first 3 and last 2 blocks, the middle
+  23 blocks are replaced by a 1024-neuron dense recurrent core initialised from
+  the removed blocks' linearised residual maps. Includes JSON configs, streaming
+  JSONL corpus loading, checkpoints, dry-run/training/evaluation CLIs and
+  regression tests. A short training run on a MiniMind subset is included as an
+  artifact, not as a language-capability claim.
+
 ### Changed
 
-- Minimum Python is now **3.11**. Python 3.10 is end-of-life and blocked the patched
-  `filelock` release that the lockfile needs.
+- Minimum Python is now **3.10**; CI covers 3.10 and 3.12.
 - Updated `filelock` to 4.2.4 and `setuptools` to 84.2.1 (security advisories), and
-  bumped the CI actions to `actions/checkout@v7` and `actions/setup-python@v7`.
+  updated the CI actions to `actions/checkout@v4` and `actions/setup-python@v5`.
 
 ## [0.1.0] - 2026-10-26
 

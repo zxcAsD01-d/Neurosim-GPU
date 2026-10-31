@@ -1,3 +1,12 @@
+from pathlib import Path as _Path
+
+# The LLM subproject lives under ``llm/`` so the repository keeps the core
+# simulator and the Cortex-LM pipeline separate while both share one importable
+# package namespace.
+_LLM_PACKAGE_ROOT = _Path(__file__).resolve().parents[2] / "llm" / "src" / "neurosim_gpu"
+if _LLM_PACKAGE_ROOT.is_dir():
+    __path__.append(str(_LLM_PACKAGE_ROOT))
+
 from .budget import UniformErrorBudget, uniform_error_budget
 from .chemistry import RegionalDopamineField
 from .cost_model import CostModel, estimate_cost

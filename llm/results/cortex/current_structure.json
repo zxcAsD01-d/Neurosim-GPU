@@ -1,0 +1,30 @@
+{
+  "checkpoint": "runs/cortex_stage3/final.pt",
+  "step": 21200,
+  "architecture": {
+    "neurons": 1024,
+    "compartments": 1,
+    "rate_units": true,
+    "ticks_per_token": 2,
+    "readout": "last",
+    "regions": 8
+  },
+  "geometry": {
+    "mean_neuron_distance": 1.0,
+    "plate_distance": 50.0,
+    "plate_side": 4.525483399593904,
+    "volume": 1024.0,
+    "z_mean": 25.28352165222168,
+    "nearest_neighbor_mean": 0.581818699836731
+  },
+  "connections": {
+    "edges": 65536,
+    "density": 0.0625,
+    "edges_per_neuron": 64,
+    "self_loops": 1022,
+    "positive_fraction": 0.3488006591796875,
+    "edge_length_mean": 2.9271903038024902,
+    "edge_length_max": 9.656673431396484
+  },
+  "caveat": "positions and edge mask are non-persistent buffers; this is the state after reload, not the exact training trajectory"
+}

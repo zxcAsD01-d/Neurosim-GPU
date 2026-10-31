@@ -77,7 +77,7 @@ GPU 相对 CPU 的加速：同等 w16 配置 **542 s → 66 s（约 8×）**。
 ## 5. 复现命令
 
 ```powershell
-$py = "C:\Users\38224\AppData\Local\Programs\Python\Python313\python.exe"
+$py = "python"
 
 # GPU 单模型（w32，约 70 秒）
 & $py experiments\mnist_optimized.py `
