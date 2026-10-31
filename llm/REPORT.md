@@ -614,7 +614,62 @@ token → brain → readout → (drive=readout) × 4 thought ticks → decode
 - 数据 `data/qa_arith`、`data/qa_simple`（本地，不入库）
 - 训练指标 `runs/cortex_qa*/metrics.json`（本地，不入库）
 
-## 16. 结论
+## 16. 真实 R1-CoT 数据训练
+
+### 16.1 数据
+
+找到并使用了本地 R1 蒸馏数据：
+
+```text
+F:/归档/data/train_data/distill_r1_110k.jsonl
+```
+
+- 676 MB，字段 `input`、`reasoning_content`、`content`；
+- 取 3600 train / 400 val，prompt 唯一；
+- 格式：
+  ```text
+  用户：<input>
+  助手：<reasoning_content>
+  最终答案：<content>
+  ```
+- 只监督 prompt 之后的 reasoning + final answer；
+- greedy 输出，64 token。
+
+![真实 CoT 训练](results/cortex/cot_training.png)
+
+### 16.2 结果
+
+120 步，batch 1，max length 512，lr 1e-4：
+
+| 指标 | before | after |
+|---|---:|---:|
+| CoT format rate（含“最终答案：”） | 0% | **0%** |
+| CoT similarity | 0.048 | **0.066** |
+| CoT latency / answer | 2.87 s | **5.14 s** |
+| arithmetic transfer accuracy | 0% | **0%** |
+| arithmetic latency | 0.208 s | 0.693 s |
+
+生成样例退化为重复：
+
+```text
+嗯，我需要检查一下这个代码是否正确。首先，我需要检查这个代码是否正确……
+约翰去商店买冰沙，买了6美元。他买了6美元，他买了6美元……
+```
+
+### 16.3 判断
+
+**这次“用真实 CoT 数据训练思维”失败了，不能算学会推理。**
+
+原因：
+
+- 120 步 × batch1 只有 120 个样本，远不足以覆盖 3600 个长 CoT；
+- 512 token 目标里有大量长推理，模型先在重复/格式上退化；
+- 3+2 冻结解码器 + 1024 脑的容量不足；
+- 没有 curriculum：应该从短 CoT、单步、最终答案开始；
+- CoT 数据分布与 stage3 的预训练分布差距大，缺少 SFT 过渡；
+- greedy 输出虽被约束，但模型没有学会“最终答案：”这个结构。
+
+## 17. 结论
 
 
 
