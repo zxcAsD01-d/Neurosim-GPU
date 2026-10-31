@@ -158,6 +158,9 @@ tokens → [embedding + first 3 blocks] → [1024 neurons, W 1024×1024] → [la
 
 ![Cortex-LM current neuron structure, positions and connections](llm/results/cortex/current_structure.png)
 
+Continuous-run population activity (teacher-forced vs zero-drive autonomous,
+with human EEG band references): [brainwaves.png](llm/results/cortex/brainwaves.png).
+
 **Status: the 3+2 split, transplant, 20k run, open-loop readout, spatial /
 loss-driven rewiring, the temporal/memory stage, the biologically inspired
 memory stage and open-loop consistency training are complete.** The 20k run with
