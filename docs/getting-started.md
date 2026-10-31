@@ -26,7 +26,7 @@ python -m pip install -e .
 python -m unittest discover -s tests -v
 ```
 
-Expect `175 tests` with one skip when no CUDA device is visible (the skip is a
+Expect `177 tests` with one skip when no CUDA device is visible (the skip is a
 CUDA topology-transfer check) and eleven optional-dependency skips when
 `transformers` is not installed. The suite takes a few seconds on CPU.
 
