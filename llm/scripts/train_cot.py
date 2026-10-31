@@ -73,7 +73,8 @@ class CoTData:
 def final_answer(text: str) -> str:
     marker = "最终答案："
     if marker in text:
-        return text.split(marker, 1)[1].strip()
+        rest = text.split(marker, 1)[1].strip()
+        return rest.split("\n", 1)[0].strip()
     return text.strip()
 
 
