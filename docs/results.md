@@ -19,7 +19,7 @@ reference baseline are in [performance](performance.md).
   is independently checked against `W @ emitted_state`.
 - Signed-weight current budgets use `abs(W)` and pass their allocation test.
 - The historical core-runtime table was produced with 90 passing tests; the
-  current complete Python suite contains 175 tests (1 CUDA-only and 11 optional
+  current complete Python suite contains 177 tests (1 CUDA-only and 11 optional
   `transformers` skips on a base install). Native CUDA validation additionally
   covers modulated matrix/event paths, analytic local backward, fused
   eligibility, nonzero dopamine learning, both weight views and topology-version

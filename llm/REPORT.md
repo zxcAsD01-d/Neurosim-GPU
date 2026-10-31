@@ -408,7 +408,32 @@ L = L_lm
 4. 离线 replay 到皮层 W；
 5. 与联合函数的 time/question 头共享读出。
 
-## 12. 结论
+## 12. 自适应内部时间（halting）
+
+逐 token 训练的下一步是把固定 6→2 tick 换成可学习的 halting：
+
+![自适应 halting](results/cortex/halting_training.png)
+
+- 每个 token 最多 8 次内部调用（每次调用 2 个 tick）；
+- halting head 输出每步停止概率；
+- 训练用 soft halting 权重，读出是各步 readout 的加权和；
+- 目标 tick 数从 8 线性降到 2；
+- 加 `(expected_ticks - target)^2` 的预算损失；
+- 40 步，12 token/步，batch 1。
+
+| 指标 | 训练前 | 训练后 |
+|---|---:|---:|
+| language CE | 10.23 | **8.03** |
+| expected ticks | 6.08 | **2.89** |
+| hard ticks | 6.25 | **2.70** |
+| time-perception MAE | 0.396 | **0.366** |
+
+这是一次**正向的机制验证**：模型确实学会了在同一个 token 上少用内部时间，
+同时语言 CE 没有变差。但它仍然是预算 8 的课程，不是真正“无限时间”；halting
+在前期几乎不降，后期才跟着 target 收紧。时间感知仍然很弱，question head 也
+没有解决。
+
+## 13. 结论
 
 
 

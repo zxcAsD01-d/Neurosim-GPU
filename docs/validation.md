@@ -8,7 +8,7 @@
 python -m unittest discover -s tests -v
 ```
 
-The current suite contains 175 tests across sparse dynamics, PELS, error
+The current suite contains 177 tests across sparse dynamics, PELS, error
 budgets, dopamine chemistry/receptors/plasticity, delayed communication,
 migration, structural connectome updates, the Gomoku environment/learning
 probe, and the Cortex-LM pipeline contract. CPU and CUDA are both exercised

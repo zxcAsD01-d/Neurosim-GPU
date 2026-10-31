@@ -25,7 +25,7 @@ state = clamp(alpha * state + (1 - alpha) * gain * tanh(current + drive))
 | | |
 |---|---|
 | 运行时 | 可移植矩阵 · 持久电流（PELS） · 融合 CUDA 矩阵 · 融合 CUDA 事件 |
-| 回归测试 | 175 个（无 CUDA 跳过 1 个；无 transformers 跳过 11 个） |
+| 回归测试 | 177 个（无 CUDA 跳过 1 个；无 transformers 跳过 11 个） |
 | 依赖 | 仅 PyTorch ≥ 2.7（`cortex` 的 HF 路径需可选 `transformers`） |
 | Python | 3.10 – 3.13 |
 | 许可 | Apache-2.0 |
@@ -36,7 +36,7 @@ state = clamp(alpha * state + (1 - alpha) * gain * tanh(current + drive))
 
 ```powershell
 python -m pip install -e .
-python -m unittest discover -s tests -q     # 175 个测试
+python -m unittest discover -s tests -q     # 177 个测试
 ```
 
 第一个 tick（纯 CPU 即可）：
