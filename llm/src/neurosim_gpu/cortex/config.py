@@ -163,6 +163,9 @@ class BrainConfig:
     pattern_k: int = 0
     slow_decay: float = 0.0
     slow_inhibition: float = 0.0
+    slow_delay: int = 0
+    slow_ei: bool = False
+    intrinsic_drive: float = 0.0
     eligibility_decay: float = 0.0
     consolidation_rate: float = 0.0
     consolidation_interval: int = 32
@@ -242,6 +245,14 @@ class BrainConfig:
         _require(
             self.slow_inhibition >= 0,
             "brain.slow_inhibition must be >= 0",
+        )
+        _require(
+            self.slow_delay >= 0,
+            "brain.slow_delay must be >= 0",
+        )
+        _require(
+            self.intrinsic_drive >= 0,
+            "brain.intrinsic_drive must be >= 0",
         )
         _require(
             0.0 <= self.eligibility_decay < 1.0,
@@ -328,6 +339,9 @@ class ModelConfig:
     open_loop_tokens: int = 8
     open_loop_probability: float = 0.25
     differentiation_weight: float = 0.0
+    low_freq_weight: float = 0.0
+    low_freq_lag: int = 16
+    low_freq_target: float = 0.6
 
     def __post_init__(self) -> None:
         _require(
@@ -357,6 +371,18 @@ class ModelConfig:
         _require(
             self.differentiation_weight >= 0,
             "model.differentiation_weight must be >= 0",
+        )
+        _require(
+            self.low_freq_weight >= 0,
+            "model.low_freq_weight must be >= 0",
+        )
+        _require(
+            self.low_freq_lag > 0,
+            "model.low_freq_lag must be > 0",
+        )
+        _require(
+            0.0 <= self.low_freq_target <= 1.0,
+            "model.low_freq_target must be in [0, 1]",
         )
 
 

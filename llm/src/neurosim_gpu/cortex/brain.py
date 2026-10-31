@@ -197,8 +197,16 @@ class CorticalCore(nn.Module):
                 torch.zeros(1, self.n_neurons),
                 persistent=False,
             )
+            self.register_buffer(
+                "slow_history",
+                torch.zeros(
+                    max(config.slow_delay, 1), self.n_neurons
+                ),
+                persistent=False,
+            )
         else:
             self.register_buffer("slow_state", None, persistent=False)
+            self.register_buffer("slow_history", None, persistent=False)
 
         self.gain_delta: nn.Parameter | None
         if config.learnable_gain:
@@ -398,6 +406,8 @@ class CorticalCore(nn.Module):
         if self.slow_state is not None and reset_slow:
             with torch.no_grad():
                 self.slow_state.zero_()
+                if self.slow_history is not None:
+                    self.slow_history.zero_()
         if state.shape != (batch, self.n_neurons):
             raise ValueError(
                 f"state must have shape {(batch, self.n_neurons)}, "
@@ -467,17 +477,32 @@ class CorticalCore(nn.Module):
                         self.config.intrinsic_noise
                         * torch.randn_like(step_drive)
                     )
+                if self.config.intrinsic_drive:
+                    step_drive = step_drive + self.config.intrinsic_drive
                 slow_term = None
                 if self.slow_state is not None:
                     with torch.no_grad():
-                        self.slow_state.mul_(
-                            self.config.slow_decay
-                        ).add_(
-                            state.mean(dim=0, keepdim=True)
-                            * (1.0 - self.config.slow_decay)
+                        new_slow = (
+                            self.config.slow_decay * self.slow_state
+                            + (1.0 - self.config.slow_decay)
+                            * state.mean(dim=0, keepdim=True)
                         )
+                        if self.config.slow_ei:
+                            new_slow = new_slow * (
+                                self.sign < 0
+                            ).to(new_slow.dtype)
+                        if self.config.slow_delay > 0:
+                            delayed = self.slow_history[0].clone()
+                            self.slow_history[:-1].copy_(
+                                self.slow_history[1:].clone()
+                            )
+                            self.slow_history[-1].copy_(new_slow[0])
+                        else:
+                            delayed = new_slow[0]
+                        self.slow_state.copy_(new_slow)
                     slow_term = (
-                        self.config.slow_inhibition * self.slow_state
+                        self.config.slow_inhibition
+                        * delayed.unsqueeze(0)
                     )
                 if runtime is not None:
                     runtime.state = runtime.step(step_drive)

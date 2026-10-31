@@ -1,0 +1,32 @@
+{
+  "checkpoint": "runs/cortex_stage3/final.pt",
+  "batches": 4,
+  "note": "inference-only soft k-WTA; no differentiation loss",
+  "rows": [
+    {
+      "k": 0,
+      "ppl": 20.0948,
+      "rank": 120.39
+    },
+    {
+      "k": 512,
+      "ppl": 20.1141,
+      "rank": 121.57
+    },
+    {
+      "k": 256,
+      "ppl": 20.5713,
+      "rank": 125.36
+    },
+    {
+      "k": 128,
+      "ppl": 23.9255,
+      "rank": 130.13
+    },
+    {
+      "k": 64,
+      "ppl": 34.6625,
+      "rank": 134.82
+    }
+  ]
+}
