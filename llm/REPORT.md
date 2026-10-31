@@ -770,7 +770,42 @@ token → brain → readout → (drive=readout) × 4 thought ticks → decode
 跨频耦合 + 区域动态同步；当前 lowfreq 只有“delta 慢波”，没有 alpha 峰、PAC
 和跨区域协作。它是 Level 2（自发低频振荡），不是 Level 3–6 的类脑系统。
 
-## 19. 结论
+## 19. 对话测试：脑电频谱 + 入字/吐字时间点
+
+对三个 prompt 做了逐 token 运行时记录。每张图都有三层标注：
+
+1. **token 时间线**：输入 token 显示文本，输出 token 显示 `t0..`；每个 box 对应
+   实际 tick span；
+2. **脑活动频谱图**：同一时间轴，虚线是每个 token 的时间点；
+3. **群体活动轨迹**：同一时间轴上的 population mean。
+
+完整输出写在图标题里；因为 Qwen 是字节级 tokenizer，单独 decode 一个 token
+会出现替换字符，所以输出 token 在图上用索引标注。
+
+| prompt | 输出 | 输入/输出 token | prefill | 输出延迟 | 图 |
+|---|---|---|---:|---:|---|
+| `你好` | `，我需要帮助你。请问您有什么问题需要我帮忙吗？` | 1 / 16 | 2.90 s | 0.113 s/token | [hello](results/cortex/dialogue_spectrogram_hello.png) |
+| `中国的首都是哪里？` | `<EOS>` | 5 / 1 | 0.03 s | 0.031 s/token | [capital](results/cortex/dialogue_spectrogram_capital.png) |
+| `2+3等于几？` | `答案是1。` | 6 / 5 | 0.03 s | 0.039 s/token | [math](results/cortex/dialogue_spectrogram_math.png) |
+
+![对话脑频谱：你好](results/cortex/dialogue_spectrogram_hello.png)
+
+观察：
+
+- `你好` 的 16 个输出 token 使 population activity 从 0.01 升到约 0.05；
+- `2+3` 只有 5 个输出 token，频谱块更短；
+- 首都问题直接输出 EOS，几乎没有输出阶段，频谱几乎空白；
+- 每张图的 token 时间点和相位阴影都能对应到具体 tick。
+
+限制：
+
+- 频谱是把 prefill 的 tick 与生成阶段的 tick 拼接起来；生成阶段每步重算
+  prefix，不是连续状态轨迹；
+- 没有 KV cache，延迟和频谱都受实现方式影响；
+- 这是 rate-neuron 群体活动，不是 EEG；
+- 输出正确率仍然很低（`2+3` 输出 1，首都问题输出 EOS）。
+
+## 20. 结论
 
 
 
