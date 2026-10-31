@@ -1,0 +1,41 @@
+{
+  "checkpoint": "runs/cortex_separation/final.pt",
+  "step": 21600,
+  "reference_tick_seconds": 0.01,
+  "human_data": "none; qualitative comparison only",
+  "teacher_forced": {
+    "ticks": 8192,
+    "mean_activity": 0.02299795299768448,
+    "std_activity": 0.07434339821338654,
+    "population_mean_std": 0.004097949247807264,
+    "region_std_mean": 0.0734873116016388,
+    "psd_slope": -1.4452368043233363,
+    "relative_band_power": {
+      "delta": 0.20906337793881927,
+      "theta": 0.21911819974943966,
+      "alpha": 0.17326613254175402,
+      "beta": 0.17758348109865213,
+      "gamma": 0.022413215021451327
+    },
+    "autocorrelation_time_ticks": 3,
+    "effective_rank": 308.8548889160156
+  },
+  "autonomous": {
+    "ticks": 2048,
+    "mean_activity": 0.003992028534412384,
+    "std_activity": 0.019477764144539833,
+    "population_mean_std": 0.0005085615557618439,
+    "region_std_mean": 0.019388608634471893,
+    "psd_slope": -1.4343459630611632,
+    "relative_band_power": {
+      "delta": 0.1408320488148691,
+      "theta": 0.032347896233250635,
+      "alpha": 0.015386228304450165,
+      "beta": 0.019675800906164095,
+      "gamma": 0.008266055279909071
+    },
+    "autocorrelation_time_ticks": 3,
+    "effective_rank": 2.3588333129882812
+  },
+  "caveat": "rate neurons with no spikes; tick time is arbitrary; no human EEG recording was used"
+}

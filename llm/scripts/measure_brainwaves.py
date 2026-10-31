@@ -377,7 +377,7 @@ def main() -> int:
     axis.set_title("measurement summary", color=TEXT, fontsize=11, pad=8)
 
     figure.suptitle(
-        "Cortex-LM population activity · stage3 · no spikes, no biological time",
+        f"Cortex-LM population activity · {Path(args.checkpoint).parent.name} · no spikes, no biological time",
         color=TEXT,
         fontsize=16,
         x=0.04,

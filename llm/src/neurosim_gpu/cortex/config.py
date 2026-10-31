@@ -159,6 +159,10 @@ class BrainConfig:
     rewire_loss_driven: bool = True
     memory_decay: float = 0.0
     recurrent_noise: float = 0.0
+    intrinsic_noise: float = 0.0
+    pattern_k: int = 0
+    slow_decay: float = 0.0
+    slow_inhibition: float = 0.0
     eligibility_decay: float = 0.0
     consolidation_rate: float = 0.0
     consolidation_interval: int = 32
@@ -222,6 +226,22 @@ class BrainConfig:
         _require(
             self.recurrent_noise >= 0,
             "brain.recurrent_noise must be >= 0",
+        )
+        _require(
+            self.intrinsic_noise >= 0,
+            "brain.intrinsic_noise must be >= 0",
+        )
+        _require(
+            self.pattern_k >= 0,
+            "brain.pattern_k must be >= 0",
+        )
+        _require(
+            0.0 <= self.slow_decay < 1.0,
+            "brain.slow_decay must be in [0, 1)",
+        )
+        _require(
+            self.slow_inhibition >= 0,
+            "brain.slow_inhibition must be >= 0",
         )
         _require(
             0.0 <= self.eligibility_decay < 1.0,
@@ -307,6 +327,7 @@ class ModelConfig:
     open_loop_weight: float = 0.0
     open_loop_tokens: int = 8
     open_loop_probability: float = 0.25
+    differentiation_weight: float = 0.0
 
     def __post_init__(self) -> None:
         _require(
@@ -332,6 +353,10 @@ class ModelConfig:
         _require(
             0.0 <= self.open_loop_probability <= 1.0,
             "model.open_loop_probability must be in [0, 1]",
+        )
+        _require(
+            self.differentiation_weight >= 0,
+            "model.differentiation_weight must be >= 0",
         )
 
 

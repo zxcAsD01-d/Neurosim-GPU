@@ -191,6 +191,15 @@ class CorticalCore(nn.Module):
                 persistent=False,
             )
 
+        if config.slow_decay > 0:
+            self.register_buffer(
+                "slow_state",
+                torch.zeros(1, self.n_neurons),
+                persistent=False,
+            )
+        else:
+            self.register_buffer("slow_state", None, persistent=False)
+
         self.gain_delta: nn.Parameter | None
         if config.learnable_gain:
             self.gain_delta = nn.Parameter(torch.zeros(self.n_neurons))
@@ -383,8 +392,12 @@ class CorticalCore(nn.Module):
         batch, tokens, _ = drive.shape
         if tokens == 0:
             raise ValueError("drive must contain at least one token")
+        reset_slow = state is None
         if state is None:
             state = self.initial_state(batch)
+        if self.slow_state is not None and reset_slow:
+            with torch.no_grad():
+                self.slow_state.zero_()
         if state.shape != (batch, self.n_neurons):
             raise ValueError(
                 f"state must have shape {(batch, self.n_neurons)}, "
@@ -449,6 +462,23 @@ class CorticalCore(nn.Module):
                         self.config.recurrent_noise
                         * torch.randn_like(step_drive)
                     )
+                if self.config.intrinsic_noise > 0:
+                    step_drive = step_drive + (
+                        self.config.intrinsic_noise
+                        * torch.randn_like(step_drive)
+                    )
+                slow_term = None
+                if self.slow_state is not None:
+                    with torch.no_grad():
+                        self.slow_state.mul_(
+                            self.config.slow_decay
+                        ).add_(
+                            state.mean(dim=0, keepdim=True)
+                            * (1.0 - self.config.slow_decay)
+                        )
+                    slow_term = (
+                        self.config.slow_inhibition * self.slow_state
+                    )
                 if runtime is not None:
                     runtime.state = runtime.step(step_drive)
                     state = runtime.state
@@ -459,6 +489,8 @@ class CorticalCore(nn.Module):
                     current = F.linear(
                         state * resource, self.recurrent
                     )
+                    if slow_term is not None:
+                        current = current - slow_term
                     state = dynamics.advance(state, current, step_drive)
                     resource = torch.clamp(
                         resource
@@ -468,7 +500,14 @@ class CorticalCore(nn.Module):
                     )
                 else:
                     current = F.linear(state, self.recurrent)
+                    if slow_term is not None:
+                        current = current - slow_term
                     state = dynamics.advance(state, current, step_drive)
+                if self.config.pattern_k > 0:
+                    k = min(self.config.pattern_k, self.n_neurons)
+                    threshold = torch.topk(state, k, dim=1).values[:, -1:]
+                    gate = torch.sigmoid((state - threshold) / 0.02)
+                    state = state * gate
                 if self.trace is not None:
                     self.trace.append(state.mean(dim=0).detach())
                 pooled = pooled + state

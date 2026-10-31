@@ -55,6 +55,7 @@ $env:PYTHONPATH="src"
 - 无输入静默机制：[autonomous_mechanism.png](results/cortex/autonomous_mechanism.png)（报告 §10.1）
 - 逐 token 联合训练：[joint_training.png](results/cortex/joint_training.png)（报告 §11）
 - 自适应内部时间：[halting_training.png](results/cortex/halting_training.png)（报告 §12）
+- 记忆分化/低频波尝试：[brainwaves_separation.png](results/cortex/brainwaves_separation.png)（报告 §13）
 - 源码：`llm/src/neurosim_gpu/cortex/`
 - 配置：`llm/configs/`
 - 脚本：`llm/scripts/`
