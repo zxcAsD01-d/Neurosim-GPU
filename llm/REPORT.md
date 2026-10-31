@@ -477,7 +477,89 @@ L = L_lm
 3. 用频谱损失/自相关目标直接约束 1–8 Hz 功率，而不是靠噪声碰运气；
 4. 给自主运行加入持续内在驱动，否则仍会收敛到固定点。
 
-## 14. 结论
+## 14. 解耦扫描、延迟抑制与 CoT 内在驱动
+
+### 14.1 k-WTA 的 ppl–rank 曲线（无分化损失）
+
+推理时扫描 soft k-WTA，不训练、不加分化损失：
+
+![k-WTA ppl-rank 曲线](results/cortex/pattern_k_scan.png)
+
+| k / 1024 | ppl（4 batch） | teacher rank |
+|---:|---:|---:|
+| 0（原模型） | **20.09** | 120.4 |
+| 512 | 20.11 | 121.6 |
+| 256 | 20.57 | 125.4 |
+| 128 | 23.93 | 130.1 |
+| 64 | 34.66 | 134.8 |
+
+拐点在 **256**：ppl 只从 20.09 升到 20.57，rank 从 120 升到 125；再降到
+128/64 时 ppl 急剧恶化。所以分化损失和 k-WTA 应该解耦，k=256 是当前
+语言/分化折中点。
+
+### 14.2 延迟抑制 + 自相关损失：低频波
+
+新增 `slow_delay`、`slow_ei`、`intrinsic_drive` 和低频谱损失：
+
+- 延迟抑制：`D=16` tick，`gain=2.0`，`slow_decay=0.95`；
+- 内在噪声 0.01；持续内在驱动 0.01；
+- 自相关损失：lag=16，target=0.6，权重 0.1；
+- 从 stage3 训练 400 步。
+
+![延迟抑制低频变体](results/cortex/brainwaves_lowfreq.png)
+
+| 指标 | stage3 | lowfreq |
+|---|---:|---:|
+| 加权 ppl | **29.64** | **32.11** |
+| teacher delta / theta | 28.9% / 26.3% | 34.7% / 24.4% |
+| teacher alpha | 15.7% | 14.5% |
+| teacher rank | 243 | 263 |
+| autonomous delta | ≈0% | **97.4%** |
+| autonomous rank | 1.65 | **22.1** |
+| autonomous PSD 斜率 | -4.08 | **-1.99** |
+| autonomous 自相关时间 | 4 tick | 5 tick |
+
+**这是第一次真正出现自主低频极限环**：autonomous 模式在约 2 Hz 有清晰
+delta 峰，delta 占 97.4%，状态 rank 从 1.65 升到 22.1，不再收敛到固定点。
+代价是语言 ppl 从 29.64 退到 32.11；自相关损失本身没有达到 target 0.6
+（训练相关约 0.08），振荡主要来自延迟抑制 + 内在驱动，而不是损失项。
+
+它仍不像人类静息 EEG：没有 alpha 峰，delta 过度集中（97%），语言退化。
+
+### 14.3 用“思维链”表示持续内在驱动
+
+在逐 token 训练中，每个 token 处理完后把 **自己的 readout 直接作为下一步
+drive**，再跑 4 个 latent thought steps，然后才解码下一个 token：
+
+```text
+token → brain → readout → (drive=readout) × 4 thought ticks → decode
+```
+
+这是**latent thought loop**，不是文本 CoT；没有 thought 标签，只用语言 CE
+训练。
+
+| 指标 | before | after |
+|---|---:|---:|
+| language CE | 11.65 | **8.28** |
+| time-perception MAE | 0.363 | **0.308** |
+| question rate | 0 | 0 |
+
+潜在 thought loop 能降低逐 token CE 和时间 MAE，但没有产生可解释的“思维
+链”文本，也没有解决主动发问。
+
+### 14.4 三个目标分开看
+
+| 目标 | 最好的变体 | 指标 |
+|---|---|---|
+| 语言 | stage3 | 加权 ppl **29.64**；dense 诊断 20.46 |
+| 记忆分化 | k=256 推理扫描 | ppl 20.57，rank 125.4 |
+| 低频自主波 | lowfreq | delta 97.4%，rank 22.1，约 2 Hz；ppl 32.11 |
+
+结论：三个目标确实可以独立评估，但**不能靠一个变体同时满足**。k-WTA 提升
+分化却伤语言；延迟抑制建立低频却伤语言；latent CoT 改善逐 token 拟合但没有
+可解释推理。
+
+## 15. 结论
 
 
 

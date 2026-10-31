@@ -41,6 +41,7 @@ def evaluate(
     loader,
     tokens: int,
     ticks: int,
+    thought_steps: int,
     batches: int,
 ) -> dict[str, float]:
     model.eval()
@@ -65,6 +66,8 @@ def evaluate(
             drive = hidden[:, t : t + 1].float()
             for _ in range(ticks):
                 brain_out, state, _ = model.brain(drive, state=state)
+            for _ in range(thought_steps):
+                brain_out, state, _ = model.brain(brain_out, state=state)
             hidden_parts.append(
                 hidden[:, t : t + 1]
                 + model.brain_gate.to(hidden.dtype)
@@ -120,6 +123,7 @@ def main() -> int:
     parser.add_argument("--tokens", type=int, default=16)
     parser.add_argument("--max-ticks", type=int, default=6)
     parser.add_argument("--min-ticks", type=int, default=2)
+    parser.add_argument("--thought-steps", type=int, default=0)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--output", default="runs/cortex_joint")
     args = parser.parse_args()
@@ -161,7 +165,7 @@ def main() -> int:
         config.data, tokenizer, verbose=False
     )
     before_metrics = evaluate(
-        model, heads, val_loader, args.tokens, args.min_ticks, 4
+        model, heads, val_loader, args.tokens, args.min_ticks, args.thought_steps, 4
     )
     model.train()
     heads.train()
@@ -195,6 +199,8 @@ def main() -> int:
             drive = hidden[:, t : t + 1].float()
             for _ in range(ticks):
                 brain_out, state, _ = model.brain(drive, state=state)
+            for _ in range(args.thought_steps):
+                brain_out, state, _ = model.brain(brain_out, state=state)
             if (t + 1) % 8 == 0:
                 state = state.detach()
             hidden_parts.append(
@@ -252,7 +258,7 @@ def main() -> int:
     metrics = {
         "before": before_metrics,
         "after": evaluate(
-            model, heads, val_loader, args.tokens, args.min_ticks, 4
+            model, heads, val_loader, args.tokens, args.min_ticks, args.thought_steps, 4
         ),
         "history": history,
         "question_token_ids": list(qids),

@@ -129,6 +129,27 @@ class CortexSandwichLM(nn.Module):
             differentiation = ((gram - eye) ** 2).mean()
             stats["differentiation"] = differentiation.detach()
 
+        low_freq_loss = None
+        if (
+            self.training
+            and self.config.model.low_freq_weight > 0
+            and brain_out is not None
+            and brain_out.shape[1] > self.config.model.low_freq_lag
+        ):
+            trace = brain_out.float().mean(dim=-1)
+            trace = trace - trace.mean(dim=1, keepdim=True)
+            variance = trace.var(dim=1, unbiased=False).clamp_min(1e-8)
+            lag = self.config.model.low_freq_lag
+            correlation = (
+                (trace[:, :-lag] * trace[:, lag:]).mean(dim=1)
+                / variance
+            )
+            low_freq_loss = (
+                correlation - self.config.model.low_freq_target
+            ).pow(2).mean()
+            stats["low_freq_corr"] = correlation.detach().mean()
+            stats["low_freq_loss"] = low_freq_loss.detach()
+
         hidden = self.dropout(hidden)
         hidden = self.backbone.decode(hidden, context)
         logits = self.backbone.logits(hidden)
@@ -165,6 +186,12 @@ class CortexSandwichLM(nn.Module):
                     loss
                     + self.config.model.differentiation_weight
                     * differentiation
+                )
+            if low_freq_loss is not None:
+                loss = (
+                    loss
+                    + self.config.model.low_freq_weight
+                    * low_freq_loss
                 )
         return CortexOutput(
             logits=logits, loss=loss, state=state, stats=stats
