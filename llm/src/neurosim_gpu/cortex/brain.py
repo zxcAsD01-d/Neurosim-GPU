@@ -71,6 +71,7 @@ class CorticalCore(nn.Module):
         self.config = config
         self.d_model = int(d_model)
         self.weight_mode = config.weight_mode
+        self.trace: list[torch.Tensor] | None = None
 
         topology = build_cortical_topology(config, device="cpu")
         graph = topology.graph
@@ -468,6 +469,8 @@ class CorticalCore(nn.Module):
                 else:
                     current = F.linear(state, self.recurrent)
                     state = dynamics.advance(state, current, step_drive)
+                if self.trace is not None:
+                    self.trace.append(state.mean(dim=0).detach())
                 pooled = pooled + state
             if self.config.readout == "mean":
                 pooled = pooled / self.config.ticks_per_token

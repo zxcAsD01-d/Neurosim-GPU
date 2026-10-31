@@ -142,6 +142,9 @@ tokens → [embedding + 前 3 层] → [1024 神经元, W 1024×1024] → [后 2
 
 ![Cortex-LM 当前神经元结构、位置与连接](llm/results/cortex/current_structure.png)
 
+持续运行脑波测量（teacher-forced vs 零 drive 自主运行，含人类 EEG 频段参考）：
+[brainwaves.png](llm/results/cortex/brainwaves.png)。
+
 **状态：3+2、移植、20k 长训练、开环读出、空间/损失驱动重连、时序记忆、生物
 启发记忆和开环一致性训练已完成。** 20k 步 eval ppl **22.69**，能写通顺中文
 句子，但采样仍会跑题，**不能算会对话**。stage3 用短时突触资源、eligibility、
