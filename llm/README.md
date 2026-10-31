@@ -58,6 +58,7 @@ $env:PYTHONPATH="src"
 - 记忆分化/低频波尝试：[brainwaves_separation.png](results/cortex/brainwaves_separation.png)（报告 §13）
 - k-WTA ppl–rank 扫描：[pattern_k_scan.png](results/cortex/pattern_k_scan.png)（报告 §14.1）
 - 延迟抑制低频波：[brainwaves_lowfreq.png](results/cortex/brainwaves_lowfreq.png)（报告 §14.2）
+- 答案约束 QA：[qa_accuracy_latency.png](results/cortex/qa_accuracy_latency.png)（报告 §15）
 - 源码：`llm/src/neurosim_gpu/cortex/`
 - 配置：`llm/configs/`
 - 脚本：`llm/scripts/`
