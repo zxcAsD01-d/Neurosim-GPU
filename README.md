@@ -25,9 +25,9 @@ state = clamp(alpha * state + (1 - alpha) * gain * tanh(current + drive))
 | | |
 |---|---|
 | 运行时 | 可移植矩阵 · 持久电流（PELS） · 融合 CUDA 矩阵 · 融合 CUDA 事件 |
-| 回归测试 | 107 个（无 CUDA 时跳过 1 个） |
-| 依赖 | 仅 PyTorch ≥ 2.7 |
-| Python | 3.11 – 3.13 |
+| 回归测试 | 174 个（无 CUDA 跳过 1 个；无 transformers 跳过 11 个） |
+| 依赖 | 仅 PyTorch ≥ 2.7（`cortex` 的 HF 路径需可选 `transformers`） |
+| Python | 3.10 – 3.13 |
 | 许可 | Apache-2.0 |
 | tick 成本 | 10–50M 边时为同参数 cuSPARSE 层的 0.74–0.82×（GPU） |
 | 状态 | v0.1.0 研究原型 |
@@ -36,7 +36,7 @@ state = clamp(alpha * state + (1 - alpha) * gain * tanh(current + drive))
 
 ```powershell
 python -m pip install -e .
-python -m unittest discover -s tests -q     # 107 个测试
+python -m unittest discover -s tests -q     # 174 个测试
 ```
 
 第一个 tick（纯 CPU 即可）：
@@ -129,6 +129,38 @@ clip）只比同参数自研 SpMM 多 2.8–6.6%；batch=1 时融合 tick 反而
 > MNIST 最优结果由 `experiments/mnist_optimized.py` 产出，细节与复现命令见
 > [results/MNIST_OPTIMIZATION_RESULTS.md](results/MNIST_OPTIMIZATION_RESULTS.md)。
 
+### Cortex-LM：Qwen3 3+2 × 神经元中段
+
+Qwen3-0.6B 的 28 层只保留前 3 层和后 2 层，中间 23 层删除，换成一个
+1024 神经元的稠密递归核；Qwen3 保留的全部权重冻结，只训练中段。中段的
+递归矩阵用被删 23 层的**线性化残差映射**初始化（`o@v + down@up` 组合），
+不是随机初始化。
+
+```text
+tokens → [embedding + 前 3 层] → [1024 神经元, W 1024×1024] → [后 2 层 + LM head]
+```
+
+![Cortex-LM 当前神经元结构、位置与连接](llm/results/cortex/current_structure.png)
+
+**状态：3+2、移植、20k 长训练、开环读出、空间/损失驱动重连、时序记忆、生物
+启发记忆和开环一致性训练已完成。** 20k 步 eval ppl **22.69**，能写通顺中文
+句子，但采样仍会跑题，**不能算会对话**。stage3 用短时突触资源、eligibility、
+多巴胺巩固和 homeostatic scaling，同配置 8-batch ppl **21.49**，比 stage2 的
+22.31 好约 3.7%，但仍未超过 dense 的 20.46；脑有效秩从 52.8 拉回 **56.5**，
+仍低于 dense 的 60.9。stage4 一次性加 8 步零 drive 开环损失，ppl 反而退化到
+**22.15**，辅助 loss 11.6→10.9 几乎不降。结论：生物启发方向有正信号，但
+长期记忆和开环解码都没解决。详见 [完整报告](llm/REPORT.md) 与
+[技术记录](llm/docs/cortex-lm.md)。
+
+```powershell
+$env:PYTHONPATH="src"
+.\.venv-str\Scripts\python.exe -m neurosim_gpu.cortex.train `
+  --config llm/configs/cortex_qwen3_3p2_minimind.json --dry-run --device cuda `
+  --set backbone.model_id=data/qwen3_06b `
+  --set backbone.tokenizer_id=data/qwen3_06b `
+  --set backbone.local_files_only=true
+```
+
 ## 可复现与数据
 
 | 路径 | 内容 |
@@ -153,6 +185,7 @@ MNIST 语料**不入库**：首次使用时下载官方 idx 文件并缓存在 `
 
 ```text
 src/neurosim_gpu/   包：运行时、拓扑、化学、多巴胺、调度器……
+llm/                Cortex-LM 子项目：源码、配置、脚本、报告、结果图
 csrc/               CUDA/C++ 扩展源码（按需编译）
 benchmarks/         GPU、成本模型、延迟、训练对齐、五子棋探针
 experiments/        MNIST 与倒立摆实验套件

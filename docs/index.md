@@ -14,6 +14,7 @@ promises, what has actually been measured, and what is explicitly out of scope.
 | Understand the runtime and state ownership | [design](design.md) → [architecture](architecture.md) |
 | Build the CUDA kernels | [native-build](native-build.md) |
 | Run the task-level experiments | [experiments](experiments.md) |
+| Build the brain-in-the-middle LM pipeline | [cortex-lm](../llm/docs/cortex-lm.md) |
 | Check a performance number | [performance](performance.md) → [results](results.md) → [efficiency](efficiency.md) → [validation](validation.md) |
 | Know what is claimed, and what would refute it | [claims](claims.md) |
 | Know what is done and what is open | [status](status.md) |
@@ -31,6 +32,7 @@ promises, what has actually been measured, and what is explicitly out of scope.
 | [api](api.md) | users | Runnable public workflows, tensor contracts, errors |
 | [native-build](native-build.md) | users with a GPU | Building and validating the CUDA/C++ extension |
 | [experiments](experiments.md) | researchers | Task-level probes (MNIST, inverted pendulum), how to run and read them |
+| [cortex-lm](../llm/docs/cortex-lm.md) | researchers | Qwen3 3+2 split, neuron transplant, data and training |
 | [gomoku-protocol](gomoku-protocol.md) | researchers | CNN vs sparse-brain task protocol and interpretation limits |
 | [efficiency](efficiency.md) | performance work | Cost formulas, parity definitions, optimization analysis |
 | [performance](performance.md) | everyone quoting numbers | Cost model, GPU parity and event numbers, CPU reference baseline, how to measure |

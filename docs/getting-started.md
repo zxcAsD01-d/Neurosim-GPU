@@ -4,8 +4,7 @@
 
 | Component | Requirement |
 |---|---|
-| Python | 3.11 or newer |
-
+| Python | 3.10 or newer |
 | PyTorch | 2.7 or newer (`pip install torch`; a CUDA build is only needed for the native kernels) |
 | C++ toolchain | optional — only for the native CUDA/C++ extension, see [native-build](native-build.md) |
 
@@ -27,8 +26,9 @@ python -m pip install -e .
 python -m unittest discover -s tests -v
 ```
 
-Expect `107 tests` with one skip when no CUDA device is visible (the skip is a
-CUDA topology-transfer check). The suite takes a few seconds on CPU.
+Expect `174 tests` with one skip when no CUDA device is visible (the skip is a
+CUDA topology-transfer check) and eleven optional-dependency skips when
+`transformers` is not installed. The suite takes a few seconds on CPU.
 
 Two warnings are expected and harmless on a CPU-only install:
 

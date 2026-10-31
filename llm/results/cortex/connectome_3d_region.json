@@ -1,0 +1,13 @@
+{
+  "checkpoint": "runs/cortex_long_lora/last.pt",
+  "step": 13000,
+  "neurons": 1024,
+  "synapses": 1048576,
+  "density": 1.0,
+  "self_loops_nonzero": 1024,
+  "self_loop_abs_mean": 0.5629398822784424,
+  "abs_weight_mean": 0.0634726732969284,
+  "positive_fraction": 0.4234275817871094,
+  "drawn_edges": 3072,
+  "regions": 8
+}

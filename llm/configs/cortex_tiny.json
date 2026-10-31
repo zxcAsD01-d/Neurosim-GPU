@@ -1,0 +1,71 @@
+{
+  "name": "cortex-tiny",
+  "backbone": {
+    "kind": "tiny",
+    "encoder_layers": 1,
+    "decoder_layers": 2,
+    "freeze_encoder": false,
+    "freeze_decoder": false,
+    "lora_rank": 0,
+    "tiny_hidden_size": 64,
+    "tiny_intermediate_size": 128,
+    "tiny_num_layers": 3,
+    "tiny_num_heads": 4,
+    "tiny_num_kv_heads": 4,
+    "tiny_max_position_embeddings": 256
+  },
+  "brain": {
+    "n_neurons": 128,
+    "edges_per_neuron": 64,
+    "regions": 4,
+    "local_fraction": 0.6,
+    "inhibitory_fraction": 0.2,
+    "incoming_norm": 2.0,
+    "alpha_min": 0.9,
+    "alpha_max": 0.97,
+    "ticks_per_token": 2,
+    "readout": "mean",
+    "drive_scale": 4.0,
+    "detach_interval": 8,
+    "seed": 3
+  },
+  "model": {
+    "use_brain": true,
+    "brain_gate_init": 0.05,
+    "dropout": 0.0,
+    "label_smoothing": 0.0,
+    "z_loss": 0.0
+  },
+  "data": {
+    "corpus": [],
+    "tokenizer": "byte",
+    "block_size": 32,
+    "batch_size": 2,
+    "eval_batch_size": 2,
+    "num_workers": 0,
+    "train_split": 0.9,
+    "cache_dir": "data/cortex_cache",
+    "extensions": [".txt", ".md"],
+    "seed": 0
+  },
+  "train": {
+    "output_dir": "runs/cortex-tiny",
+    "max_steps": 20,
+    "lr": 2e-4,
+    "brain_lr": 1e-3,
+    "lora_lr": 2e-4,
+    "weight_decay": 0.01,
+    "betas": [0.9, 0.95],
+    "warmup_steps": 2,
+    "min_lr_ratio": 0.1,
+    "grad_clip": 1.0,
+    "grad_accum": 1,
+    "amp": "none",
+    "eval_interval": 10,
+    "eval_batches": 2,
+    "save_interval": 10,
+    "log_interval": 1,
+    "seed": 0,
+    "device": "cpu"
+  }
+}

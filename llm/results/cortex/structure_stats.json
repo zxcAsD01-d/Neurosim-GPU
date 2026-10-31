@@ -1,0 +1,10 @@
+{
+  "step": 21200,
+  "edges": 65536,
+  "density": 0.0625,
+  "self_loops": 1022,
+  "positive_fraction": 0.3488006591796875,
+  "edge_length_mean": 2.9271903038024902,
+  "nn_mean": 0.581818699836731,
+  "z_mean": 25.28352165222168
+}

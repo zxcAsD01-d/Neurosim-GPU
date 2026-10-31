@@ -28,9 +28,11 @@ the same `M` sparse parameters acting on an `N`-dimensional state.
 | Runtime checkpoint | episode/preemption resume | PELS, chemistry, delay history and topology version | Achieved |
 | Continual embodied loop | replay + multi-rate boundaries | Scheduler and deterministic replay controller | Achieved |
 
-The current regression suite contains 107 passing tests, including topology
+The current regression suite contains 174 tests (162 pass plus 1 CUDA-only and
+11 optional `transformers` skips on a base CPU install), including topology
 serialization, runtime/communication checkpoints, scheduler boundaries,
-replay-buffer resume determinism, and the Gomoku environment/CSR-view checks.
+replay-buffer resume determinism, the Gomoku environment/CSR-view checks, and
+the Cortex-LM contract/dry-run tests.
 
 ## Gomoku learning probe
 

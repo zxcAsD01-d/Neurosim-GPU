@@ -39,7 +39,7 @@ optional and built lazily; see [docs/native-build.md](docs/native-build.md).
 
 ## Code style
 
-- Python 3.11+, type hints on public functions, `from __future__ import annotations`.
+- Python 3.10+, type hints on public functions, `from __future__ import annotations`.
 - Four-space indentation, ~88 column soft limit, no formatter is enforced yet.
 - Docstrings explain the contract and the cost, not the syntax.
 - CUDA/C++ follows the existing file-local conventions; keep kernels launch-bound

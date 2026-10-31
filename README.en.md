@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/zxcAsD01-d/Neurosim-GPU/actions/workflows/ci.yml/badge.svg)](https://github.com/zxcAsD01-d/Neurosim-GPU/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 
 **English** | [中文](README.md)
 
@@ -28,9 +28,9 @@ state and documented cost.
 | | |
 |---|---|
 | Runtimes | portable matrix · persistent current (PELS) · native fused matrix · native event |
-| Regression tests | 107 (1 CUDA-only test skipped on CPU) |
-| Dependencies | PyTorch ≥ 2.7, nothing else |
-| Python | 3.11 – 3.13 |
+| Regression tests | 174 (1 CUDA-only and 11 optional-transformers tests skipped on CPU) |
+| Dependencies | PyTorch ≥ 2.7; the `cortex` HF path needs optional `transformers` |
+| Python | 3.10 – 3.13 |
 | License | Apache-2.0 |
 | Tick cost | 0.74–0.82× a same-parameter cuSPARSE layer at 10–50M edges (GPU) |
 | Status | v0.1.0 research prototype |
@@ -39,7 +39,7 @@ state and documented cost.
 
 ```powershell
 python -m pip install -e .
-python -m unittest discover -s tests -q     # 107 tests
+python -m unittest discover -s tests -q     # 174 tests
 ```
 
 A first tick — CPU is enough:
@@ -143,6 +143,44 @@ measurements ([details](docs/experiments.md), [report](results/REPORT.md)):
 | MNIST under Gaussian noise σ=0.3 | 72.9% vs 55.1% (wide MLP) — sparse core is more noise-robust |
 | Inverted pendulum, behaviour cloning | 200/200 steps for both MLP and sparse brain; failures only under extreme delay/noise |
 | Online three-factor plasticity after a plant change | no measurable benefit; ablation shows the learned recurrence is nearly dispensable |
+
+### Cortex-LM: Qwen3 3+2 × neuron middle
+
+Qwen3-0.6B has 28 layers. Keep only the first 3 and last 2; replace the middle
+23 with a 1024-neuron dense recurrent core. All retained Qwen3 weights are
+frozen and only the middle is trained. The recurrent matrix is initialised from
+the **linearised residual map** of the removed blocks (`o@v + down@up`
+composition), not randomly.
+
+```text
+tokens → [embedding + first 3 blocks] → [1024 neurons, W 1024×1024] → [last 2 blocks + LM head]
+```
+
+![Cortex-LM current neuron structure, positions and connections](llm/results/cortex/current_structure.png)
+
+**Status: the 3+2 split, transplant, 20k run, open-loop readout, spatial /
+loss-driven rewiring, the temporal/memory stage, the biologically inspired
+memory stage and open-loop consistency training are complete.** The 20k run with
+decoder LoRA ended at eval perplexity **22.69** and writes fluent Chinese
+sentences, but samples still drift off-topic — **not conversational**. Stage3
+added short-term synaptic resources, an eligibility trace, dopamine-gated
+consolidation and homeostatic scaling. Its same-configuration 8-batch ppl is
+**21.49**, about 3.7% better than stage2's 22.31, but still not better than the
+dense diagnostic 20.46. Effective rank recovered from 52.8 to **56.5**, still
+below dense's 60.9. Stage4 added an 8-step zero-drive open-loop loss; ppl
+degraded to **22.15** and the auxiliary loss stayed at 11.6→10.9, so the naive
+open-loop objective failed. Long-term memory and open-loop decoding remain
+unsolved. See the [full report](llm/REPORT.md) and
+[technical record](llm/docs/cortex-lm.md) for details.
+
+```powershell
+$env:PYTHONPATH="src"
+.\.venv-str\Scripts\python.exe -m neurosim_gpu.cortex.train `
+  --config llm/configs/cortex_qwen3_3p2_minimind.json --dry-run --device cuda `
+  --set backbone.model_id=data/qwen3_06b `
+  --set backbone.tokenizer_id=data/qwen3_06b `
+  --set backbone.local_files_only=true
+```
 
 ## Reproducibility and data
 
