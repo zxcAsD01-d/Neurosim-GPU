@@ -99,6 +99,7 @@ class CortexSandwichLM(nn.Module):
         hidden, context = self.backbone.encode(input_ids, attention_mask)
         encoder_hidden = hidden
         stats: dict[str, torch.Tensor] = {}
+        brain_out = None
         if self.brain is not None:
             # Sparse CSR matmul does not support half precision reliably; the
             # sheet stays fp32 and only its interface crosses the autocast
@@ -112,6 +113,21 @@ class CortexSandwichLM(nn.Module):
                     detach_interval=detach_interval,
                 )
             hidden = hidden + self.brain_gate.to(dtype) * brain_out.to(dtype)
+
+        differentiation = None
+        if (
+            self.training
+            and self.config.model.differentiation_weight > 0
+            and brain_out is not None
+            and brain_out.shape[1] > 1
+        ):
+            normalized = F.normalize(brain_out.float(), dim=-1)
+            gram = normalized @ normalized.transpose(1, 2)
+            eye = torch.eye(
+                gram.shape[1], device=gram.device, dtype=gram.dtype
+            )
+            differentiation = ((gram - eye) ** 2).mean()
+            stats["differentiation"] = differentiation.detach()
 
         hidden = self.dropout(hidden)
         hidden = self.backbone.decode(hidden, context)
@@ -144,6 +160,12 @@ class CortexSandwichLM(nn.Module):
                         loss
                         + self.config.model.open_loop_weight * auxiliary
                     )
+            if differentiation is not None:
+                loss = (
+                    loss
+                    + self.config.model.differentiation_weight
+                    * differentiation
+                )
         return CortexOutput(
             logits=logits, loss=loss, state=state, stats=stats
         )
