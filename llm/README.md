@@ -63,6 +63,7 @@ $env:PYTHONPATH="src"
 - 短 CoT 答案优先：[cot_short_training.png](results/cortex/cot_short_training.png)（报告 §16.4）
 - 运行时脑波→token：[runtime_brainwave_tokens.png](results/cortex/runtime_brainwave_tokens.png)（报告 §17）
 - 全方面脑波仪表盘：[brainwave_dashboard.png](results/cortex/brainwave_dashboard.png)（报告 §18）
+- 对话频谱 + 入字/吐字时间点：[hello](results/cortex/dialogue_spectrogram_hello.png)、[capital](results/cortex/dialogue_spectrogram_capital.png)、[math](results/cortex/dialogue_spectrogram_math.png)（报告 §19）
 - 源码：`llm/src/neurosim_gpu/cortex/`
 - 配置：`llm/configs/`
 - 脚本：`llm/scripts/`
