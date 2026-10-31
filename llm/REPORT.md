@@ -559,7 +559,62 @@ token → brain → readout → (drive=readout) × 4 thought ticks → decode
 分化却伤语言；延迟抑制建立低频却伤语言；latent CoT 改善逐 token 拟合但没有
 可解释推理。
 
-## 15. 结论
+## 15. 答案约束 QA 训练：准确率与耗时
+
+开始训练“回答”而不是只优化 ppl。数据是本地生成的算术 QA：
+
+- 直接加减乘 + 两步 CoT；
+- 3000 train / 300 val / 300 test，prompt 唯一；
+- 只对答案 token 计算 CE；
+- 评测使用 **greedy 解码**，exact numeric match；
+- 记录每题墙钟延迟、tokens/s、内部 tick。
+
+![答案约束 QA 准确率与耗时](results/cortex/qa_accuracy_latency.png)
+
+### 15.1 复杂算术（1–40，含乘法/两步）
+
+| 指标 | before | after | test |
+|---|---:|---:|---:|
+| exact match | 1% | 3% | **7%** |
+| latency / question | 0.385 s | 0.313 s | 0.382 s |
+| tokens/s | 20.8 | 34.1 | 33.4 |
+
+### 15.2 简单单位数（1–9）
+
+| 指标 | before | after | test |
+|---|---:|---:|---:|
+| exact match | 5% | 5% | **15%** |
+| latency / question | 0.631 s | 0.056 s | 0.053 s |
+| train accuracy | — | 45% | — |
+
+### 15.3 “时间自由，输出不自由”
+
+在推理时扫描内部 tick：1/2/4/8。
+
+| ticks | simple acc | simple latency | complex acc | complex latency |
+|---:|---:|---:|---:|---:|
+| 1 | 5% | 0.049 s | 0% | 0.25 s |
+| 2 | 15% | 0.054 s | 0% | 0.34 s |
+| 4 | 15% | 0.090 s | 0% | 0.51 s |
+| 8 | 15% | 0.087 s | 2.5% | 1.05 s |
+
+结论：
+
+- **增加内部时间没有提高准确率**，只增加延迟。
+- 输出是贪心、确定性的，但答案仍然错误；这不是采样随机性。
+- 简单题 train 45% / test 15%，说明模型在记忆模板而不是学习算术规则。
+- CoT 样本会把中间步骤算错（如 `15+17=35`），没有形成可执行的推理链。
+- 因此“回答能力”刚开始训练，但**准确率仍不可用**；当前瓶颈是模型容量/
+  数据/训练目标，而不是输出约束。
+
+数据与脚本：
+
+- [build_qa.py](../llm/scripts/build_qa.py)
+- [train_qa.py](../llm/scripts/train_qa.py)
+- 数据 `data/qa_arith`、`data/qa_simple`（本地，不入库）
+- 训练指标 `runs/cortex_qa*/metrics.json`（本地，不入库）
+
+## 16. 结论
 
 
 
