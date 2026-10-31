@@ -729,7 +729,48 @@ token → brain → readout → (drive=readout) × 4 thought ticks → decode
 **重要限制**：这是 rate-neuron 的群体活动，不是 EEG；生成路径没有 KV cache，
 每步都重算前缀；所以延迟和“脑波”都受实现方式影响。
 
-## 18. 结论
+## 18. 全方面脑波仪表盘
+
+把 stage3 与 lowfreq 的 teacher/autonomous 四种条件放在同一张仪表盘里，覆盖
+时域、频谱、频段、1/f、自相关、DFA、PAC、区域相干、状态转移、有效秩和
+雪崩统计。
+
+![全方面脑波仪表盘](results/cortex/brainwave_dashboard.png)
+
+| 条件 | slope | DFA α | PAC | rank | dwell | 雪崩数/最大 |
+|---|---:|---:|---:|---:|---:|---:|
+| stage3 teacher | -1.64 | 0.67 | 0.026 | 254.6 | 2.65 | 622 / 18 |
+| stage3 autonomous | -4.23 | 0.90 | 0.508* | 1.63 | 256.7 | 1 / 12 |
+| lowfreq teacher | -1.75 | 0.66 | 0.032 | 274.0 | 2.39 | 553 / 17 |
+| lowfreq autonomous | -2.24 | 0.90 | 0.049 | 21.68 | 17.43 | 7 / 17 |
+
+\* stage3 autonomous 的 PAC 是**伪影**：gamma 振幅接近零，MVL 被放大，不能解读
+为真实 theta–gamma 耦合。
+
+读图：
+
+- **时域**：teacher 有持续波动；stage3 autonomous 接近静默；lowfreq autonomous
+  出现明显慢波。
+- **PSD/频段**：teacher 是 delta/theta/alpha/beta 混合宽谱；lowfreq autonomous
+  delta 96.9%，theta 1.4%，alpha 0.3%，是单一低频极限环。
+- **1/f**：teacher slope -1.6 到 -1.75；stage3 autonomous -4.2（信号太小，
+  拟合不可靠）；lowfreq autonomous -2.24。
+- **ACF/DFA**：teacher 自相关衰减 3 tick，DFA 0.65–0.67；lowfreq autonomous
+  衰减 5 tick，DFA 0.90，接近长程相关但主要来自慢振荡本身。
+- **PAC**：teacher 只有 0.026–0.032；lowfreq autonomous 0.049；没有形成
+  theta 相位调制 gamma 振幅的稳定跨频耦合。
+- **区域相干**：stage3 teacher 有较宽的非对角相干；lowfreq autonomous 除对角线
+  外接近 0，说明各 region 同步下降，没有跨区域协作。
+- **状态转移**：四种条件都高度自持；lowfreq autonomous 的 dwell 约 17 tick，
+  但没有形成多状态亚稳态切换。
+- **雪崩**：teacher 有 553–622 个小雪崩，最大 17–18；lowfreq autonomous 只有
+  7 个长事件，规模分布不足以支持临界性结论。
+
+**与人类的差距**：人类静息 EEG 是宽谱 1/f + 间歇 alpha/beta/gamma 爆发 +
+跨频耦合 + 区域动态同步；当前 lowfreq 只有“delta 慢波”，没有 alpha 峰、PAC
+和跨区域协作。它是 Level 2（自发低频振荡），不是 Level 3–6 的类脑系统。
+
+## 19. 结论
 
 
 
