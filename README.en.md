@@ -28,7 +28,7 @@ state and documented cost.
 | | |
 |---|---|
 | Runtimes | portable matrix · persistent current (PELS) · native fused matrix · native event |
-| Regression tests | 174 (1 CUDA-only and 11 optional-transformers tests skipped on CPU) |
+| Regression tests | 175 (1 CUDA-only and 11 optional-transformers tests skipped on CPU) |
 | Dependencies | PyTorch ≥ 2.7; the `cortex` HF path needs optional `transformers` |
 | Python | 3.10 – 3.13 |
 | License | Apache-2.0 |
@@ -39,7 +39,7 @@ state and documented cost.
 
 ```powershell
 python -m pip install -e .
-python -m unittest discover -s tests -q     # 174 tests
+python -m unittest discover -s tests -q     # 175 tests
 ```
 
 A first tick — CPU is enough:

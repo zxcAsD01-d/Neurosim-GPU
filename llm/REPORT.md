@@ -337,7 +337,79 @@ $env:PYTHONPATH="src"
 神经调质；模型没有这些。它更像一个**被文本驱动的耗散递归网络**，而不是一个
 自主脑。
 
-## 11. 结论
+## 11. 联合函数、逐 token 训练与海马审计
+
+### 11.1 联合函数
+
+新增 `JointObjective`（`llm/src/neurosim_gpu/cortex/joint.py`）：
+
+```text
+L = L_lm
+  + λ_time  * MSE(time_head(readout), position/T)
+  + λ_q     * BCE(question_head(readout), is_question)
+  + λ_compute * ticks / max_ticks
+```
+
+- `time_head`：从脑读出预测当前 token 在序列中的归一化位置；
+- `question_head`：预测下一个 token 是否问号；
+- `compute`：内部 tick 预算消耗；
+- 两个小头独立训练，不改原 checkpoint 布局。
+
+### 11.2 逐 token、时间课程训练
+
+新脚本 `llm/scripts/train_sequential_joint.py`：
+
+- 一次只处理一个 token；
+- 每个 token 内部更新 `k` 次，`k` 从 **6 降到 2**（40 步课程）；
+- 前极板编码整段 teacher-forced 前缀，后极板在每个位置只解码当前前缀；
+- 初始“宽预算”是 6 次调用（12 个内部 tick），不是真正无限；逐步收紧；
+- 训练 40 步，16 token/步，batch 1。
+
+![逐 token 联合训练](results/cortex/joint_training.png)
+
+| 指标 | 训练前 | 训练后 |
+|---|---:|---:|
+| language CE | 9.88 | **7.37** |
+| time-perception MAE | 0.377 | **0.335** |
+| question rate | 0.0 | 0.0 |
+| question precision / recall | 0 / 0 | 0 / 0 |
+| question accuracy | 0.4 | 1.0（多数类） |
+
+解释：
+
+- **逐 token 训练能把 sequential CE 从 9.88 降到 7.37**，说明模型能适应
+  “一次一个 token、可变内部时间”的接口。
+- 这个 CE 与并行 teacher-forced 的 3.1 不可直接比较；逐 token 解码、6→2 tick
+  和 40 步预算都不同。
+- **时间感知只从 0.377 改善到 0.335**，信号很弱。
+- **主动发问失败**：验证集 60 个 token 中 question rate=0；question head 学会
+  了“全部判为非问号”的多数类，precision/recall 都是 0。它没有主动提问策略。
+- 因此“联合函数”和“逐 token 时间课程”是跑通的；“主动发问”还需要对话数据/
+  动作策略，不能靠一个 BCE 头冒充。
+
+### 11.3 海马机制审计
+
+检查结果：**LLM 子项目底层没有海马机制可更新。**
+
+- `llm/src/neurosim_gpu/cortex/` 没有 place cell、grid cell、CA3/CA1、
+  dentate gyrus、pattern separation/completion 或 replay 实现。
+- 现有 memory 是 eligibility trace + 多巴胺巩固 + 短时突触资源，属于
+  突触/工作记忆层，不是海马。
+- 仓库里唯一相关文本在未跟踪、已 gitignore 的 `demo/neurobody/sensory.py`：
+  384 个 “memory (hippocampus)” 单元（256 place + 128 time cells），只是
+  具身演示的输入编码，不在 LLM 里，也没有 CA3 环路或 replay。
+- 所以不能声称“海马机制更新了”；准确说法是：**没有实现，只有 demo 占位**。
+
+若下一步要做海马，最小闭环应是：
+
+1. place/time cell 编码当前 token/位置；
+2. 稀疏 dentate 扩展（pattern separation）；
+3. CA3 递归吸引子（pattern completion）；
+4. 离线 replay 到皮层 W；
+5. 与联合函数的 time/question 头共享读出。
+
+## 12. 结论
+
 
 
 - 3+2 管线可以训练，能生成通顺中文，但语言能力有限。
