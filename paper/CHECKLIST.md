@@ -4,7 +4,7 @@
 
 ## 1. 身份与许可
 
-- [ ] arXiv 作者字段使用**真实姓名**（不是 `zxcAsD01`），单位填 `Independent researcher` 或实际单位
+- [ ] arXiv 作者字段使用**真实姓名**（不是 `GitHub handle`），单位填 `Independent researcher` 或实际单位
 - [ ] 仓库 URL 写进 comments 字段，并能公开访问
 - [ ] 选定许可证（建议 `CC BY 4.0`；若计划投期刊，用 arXiv 默认非独占许可）
 - [ ] 若为首次向 `cs.NE` 投稿，确认是否**需要 endorsement**，提前找推荐人
