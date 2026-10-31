@@ -52,6 +52,7 @@ $env:PYTHONPATH="src"
 - [技术记录](docs/cortex-lm.md)
 - [数据与标注说明](DATA.md)
 - 持续运行脑波：[brainwaves.png](results/cortex/brainwaves.png)（报告 §10）
+- 无输入静默机制：[autonomous_mechanism.png](results/cortex/autonomous_mechanism.png)（报告 §10.1）
 - 源码：`llm/src/neurosim_gpu/cortex/`
 - 配置：`llm/configs/`
 - 脚本：`llm/scripts/`
