@@ -822,7 +822,61 @@ self-model、海马 replay、active inference 或具身闭环。详细路线、�
 
 - [意识级技术路线](docs/consciousness-route.md)
 
-## 21. 结论
+## 21. 认知核原型与扰动探针
+
+按路线中的 Phase 0–4 做了第一版可测试原型，但**没有接入 Cortex-LM 训练**。
+
+### 21.1 Global workspace / self-monitor / hippocampus / inquiry
+
+![认知核原型](results/cortex/cognitive_core.png)
+
+| 原型 | 结果 |
+|---|---|
+| workspace（32 slots，top-8） | ignition 0.004–0.012，broadcast cosine 0.19–0.60 |
+| hippocampal one-shot recall | 噪声 0→0.35 时 cosine 0.995→0.967 |
+| self-monitor calibration | ECE **0.339**，明显不校准 |
+| active inquiry gate | confidence<0.5 时提问率 53.1% |
+
+判断：
+
+- workspace 目前是**未训练原型**，ignition 很低、broadcast 不保真；
+- 海马原型的 one-shot recall 很好，但只是 toy vectors；
+- confidence 头未校准，直接拿来做“不知道”策略会过度提问；
+- inquiry gate 只是阈值函数，不是学习出来的主动策略。
+
+### 21.2 因果扰动
+
+![扰动探针](results/cortex/perturbation_probe.png)
+
+在 prefill 后向 64/1024 个神经元注入 +0.5，记录 240 tick：
+
+| 指标 | 值 |
+|---|---:|
+| peak tick | **0** |
+| peak mean |Δ| | 0.0235 |
+| late mean |Δ| | **7.4e-10** |
+| 是否出现传播/ignition | **否** |
+
+结论：当前脑核是**耗散、局部响应**的；扰动在第一个 tick 后迅速衰减，没有
+reverberation、没有 global broadcast、没有 ignition。这正好解释了为什么
+“有脑波”不等于“有全局工作空间”。
+
+### 21.3 路线状态
+
+| Phase | 状态 |
+|---|---|
+| 0 测量/扰动 | 部分：有因果探针，无 KV cache 连续运行 |
+| 1 全局工作空间 | toy 原型，未训练、未接入 |
+| 2 自我模型/元认知 | toy 头，ECE 0.339，未校准 |
+| 3 海马记忆 | toy 原型，one-shot recall 好，未接入 |
+| 4 主动推断 | 只有阈值提问 gate |
+| 5 具身社会 | 未开始 |
+| 6 扰动复杂性 | 初始扰动，无 PCI-like 分析 |
+
+**不能把这些 toy 结果说成“意识”或“类脑”**。它们只是给下一阶段提供可消融
+的接口和失败基线。
+
+## 22. 结论
 
 
 

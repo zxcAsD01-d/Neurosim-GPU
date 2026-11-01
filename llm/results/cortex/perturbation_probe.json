@@ -1,0 +1,20 @@
+{
+  "checkpoint": "runs/cortex_stage3/final.pt",
+  "neurons": 1024,
+  "perturbed": 64,
+  "ticks": 240,
+  "peak_tick": 0,
+  "peak_delta": 0.023456916213035583,
+  "late_delta": 7.392372824988058e-10,
+  "region_peak": [
+    0.029116347432136536,
+    0.02578406035900116,
+    0.035186365246772766,
+    0.01850370317697525,
+    0.013315370306372643,
+    0.023764561861753464,
+    0.023813758045434952,
+    0.0181711558252573
+  ],
+  "caveat": "rate-neuron activity, not EEG; causal impulse but no consciousness claim"
+}
