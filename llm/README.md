@@ -46,6 +46,21 @@ $env:PYTHONPATH="src"
 数据路径在配置里是 `data/minimind/pretrain_hq.jsonl`（相对路径，仓库不包含
 数据）；见 [DATA.md](DATA.md)。
 
+## 本地对话页
+
+```powershell
+$env:PYTHONPATH="src"
+.\.venv-str\Scripts\python.exe llm\scripts\chat_server.py `
+  --checkpoint runs/cortex_stage3/final.pt --host 127.0.0.1 --port 7860
+```
+
+打开 <http://127.0.0.1:7860/>。页面会把 checkpoint 常驻显存，支持多轮对话、
+流式 token 和温度调节；服务端有单请求锁，一次只跑一个生成。
+
+![本地对话页](results/cortex/chat_page_reply.png)
+
+注意：这是**对话界面测试**，不是可用助手；现有模型经常答错、重复或跑题。
+
 ## 文档
 
 - [完整报告](REPORT.md)
