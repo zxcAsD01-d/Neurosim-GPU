@@ -152,8 +152,8 @@ tokens → [embedding + 前 3 层] → [1024 神经元, W 1024×1024] → [后 2
 22.31 好约 3.7%，但仍未超过 dense 的 20.46；脑有效秩从 52.8 拉回 **56.5**，
 仍低于 dense 的 60.9。stage4 一次性加 8 步零 drive 开环损失，ppl 反而退化到
 **22.15**，辅助 loss 11.6→10.9 几乎不降。结论：生物启发方向有正信号，但
-长期记忆和开环解码都没解决。详见 [完整报告](llm/REPORT.md) 与
-[技术记录](llm/docs/cortex-lm.md)。
+长期记忆和开环解码都没解决。详见 [完整报告](llm/REPORT.md)、
+[技术记录](llm/docs/cortex-lm.md) 与 [意识级技术路线](llm/docs/consciousness-route.md)。
 
 ```powershell
 $env:PYTHONPATH="src"
