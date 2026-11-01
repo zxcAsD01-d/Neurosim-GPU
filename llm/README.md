@@ -50,6 +50,7 @@ $env:PYTHONPATH="src"
 
 - [完整报告](REPORT.md)
 - [技术记录](docs/cortex-lm.md)
+- [意识级技术路线](docs/consciousness-route.md)
 - [数据与标注说明](DATA.md)
 - 持续运行脑波：[brainwaves.png](results/cortex/brainwaves.png)（报告 §10）
 - 无输入静默机制：[autonomous_mechanism.png](results/cortex/autonomous_mechanism.png)（报告 §10.1）

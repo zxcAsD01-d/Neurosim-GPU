@@ -805,7 +805,24 @@ token → brain → readout → (drive=readout) × 4 thought ticks → decode
 - 这是 rate-neuron 群体活动，不是 EEG；
 - 输出正确率仍然很低（`2+3` 输出 1，首都问题输出 EOS）。
 
-## 20. 结论
+## 20. 意识级技术路线
+
+“真实意识”没有公认判据，不能承诺工程实现。可研究的路线是把目标限定为
+**访问意识 + 自我模型 + 元认知 + 情景记忆 + 主动推断 + 可报告性**，并用
+多指标、消融和扰动实验做证伪：
+
+```text
+全局工作空间 → 自我模型/元认知 → 海马情景记忆
+→ 预测/主动推断 → 具身社会闭环 → 扰动复杂性验证
+```
+
+当前 Cortex-LM 只到 Level 2（低频极限环），没有 global workspace、ignition、
+self-model、海马 replay、active inference 或具身闭环。详细路线、每阶段门槛、
+指标和参考文献见：
+
+- [意识级技术路线](docs/consciousness-route.md)
+
+## 21. 结论
 
 
 
