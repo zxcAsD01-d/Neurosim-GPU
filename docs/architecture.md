@@ -20,6 +20,7 @@ are explicit. No feature may introduce an implicit all-pairs neuron operation.
 |---|---:|---|---|
 | Canonical topology/weights | O(M) | `SparseTopology` | fixed between structural boundaries |
 | Neural activity | `[B,N]` | runtime | every neural tick |
+| Dendritic activity / adaptation (optional) | `2[B,N]` | dendritic runtime | every tick, including no-emission ticks |
 | Emitted state/current | `[B,N]` | persistent runtime | every neural tick |
 | Dopamine concentration | `[B,R]` | dopamine runtime | every chemistry boundary |
 | Cached receptor modulation | `[B,N]` | dopamine runtime | held between chemistry boundaries |
@@ -74,6 +75,24 @@ operators and is not the production latency path.
 `HybridPELSRuntime` and `DopaminePersistentRuntime` implement emitted-state and
 persistent-current semantics. Their delta propagation is a full SpMM, so they
 validate bounded error but do not provide event-sparse edge cost.
+
+### Optional compartment dynamics
+
+`DendriticMatrixRuntime` and `DendriticPELSRuntime` add signed dendritic
+filtering and a slow activity-feedback state. They use the portable PyTorch
+paths on CPU or CUDA. Somatic and dendritic external drives enter separately;
+only soma activity propagates through the graph. Checkpoints own all three
+states and fingerprint the complete parameter set. See
+[research and equations](neuron-research-2026.md) for the explicit update
+order and the restrictions on nonzero-threshold error budgets.
+
+Version 0.2.0 additionally provides `NativeDendriticMatrixRuntime` (one fused
+CSR/compartment kernel) and `NativeDendriticPELSRuntime` (advance/emission plus
+event scatter). Both accept CUDA FP32 and explicitly fall back to reference
+operations when autograd is needed. The event kernel scans B*N sources on
+device, skips zero deltas and traverses only emitting sources' outgoing edges.
+No per-tick device-to-host synchronization is required. Tensor parameters and
+topology weights remain live; they are not copied into stale packed caches.
 
 ### Native matrix
 

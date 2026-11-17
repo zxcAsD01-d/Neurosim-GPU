@@ -41,6 +41,12 @@ jobs:
       - name: Documentation links
         run: python scripts/check_links.py
 
+      - name: Build source and wheel distributions
+        run: |
+          pip install build
+          python -m build
+          python scripts/check_distribution.py
+
   docs:
     name: documentation link check
     runs-on: ubuntu-latest

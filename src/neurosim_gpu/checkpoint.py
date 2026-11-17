@@ -25,6 +25,8 @@ VERSION = 1
 
 _TENSOR_FIELDS = (
     "state",
+    "dendritic_state",
+    "adaptation_state",
     "emitted_state",
     "persistent_current",
     "concentration",
@@ -85,6 +87,8 @@ def _runtime_signature(runtime: Any) -> str:
     if dynamics is not None:
         add_value(dynamics.alpha)
         add_value(dynamics.gain)
+    if hasattr(runtime, "compartment_dynamics"):
+        add_value(runtime.compartment_dynamics)
     chemistry = getattr(runtime, "chemistry", None)
     if chemistry is not None:
         for name in (
@@ -196,6 +200,17 @@ def restore_runtime(
     """
 
     _validate_payload(payload)
+    # Reject incomplete compartment checkpoints before mutating topology/state.
+    if hasattr(runtime, "compartment_dynamics"):
+        if payload.get("runtime_type") != type(runtime).__name__:
+            raise ValueError("compartment checkpoint runtime type must match target runtime")
+        for name in ("state", "dendritic_state", "adaptation_state"):
+            value = payload["tensors"].get(name)
+            target = getattr(runtime, name)
+            if not isinstance(value, torch.Tensor):
+                raise ValueError(f"checkpoint is missing tensor {name}")
+            if value.shape != target.shape or value.dtype != target.dtype:
+                raise ValueError(f"checkpoint tensor {name} shape or dtype mismatch")
     if strict_runtime_type and payload.get("runtime_type") != type(runtime).__name__:
         raise ValueError("checkpoint runtime type does not match target runtime")
     saved_signature = payload.get("runtime_signature")

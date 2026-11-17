@@ -25,18 +25,18 @@ state = clamp(alpha * state + (1 - alpha) * gain * tanh(current + drive))
 | | |
 |---|---|
 | 运行时 | 可移植矩阵 · 持久电流（PELS） · 融合 CUDA 矩阵 · 融合 CUDA 事件 |
-| 回归测试 | 181 个（无 CUDA 跳过 1 个；无 transformers 跳过 11 个） |
+| 回归测试 | 204 个；原生 CUDA 测试需显式启用，缺少 CUDA/可选依赖时跳过相关测试 |
 | 依赖 | 仅 PyTorch ≥ 2.7（`cortex` 的 HF 路径需可选 `transformers`） |
 | Python | 3.10 – 3.13 |
 | 许可 | Apache-2.0 |
 | tick 成本 | 10–50M 边时为同参数 cuSPARSE 层的 0.74–0.82×（GPU） |
-| 状态 | v0.1.0 研究原型 |
+| 状态 | v0.2.0 研究原型 |
 
 ## 快速开始
 
 ```powershell
 python -m pip install -e .
-python -m unittest discover -s tests -q     # 181 个测试
+python -m unittest discover -s tests -q
 ```
 
 第一个 tick（纯 CPU 即可）：
@@ -57,6 +57,17 @@ print(topology.n_edges, float(state.mean()))
 ```
 
 更多：[上手指南](docs/getting-started.md) · [可运行 API](docs/api.md)。
+
+新增可选的**树突分区＋慢适应神经元**：`DendriticDynamics`、
+`DendriticMatrixRuntime` 与 `DendriticPELSRuntime`，支持独立胞体/树突输入、
+异质时间常数及完整断点恢复。2025–2026 年文献依据、方程与示例见
+[近期研究与神经元模型](docs/neuron-research-2026.md)。这是未校准的速率代理模型；
+默认点神经元及下文原生性能数据保持原有含义。
+
+**0.2.0 性能更新**：新增 `NativeDendriticMatrixRuntime`（单 CUDA kernel）与
+`NativeDendriticPELSRuntime`（双 kernel）。相同树突模型的矩阵路径在本机
+5 组配置下加速 1.32–23.84×；训练自动回退可微参考路径。
+硬件、误差、原始样本及限制见 [0.2.0 性能报告](docs/performance-0.2.0.md)。
 
 ## 工作原理
 

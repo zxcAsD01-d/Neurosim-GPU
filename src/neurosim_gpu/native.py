@@ -38,20 +38,21 @@ def _native_sources() -> list[str]:
     """Locate the extension sources.
 
     The kernels live in the repository's ``csrc/`` directory, which is part of a
-    source checkout (editable install) but not of a prebuilt wheel. A packaged
-    copy next to the module is accepted as a fallback.
+    source checkout (editable install). Version 0.2.0 wheels also contain a
+    packaged copy next to the module, accepted as a fallback.
     """
 
     here = Path(__file__).resolve()
     candidates = [here.parents[2] / "csrc", here.parent / "csrc"]
     for directory in candidates:
-        sources = [directory / "bindings.cpp", directory / "runtime.cu"]
+        sources = [directory / name for name in
+                   ("bindings.cpp", "runtime.cu", "compartmental.cu")]
         if all(source.exists() for source in sources):
             return [str(source) for source in sources]
     raise RuntimeError(
-        "native extension sources (csrc/bindings.cpp, csrc/runtime.cu) were not "
-        "found. The native kernels require a source checkout: install with "
-        "`pip install -e .` from a clone. See docs/native-build.md."
+        "native extension sources (bindings.cpp, runtime.cu, compartmental.cu) "
+        "were not found. Reinstall a complete wheel or use `pip install -e .` "
+        "from a source checkout. See docs/native-build.md."
     )
 
 

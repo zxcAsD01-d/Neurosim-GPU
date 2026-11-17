@@ -43,6 +43,12 @@ from .dopamine import (
     update_eligibility_trace,
 )
 from .dynamics import Dynamics
+from .compartmental import (
+    DendriticDynamics,
+    DendriticMatrixRuntime,
+    DendriticPELSRuntime,
+)
+from .native_compartmental import NativeDendriticMatrixRuntime, NativeDendriticPELSRuntime
 from .gomoku import (
     BLACK,
     EMPTY,
@@ -106,6 +112,11 @@ __all__ = [
     "DopamineSignals",
     "DopamineStepStats",
     "Dynamics",
+    "DendriticDynamics",
+    "DendriticMatrixRuntime",
+    "DendriticPELSRuntime",
+    "NativeDendriticMatrixRuntime",
+    "NativeDendriticPELSRuntime",
     "BLACK",
     "EMPTY",
     "WHITE",

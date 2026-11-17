@@ -206,16 +206,26 @@ class HybridPELSRuntime(MatrixRuntime):
         *,
         collect_stats: bool = False,
     ) -> torch.Tensor | tuple[torch.Tensor, RuntimeStats]:
-        if self._weight_version != self.topology.weight_version:
-            self.persistent_current = self._propagate(
-                self.emitted_state
-            ).contiguous()
-            self._weight_version = self.topology.weight_version
+        self._refresh_current()
         next_state = self.dynamics.advance(
             self.state,
             self.persistent_current,
             drive,
         )
+        return self._emit(next_state, collect_stats=collect_stats)
+
+    def _refresh_current(self) -> None:
+        """Refresh the propagated source after a versioned weight change."""
+        if self._weight_version != self.topology.weight_version:
+            self.persistent_current = self._propagate(
+                self.emitted_state
+            ).contiguous()
+            self._weight_version = self.topology.weight_version
+
+    def _emit(
+        self, next_state: torch.Tensor, *, collect_stats: bool
+    ) -> torch.Tensor | tuple[torch.Tensor, RuntimeStats]:
+        """Commit somatic activity; compartment updates precede this operation."""
         residual = next_state - self.emitted_state
         active = residual.detach().abs() >= self.theta
         emitted_delta = torch.where(active, residual, torch.zeros_like(residual))

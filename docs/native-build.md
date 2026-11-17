@@ -6,12 +6,13 @@ runtimes and the `--native` benchmark mode.
 
 ## What gets built
 
-One PyTorch extension, `neurosim_gpu_native`, from two sources:
+One PyTorch extension, `neurosim_gpu_native`, from three sources:
 
 | Source | Contents |
 |---|---|
 | `csrc/bindings.cpp` | pybind11 module, argument checking, stream plumbing |
 | `csrc/runtime.cu` | CUDA kernels and their launch configuration |
+| `csrc/compartmental.cu` | fused dendritic matrix tick and event tick |
 
 Exported entry points:
 
@@ -26,15 +27,17 @@ Exported entry points:
 | `pels_dopamine_event_step_` | event step with receptor modulation |
 | `update_eligibility_` | neuron traces + per-edge eligibility |
 | `dopamine_weight_update_` | dopamine-gated canonical weight update |
+| `dendritic_step` | sparse reduction and three compartment states in one launch |
+| `dendritic_event` | compartment update/emission plus device event scatter |
 
 The module is compiled lazily by `neurosim_gpu.native.load_native_extension()`
 through `torch.utils.cpp_extension.load`, so the first call pays the build cost
 and later calls reuse the cached binary.
 
-The sources live in the repository's `csrc/` directory, so the native kernels
-require a source checkout (`pip install -e .`). A prebuilt wheel does not ship
-them; `load_native_extension()` then raises an explicit error instead of failing
-inside `nvcc`.
+Sources live in the repository's `csrc/` directory. Starting with 0.2.0, wheels
+also include them in `neurosim_gpu/csrc/`. The loader accepts either location;
+a local compiler and CUDA toolkit are still required (no precompiled GPU binary
+is shipped). Missing sources produce an explicit error before invoking nvcc.
 
 ## Prerequisites
 
@@ -53,6 +56,11 @@ inside `nvcc`.
 ```powershell
 python benchmarks/validate_native.py
 ```
+
+For compartment kernels, set `NEUROSIM_TEST_NATIVE=1` and run
+`python -m unittest tests.test_native_compartmental -v` in the same build
+environment. The explicit opt-in keeps CPU installations and GPU hosts without
+a compiler usable. On Windows, prefix the command with `scripts\native_env.bat`.
 
 The script refuses to run without CUDA, builds the extension, then compares the
 native matrix, canonical, event and dopamine paths against the Python reference

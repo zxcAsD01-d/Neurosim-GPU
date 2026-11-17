@@ -11,6 +11,8 @@ promises, what has actually been measured, and what is explicitly out of scope.
 | Understand what this project is and is not | [scope](scope.md) → [biology](biology.md) |
 | Install it and run a first tick | [getting-started](getting-started.md) |
 | Use the public API | [api](api.md) |
+| Use the optional dendritic/adaptive neuron model | [recent research and model](neuron-research-2026.md) |
+| Check the 0.2.0 CUDA optimization | [performance and validation](performance-0.2.0.md) |
 | Understand the runtime and state ownership | [design](design.md) → [architecture](architecture.md) |
 | Build the CUDA kernels | [native-build](native-build.md) |
 | Run the task-level experiments | [experiments](experiments.md) |
@@ -29,6 +31,7 @@ promises, what has actually been measured, and what is explicitly out of scope.
 | [design](design.md) | core developers | Fixed-topology numerical and runtime contract |
 | [architecture](architecture.md) | core developers | State ownership, runtime modes, multi-rate schedule, integration status |
 | [biology](biology.md) | researchers | Functional biological semantics and where the analogy stops |
+| [neuron-research-2026](neuron-research-2026.md) | researchers, users | Recent sources, compartment equations, API and validation boundaries |
 | [api](api.md) | users | Runnable public workflows, tensor contracts, errors |
 | [native-build](native-build.md) | users with a GPU | Building and validating the CUDA/C++ extension |
 | [experiments](experiments.md) | researchers | Task-level probes (MNIST, inverted pendulum), how to run and read them |
