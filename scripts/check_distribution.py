@@ -24,9 +24,17 @@ def main() -> None:
                 raise SystemExit("wheel module missing: " + name)
     with tarfile.open(sdists[0]) as archive:
         names = archive.getnames()
-        for suffix in ("csrc/compartmental.cu", "setup.py", "tests/test_native_compartmental.py"):
-            if not any(name.endswith("/" + suffix) for name in names):
-                raise SystemExit("sdist missing: " + suffix)
+        sources = ("csrc/bindings.cpp", "csrc/runtime.cu", "csrc/compartmental.cu",
+                   "setup.py", "tests/test_native_compartmental.py",
+                   "results/compartmental_performance.json",
+                   "results/compartmental_probe_cpu.json",
+                   "results/compartmental_probe_cuda.json", "results/compartmental_probe.png")
+        for suffix in sources:
+            matches = [name for name in names if name.endswith("/" + suffix)]
+            if len(matches) != 1:
+                raise SystemExit("sdist missing or duplicated: " + suffix)
+            if archive.extractfile(matches[0]).read() != (root / suffix).read_bytes():
+                raise SystemExit("sdist source/data mismatch: " + suffix)
     print("0.2.0 wheel and sdist versions/sources: PASS")
 
 

@@ -17,6 +17,10 @@ recursive-include scripts *.py *.bat
 recursive-include benchmarks *.py
 recursive-include experiments *.py
 recursive-include results *.md *.csv
+include results/compartmental_performance.json
+include results/compartmental_probe_cpu.json
+include results/compartmental_probe_cuda.json
+include results/compartmental_probe.png
 recursive-include tests *.py
 recursive-include paper *.tex *.bib *.csv *.md *.py
 include paper/main.pdf
