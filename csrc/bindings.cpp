@@ -1,5 +1,15 @@
 #include <torch/extension.h>
 
+std::vector<torch::Tensor> dendritic_step_cuda(
+    torch::Tensor, torch::Tensor, torch::Tensor, std::vector<torch::Tensor>,
+    torch::Tensor, torch::Tensor, torch::Tensor,
+    std::optional<torch::Tensor>, double, std::optional<torch::Tensor>, double, int64_t);
+std::vector<torch::Tensor> dendritic_event_cuda(
+    torch::Tensor, torch::Tensor, torch::Tensor, std::vector<torch::Tensor>,
+    torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor,
+    torch::Tensor, torch::Tensor,
+    std::optional<torch::Tensor>, double, std::optional<torch::Tensor>, double);
+
 torch::Tensor advance_cuda(
     torch::Tensor state,
     torch::Tensor current,
@@ -123,6 +133,8 @@ torch::Tensor dopamine_weight_update_cuda(
     int64_t stream_handle);
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, module) {
+  module.def("dendritic_step", &dendritic_step_cuda, "Fused sparse compartment tick (CUDA)");
+  module.def("dendritic_event", &dendritic_event_cuda, "Compartment update and event scatter (CUDA)");
   module.def("advance", &advance_cuda, "Fused neural state advance (CUDA)");
   module.def(
       "advance_train_forward",

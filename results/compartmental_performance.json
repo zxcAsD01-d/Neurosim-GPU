@@ -1,0 +1,698 @@
+{
+  "environment": {
+    "python": "3.13.0",
+    "torch": "2.13.0.dev20260514+cu132",
+    "cuda_runtime": "13.2",
+    "gpu": "NVIDIA GeForce RTX 5070 Laptop GPU",
+    "platform": "Windows-11-10.0.26300-SP0"
+  },
+  "protocol": {
+    "warmup_ticks": 30,
+    "iterations": 100,
+    "repeats": 7,
+    "timing": "CUDA events and synchronized wall time per block",
+    "order": "interleaved, shuffled per repeat (seed 19)",
+    "dtype": "float32",
+    "seed": 23,
+    "theta": 0.02,
+    "drive": "0.2 + 0.1*sin(tick*0.11)",
+    "dendritic_drive": 0.1,
+    "parameters": {
+      "alpha": 0.72,
+      "gain": 0.8,
+      "tau_dendrite": 4,
+      "tau_adaptation": 25,
+      "dt": 1,
+      "coupling": 0.5,
+      "adaptation_strength": 0.2
+    }
+  },
+  "cases": [
+    {
+      "n": 4096,
+      "candidate_edges": 65536,
+      "edges": 65416,
+      "batch": 1,
+      "threads_per_row": 8,
+      "runtimes": {
+        "reference_matrix": {
+          "gpu_ms": [
+            0.28253568649291994,
+            0.2697792053222656,
+            0.28415264129638673,
+            0.27556095123291013,
+            0.32481918334960935,
+            0.33968032836914064,
+            0.30096384048461916
+          ],
+          "wall_ms": [
+            0.28283299994654953,
+            0.2700820000609383,
+            0.2843929998925887,
+            0.27579299989156425,
+            0.3251250000903383,
+            0.33994800003711134,
+            0.301298999984283
+          ],
+          "median_wall_ms": 0.2843929998925887,
+          "median_gpu_ms": 0.28415264129638673,
+          "tick_peak_extra_bytes": 114688
+        },
+        "native_matrix": {
+          "gpu_ms": [
+            0.02295936107635498,
+            0.014316799640655518,
+            0.01068735957145691,
+            0.009511039853096008,
+            0.011748160123825074,
+            0.011591999530792237,
+            0.011685760021209716
+          ],
+          "wall_ms": [
+            0.026960000104736537,
+            0.014590999926440418,
+            0.010877999884542078,
+            0.009655999892856926,
+            0.011998999980278313,
+            0.011796999897342175,
+            0.011929999745916575
+          ],
+          "median_wall_ms": 0.011929999745916575,
+          "median_gpu_ms": 0.011685760021209716,
+          "tick_peak_extra_bytes": 49152,
+          "state_max_abs_error": 4.470348358154297e-07,
+          "state_max_abs_error_vs_exact_matrix": 4.470348358154297e-07
+        },
+        "reference_pels_matrix": {
+          "gpu_ms": [
+            0.354595832824707,
+            0.34565345764160155,
+            0.3467136001586914,
+            0.3866889572143555,
+            0.3454956817626953,
+            0.3566352081298828,
+            0.38479583740234374
+          ],
+          "wall_ms": [
+            0.3548399999272078,
+            0.3459250001469627,
+            0.3471129998797551,
+            0.386962000047788,
+            0.3457789999083616,
+            0.35692699981154874,
+            0.38528499979292974
+          ],
+          "median_wall_ms": 0.3548399999272078,
+          "median_gpu_ms": 0.354595832824707,
+          "tick_peak_extra_bytes": 98304
+        },
+        "native_pels": {
+          "gpu_ms": [
+            0.020794239044189453,
+            0.024610559940338134,
+            0.018968000411987304,
+            0.019788479804992674,
+            0.0209987211227417,
+            0.02032288074493408,
+            0.02012768030166626
+          ],
+          "wall_ms": [
+            0.021326999994926155,
+            0.02485499979229644,
+            0.0191869999980554,
+            0.020015999907627702,
+            0.021275999897625297,
+            0.02054300013696775,
+            0.020324999932199717
+          ],
+          "median_wall_ms": 0.02054300013696775,
+          "median_gpu_ms": 0.02032288074493408,
+          "tick_peak_extra_bytes": 81920,
+          "state_max_abs_error": 0.0005408525466918945,
+          "state_max_abs_error_vs_exact_matrix": 0.003859490156173706
+        }
+      },
+      "pels_empirical_parity_atol": 0.002,
+      "native_pels_activity_probe": {
+        "ticks": 16,
+        "mean_changed_source_fraction": 0.1860504150390625,
+        "mean_changed_edge_fraction": 0.18607928488443196,
+        "note": "post-timing continuation; zero delta at theta=0 is not counted"
+      },
+      "matrix_speedup": 23.838474932904447,
+      "pels_speedup_vs_reference_matrix_propagation": 17.273036925539543,
+      "profile": {
+        "reference_matrix": {
+          "kernel_count": 29,
+          "kernel_names": [
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_11FillFunctorIfEESt5arrayIPcLy1EEEEviT0_T1_",
+            "_ZN8cusparse54_GLOBAL__N__0ad01fc9_16_csr_partition_cu_8566934e_765620csr_partition_kernelIiiEEvPKT_T0_S2_S2_S5_xPS5_S5_",
+            "_ZN8cusparse15csrmv_v3_kernelISt17integral_constantIbLb0EEiiffffvEEvNS_12KernelCoeffsIT5_EEPKT1_PKT0_S8_PKT2_S9_iiPKT3_PT4_PS6_PS4_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_22CUDAFunctorOnOther_addIfEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_21CUDAFunctorOnSelf_addIfEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_16tanh_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE0_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native18elementwise_kernelILi128ELi2EZNS0_22gpu_kernel_impl_nocastINS0_22CUDAFunctorOnOther_addIfEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native18elementwise_kernelILi128ELi2EZNS0_22gpu_kernel_impl_nocastINS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native18elementwise_kernelILi128ELi2EZNS0_22gpu_kernel_impl_nocastINS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13AUnaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_21CUDAFunctorOnSelf_addIfEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_21CUDAFunctorOnSelf_addIfEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_16tanh_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE0_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_22CUDAFunctorOnOther_addIfEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_49_GLOBAL__N__a62a4dcd_16_TensorCompare_cu_71e06f4e19launch_clamp_scalarERNS_18TensorIteratorBaseEN3c106ScalarES6_NS0_6detail11ClampLimitsEENKUlvE_clEvENKUlvE5_clEvEUlfE_St5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_22CUDAFunctorOnOther_addIfEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLy3EEEEviT0_T1_"
+          ]
+        },
+        "native_matrix": {
+          "kernel_count": 1,
+          "kernel_names": [
+            "_ZN49_GLOBAL__N__c00ddcc5_16_compartmental_cu_c58bd6a713matrix_kernelILi8EEEvNS_6MatrixES1_S1_S1_S1_NS_10ParametersEPKiS4_PKfPfxx"
+          ]
+        },
+        "reference_pels_matrix": {
+          "kernel_count": 36,
+          "kernel_names": [
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_22CUDAFunctorOnOther_addIfEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_21CUDAFunctorOnSelf_addIfEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_16tanh_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE0_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native18elementwise_kernelILi128ELi2EZNS0_22gpu_kernel_impl_nocastINS0_22CUDAFunctorOnOther_addIfEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native18elementwise_kernelILi128ELi2EZNS0_22gpu_kernel_impl_nocastINS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native18elementwise_kernelILi128ELi2EZNS0_22gpu_kernel_impl_nocastINS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13AUnaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_21CUDAFunctorOnSelf_addIfEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_21CUDAFunctorOnSelf_addIfEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_16tanh_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE0_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_22CUDAFunctorOnOther_addIfEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_49_GLOBAL__N__a62a4dcd_16_TensorCompare_cu_71e06f4e19launch_clamp_scalarERNS_18TensorIteratorBaseEN3c106ScalarES6_NS0_6detail11ClampLimitsEENKUlvE_clEvENKUlvE5_clEvEUlfE_St5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_22CUDAFunctorOnOther_addIfEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_10AbsFunctorIfEESt5arrayIPcLy2EEEEviT0_T1_",
+            "_ZN2at6native18elementwise_kernelILi128ELi4EZNS0_22gpu_kernel_impl_nocastINS0_50_GLOBAL__N__2ac0fdad_17_CompareKernels_cu_8f1b29aa14CompareFunctorIfEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_11FillFunctorIfEESt5arrayIPcLy1EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_49_GLOBAL__N__a62a4dcd_16_TensorCompare_cu_71e06f4e17where_kernel_implERNS_14TensorIteratorEENKUlvE_clEvENKUlvE1_clEvEUlbjjE_St5arrayIPcLy4EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_11FillFunctorIfEESt5arrayIPcLy1EEEEviT0_T1_",
+            "_ZN8cusparse54_GLOBAL__N__0ad01fc9_16_csr_partition_cu_8566934e_765620csr_partition_kernelIiiEEvPKT_T0_S2_S2_S5_xPS5_S5_",
+            "_ZN8cusparse15csrmv_v3_kernelISt17integral_constantIbLb0EEiiffffvEEvNS_12KernelCoeffsIT5_EEPKT1_PKT0_S8_PKT2_S9_iiPKT3_PT4_PS6_PS4_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLy3EEEEviT0_T1_",
+            "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLy3EEEEviT0_T1_"
+          ]
+        },
+        "native_pels": {
+          "kernel_count": 2,
+          "kernel_names": [
+            "_ZN49_GLOBAL__N__c00ddcc5_16_compartmental_cu_c58bd6a720event_advance_kernelENS_6MatrixES0_S0_S0_S0_S0_S0_NS_10ParametersEPKfxPfS4_xx",
+            "_ZN49_GLOBAL__N__c00ddcc5_16_compartmental_cu_c58bd6a714scatter_kernelEPKfPfPKiS4_S4_S1_xx"
+          ]
+        }
+      }
+    },
+    {
+      "n": 50000,
+      "candidate_edges": 1000000,
+      "edges": 999787,
+      "batch": 1,
+      "threads_per_row": 16,
+      "runtimes": {
+        "reference_matrix": {
+          "gpu_ms": [
+            0.3238880157470703,
+            0.33024703979492187,
+            0.31973119735717775,
+            0.326943359375,
+            0.3233750534057617,
+            0.39496288299560545,
+            0.33519294738769534
+          ],
+          "wall_ms": [
+            0.3242060000775382,
+            0.3305749999708496,
+            0.320437999907881,
+            0.3272540000034496,
+            0.3237009997246787,
+            0.39538600016385317,
+            0.3355660001398064
+          ],
+          "median_wall_ms": 0.3272540000034496,
+          "median_gpu_ms": 0.326943359375,
+          "tick_peak_extra_bytes": 1401344
+        },
+        "native_matrix": {
+          "gpu_ms": [
+            0.06227392196655274,
+            0.0625705623626709,
+            0.06265535831451416,
+            0.06232895851135254,
+            0.06253727912902832,
+            0.06236703872680664,
+            0.06220096111297607
+          ],
+          "wall_ms": [
+            0.06301899993559346,
+            0.06316700018942356,
+            0.06337900005746633,
+            0.06293099984759465,
+            0.06293400016147643,
+            0.06310900003882125,
+            0.06269699981203303
+          ],
+          "median_wall_ms": 0.06301899993559346,
+          "median_gpu_ms": 0.06236703872680664,
+          "tick_peak_extra_bytes": 600064,
+          "state_max_abs_error": 5.811452865600586e-07,
+          "state_max_abs_error_vs_exact_matrix": 5.811452865600586e-07
+        },
+        "reference_pels_matrix": {
+          "gpu_ms": [
+            0.397259521484375,
+            0.4224700927734375,
+            0.41401824951171873,
+            0.44815166473388673,
+            0.40894241333007814,
+            0.42263935089111326,
+            0.4450806427001953
+          ],
+          "wall_ms": [
+            0.3977930001565255,
+            0.4227870001341216,
+            0.4143440001644194,
+            0.4487169999629259,
+            0.4092180001316592,
+            0.42295799998100847,
+            0.4454170001554303
+          ],
+          "median_wall_ms": 0.4227870001341216,
+          "median_gpu_ms": 0.4224700927734375,
+          "tick_peak_extra_bytes": 1201152
+        },
+        "native_pels": {
+          "gpu_ms": [
+            0.03991967916488647,
+            0.04068863868713379,
+            0.04151679992675781,
+            0.03998687982559204,
+            0.041034879684448244,
+            0.040179200172424316,
+            0.0481379222869873
+          ],
+          "wall_ms": [
+            0.040210000006482005,
+            0.04143300000578165,
+            0.042153999966103584,
+            0.04035100020701066,
+            0.04156199982389808,
+            0.04042999993544072,
+            0.04865399998379871
+          ],
+          "median_wall_ms": 0.04143300000578165,
+          "median_gpu_ms": 0.04068863868713379,
+          "tick_peak_extra_bytes": 1000448,
+          "state_max_abs_error": 0.0005549192428588867,
+          "state_max_abs_error_vs_exact_matrix": 0.004380375146865845
+        }
+      },
+      "pels_empirical_parity_atol": 0.002,
+      "native_pels_activity_probe": {
+        "ticks": 16,
+        "mean_changed_source_fraction": 0.18595124494004267,
+        "mean_changed_edge_fraction": 0.18592885284565613,
+        "note": "post-timing continuation; zero delta at theta=0 is not counted"
+      },
+      "matrix_speedup": 5.192941816561816,
+      "pels_speedup_vs_reference_matrix_propagation": 10.204112665631865
+    },
+    {
+      "n": 50000,
+      "candidate_edges": 1000000,
+      "edges": 999787,
+      "batch": 8,
+      "threads_per_row": 16,
+      "runtimes": {
+        "reference_matrix": {
+          "gpu_ms": [
+            0.6967350769042969,
+            0.4967180633544922,
+            0.5593801498413086,
+            0.6404726409912109,
+            0.6818646240234375,
+            0.6747769927978515,
+            0.6692668914794921
+          ],
+          "wall_ms": [
+            0.6987050001043826,
+            0.49738400004571304,
+            0.5597270000725985,
+            0.6417019999935292,
+            0.682331999996677,
+            0.67573700012872,
+            0.6705589999910444
+          ],
+          "median_wall_ms": 0.6705589999910444,
+          "median_gpu_ms": 0.6692668914794921,
+          "tick_peak_extra_bytes": 11997696
+        },
+        "native_matrix": {
+          "gpu_ms": [
+            0.39276126861572264,
+            0.27592416763305666,
+            0.2848748779296875,
+            0.3956003189086914,
+            0.39569313049316407,
+            0.42270015716552733,
+            0.4232940673828125
+          ],
+          "wall_ms": [
+            0.3939730001729913,
+            0.2765740000177175,
+            0.2860109999892302,
+            0.39685699972324073,
+            0.3970289998687804,
+            0.4235050000716001,
+            0.4244609997840598
+          ],
+          "median_wall_ms": 0.39685699972324073,
+          "median_gpu_ms": 0.3956003189086914,
+          "tick_peak_extra_bytes": 4800000,
+          "state_max_abs_error": 5.811452865600586e-07,
+          "state_max_abs_error_vs_exact_matrix": 5.811452865600586e-07
+        },
+        "reference_pels_matrix": {
+          "gpu_ms": [
+            0.7572316741943359,
+            0.5696063995361328,
+            0.7956988525390625,
+            0.6442684936523437,
+            0.7457548522949219,
+            0.7766726684570312,
+            0.7442671966552734
+          ],
+          "wall_ms": [
+            0.7586800001445226,
+            0.5708430000231601,
+            0.7965199998579919,
+            0.6452980000176467,
+            0.746653999958653,
+            0.7775380002567545,
+            0.7453919999534264
+          ],
+          "median_wall_ms": 0.746653999958653,
+          "median_gpu_ms": 0.7457548522949219,
+          "tick_peak_extra_bytes": 10397696
+        },
+        "native_pels": {
+          "gpu_ms": [
+            0.20876480102539063,
+            0.11985823631286621,
+            0.13237119674682618,
+            0.12472543716430665,
+            0.1826470375061035,
+            0.18820192337036132,
+            0.19337984085083007
+          ],
+          "wall_ms": [
+            0.2098380000097677,
+            0.12059000000590459,
+            0.13321999984327704,
+            0.12541199976112694,
+            0.18383499991614372,
+            0.1894839998567477,
+            0.1945779999368824
+          ],
+          "median_wall_ms": 0.18383499991614372,
+          "median_gpu_ms": 0.1826470375061035,
+          "tick_peak_extra_bytes": 8000000,
+          "state_max_abs_error": 0.0005582273006439209,
+          "state_max_abs_error_vs_exact_matrix": 0.00438043475151062
+        }
+      },
+      "pels_empirical_parity_atol": 0.002,
+      "native_pels_activity_probe": {
+        "ticks": 16,
+        "mean_changed_source_fraction": 0.18594874387326854,
+        "mean_changed_edge_fraction": 0.18592621947224758,
+        "note": "post-timing continuation; zero delta at theta=0 is not counted"
+      },
+      "matrix_speedup": 1.6896741155093078,
+      "pels_speedup_vs_reference_matrix_propagation": 4.061544321262214
+    },
+    {
+      "n": 166000,
+      "candidate_edges": 10000000,
+      "edges": 9998214,
+      "batch": 1,
+      "threads_per_row": 32,
+      "runtimes": {
+        "reference_matrix": {
+          "gpu_ms": [
+            0.7176175689697266,
+            0.7347289276123047,
+            0.7671631622314453,
+            0.7729840087890625,
+            0.77098876953125,
+            0.7666646575927735,
+            0.7762480163574219
+          ],
+          "wall_ms": [
+            0.7189660001313314,
+            0.7361219997983426,
+            0.7685939999646507,
+            0.7750260000466369,
+            0.7722390000708401,
+            0.7679980000830255,
+            0.7773469999665394
+          ],
+          "median_wall_ms": 0.7685939999646507,
+          "median_gpu_ms": 0.7671631622314453,
+          "tick_peak_extra_bytes": 4648448
+        },
+        "native_matrix": {
+          "gpu_ms": [
+            0.4229487991333008,
+            0.48623966217041015,
+            0.4878643035888672,
+            0.48758750915527344,
+            0.487503662109375,
+            0.48745471954345704,
+            0.487751350402832
+          ],
+          "wall_ms": [
+            0.4244920000201091,
+            0.48739799996837974,
+            0.4891799998586066,
+            0.48872800020035356,
+            0.4886350000742823,
+            0.48864200012758374,
+            0.4889440000988543
+          ],
+          "median_wall_ms": 0.48864200012758374,
+          "median_gpu_ms": 0.487503662109375,
+          "tick_peak_extra_bytes": 1992192,
+          "state_max_abs_error": 5.960464477539062e-07,
+          "state_max_abs_error_vs_exact_matrix": 5.960464477539062e-07
+        },
+        "reference_pels_matrix": {
+          "gpu_ms": [
+            0.7673439788818359,
+            0.8078508758544922,
+            0.8468553924560547,
+            0.8520687866210938,
+            0.853757095336914,
+            0.8381267547607422,
+            0.851550064086914
+          ],
+          "wall_ms": [
+            0.7685929999570362,
+            0.8091990000684746,
+            0.8481519998167641,
+            0.8532109999214299,
+            0.8548499998869374,
+            0.8393630001228303,
+            0.8526630001142621
+          ],
+          "median_wall_ms": 0.8481519998167641,
+          "median_gpu_ms": 0.8468553924560547,
+          "tick_peak_extra_bytes": 3984384
+        },
+        "native_pels": {
+          "gpu_ms": [
+            0.354213752746582,
+            0.3300377655029297,
+            0.3535295867919922,
+            0.32694015502929685,
+            0.34573055267333985,
+            0.3267923355102539,
+            0.3531315231323242
+          ],
+          "wall_ms": [
+            0.3560910001397133,
+            0.3312830001232214,
+            0.3550100000575185,
+            0.32811100012622774,
+            0.34696699993219227,
+            0.32830199983436614,
+            0.3546929999720305
+          ],
+          "median_wall_ms": 0.34696699993219227,
+          "median_gpu_ms": 0.34573055267333985,
+          "tick_peak_extra_bytes": 3320320,
+          "state_max_abs_error": 0.0005268380045890808,
+          "state_max_abs_error_vs_exact_matrix": 0.004377402365207672
+        }
+      },
+      "pels_empirical_parity_atol": 0.002,
+      "native_pels_activity_probe": {
+        "ticks": 16,
+        "mean_changed_source_fraction": 0.18594201172959401,
+        "mean_changed_edge_fraction": 0.18593937127170912,
+        "note": "post-timing continuation; zero delta at theta=0 is not counted"
+      },
+      "matrix_speedup": 1.57291841422549,
+      "pels_speedup_vs_reference_matrix_propagation": 2.4444745465203273
+    },
+    {
+      "n": 166000,
+      "candidate_edges": 25000000,
+      "edges": 24988704,
+      "batch": 1,
+      "threads_per_row": 32,
+      "runtimes": {
+        "reference_matrix": {
+          "gpu_ms": [
+            1.472574462890625,
+            1.4429936218261719,
+            1.4501898193359375,
+            1.418025665283203,
+            1.4224850463867187,
+            1.4604985046386718,
+            1.4426002502441406
+          ],
+          "wall_ms": [
+            1.4738070001476444,
+            1.444169000023976,
+            1.4515550000942312,
+            1.4193869999144226,
+            1.4236699999310076,
+            1.4617930000531487,
+            1.443786000018008
+          ],
+          "median_wall_ms": 1.444169000023976,
+          "median_gpu_ms": 1.4429936218261719,
+          "tick_peak_extra_bytes": 4648448
+        },
+        "native_matrix": {
+          "gpu_ms": [
+            1.0928963470458983,
+            1.0928134155273437,
+            1.0925875091552735,
+            1.1022815704345703,
+            1.0944505310058594,
+            1.09299072265625,
+            1.0931011199951173
+          ],
+          "wall_ms": [
+            1.0939860000507906,
+            1.0941259999526665,
+            1.0936649999348447,
+            1.1034990000189282,
+            1.095668000052683,
+            1.0942449999856763,
+            1.0943280000356026
+          ],
+          "median_wall_ms": 1.0942449999856763,
+          "median_gpu_ms": 1.09299072265625,
+          "tick_peak_extra_bytes": 2288640,
+          "state_max_abs_error": 5.960464477539062e-07,
+          "state_max_abs_error_vs_exact_matrix": 5.960464477539062e-07
+        },
+        "reference_pels_matrix": {
+          "gpu_ms": [
+            1.56508056640625,
+            1.539310760498047,
+            1.5368917846679688,
+            1.5455218505859376,
+            1.50712158203125,
+            1.534190673828125,
+            1.5420828247070313
+          ],
+          "wall_ms": [
+            1.5662809999776073,
+            1.5405330000794493,
+            1.5381609997712076,
+            1.546618000138551,
+            1.5083070000400767,
+            1.5354160001152195,
+            1.5434750000713393
+          ],
+          "median_wall_ms": 1.5405330000794493,
+          "median_gpu_ms": 1.539310760498047,
+          "tick_peak_extra_bytes": 3984384
+        },
+        "native_pels": {
+          "gpu_ms": [
+            0.9831558227539062,
+            0.9068854522705078,
+            0.9737430572509765,
+            0.9018524932861328,
+            0.9625814056396484,
+            0.900692138671875,
+            0.974810562133789
+          ],
+          "wall_ms": [
+            0.984292000066489,
+            0.9080799997900613,
+            0.9752189999562688,
+            0.9034840000094846,
+            0.9637600000132807,
+            0.901919000025373,
+            0.9762059999047779
+          ],
+          "median_wall_ms": 0.9637600000132807,
+          "median_gpu_ms": 0.9625814056396484,
+          "tick_peak_extra_bytes": 4255232,
+          "state_max_abs_error": 0.0005287379026412964,
+          "state_max_abs_error_vs_exact_matrix": 0.003924913704395294
+        }
+      },
+      "pels_empirical_parity_atol": 0.002,
+      "native_pels_activity_probe": {
+        "ticks": 16,
+        "mean_changed_source_fraction": 0.18593863159026114,
+        "mean_changed_edge_fraction": 0.18593942236860303,
+        "note": "post-timing continuation; zero delta at theta=0 is not counted"
+      },
+      "matrix_speedup": 1.3197857884138198,
+      "pels_speedup_vs_reference_matrix_propagation": 1.598461235222691
+    }
+  ],
+  "source_sha256": {
+    "csrc/compartmental.cu": "4794dc1ab2099f37a9677189ecff44b7fe0418a3f3a6185c0ef3c243b3731c86",
+    "src/neurosim_gpu/compartmental.py": "6b34e18485e8ba0773d3f36c7b0395781de8472fc850010985023a4ae237f40f",
+    "src/neurosim_gpu/native_compartmental.py": "ce76551fba8dfbba29e0f95dbdb3dddb70507d130d14ce48482a1c8e65a30b37",
+    "benchmarks/compartmental.py": "a98ca4455b2cfedbdeaa4eed293abfa0558cb11b56817a75345cefd45d444bbf"
+  }
+}

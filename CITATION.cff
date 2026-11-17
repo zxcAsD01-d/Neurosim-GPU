@@ -9,8 +9,8 @@ abstract: >-
   multi-rate scheduler, with native fused CUDA kernels and measured performance
   and accuracy reports.
 type: software
-version: 0.1.0
-date-released: 2026-10-26
+version: 0.2.0
+date-released: 2026-11-17
 license: Apache-2.0
 keywords:
   - computational neuroscience

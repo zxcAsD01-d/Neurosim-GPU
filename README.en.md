@@ -28,18 +28,24 @@ state and documented cost.
 | | |
 |---|---|
 | Runtimes | portable matrix · persistent current (PELS) · native fused matrix · native event |
-| Regression tests | 181 (1 CUDA-only and 11 optional-transformers tests skipped on CPU) |
+| Regression tests | 204; native CUDA tests require explicit opt-in; hardware/optional dependency skips apply |
 | Dependencies | PyTorch ≥ 2.7; the `cortex` HF path needs optional `transformers` |
 | Python | 3.10 – 3.13 |
 | License | Apache-2.0 |
 | Tick cost | 0.74–0.82× a same-parameter cuSPARSE layer at 10–50M edges (GPU) |
-| Status | v0.1.0 research prototype |
+| Status | v0.2.0 research prototype |
 
 ## Quick start
 
+Version 0.2.0 adds optional dendritic/adaptive neurons and fused CUDA matrix
+and event runtimes. The matrix path measured 1.32–23.84× faster than the same
+model's PyTorch reference over five configurations on the tested laptop GPU.
+Training falls back to the differentiable reference. See the
+[performance report](docs/performance-0.2.0.md) for raw data and limits.
+
 ```powershell
 python -m pip install -e .
-python -m unittest discover -s tests -q     # 181 tests
+python -m unittest discover -s tests -q
 ```
 
 A first tick — CPU is enough:

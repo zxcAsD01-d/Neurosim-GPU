@@ -6,6 +6,39 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-17
+
+### Added
+
+- Optional dendritic compartment and slow activity-adaptation dynamics, separate
+  somatic/dendritic drives, heterogeneous time constants, matrix/PELS runtimes,
+  complete state checkpointing and a dated 2025–2026 research review.
+- `NativeDendriticMatrixRuntime`: one fused CUDA launch for CSR propagation and
+  all three neuron states; 8/16/32-lane row reductions, strided/broadcast drives.
+- `NativeDendriticPELSRuntime`: two CUDA launches for local state advance and
+  event scatter, with no per-tick host count. Both native paths use the
+  differentiable reference whenever gradients are requested.
+- Reproducible same-model FP32 performance measurements through approximately
+  25M edges, profiler kernel counts and transient allocation measurements.
+- Regression coverage for long rollouts, input layouts, state retention,
+  parameter/drive/synaptic gradients, non-default streams and checkpoint resume.
+
+### Changed
+
+- Wheels now include CUDA sources for optional local JIT compilation.
+- Package and citation version are 0.2.0. Existing point-neuron equations and
+  their published performance measurements retain their original meaning.
+
+### Limits
+
+- Accelerated compartment kernels are CUDA FP32 inference paths. Training
+  falls back to PyTorch; this release does not claim training acceleration.
+- Nonzero PELS thresholds can produce different emission schedules under FP32
+  rounding. Reported empirical errors are not formal trajectory-error bounds.
+- The neuron model remains an uncalibrated rate surrogate, not a biological fit.
+
+## Changes already present before 0.2.0
+
 ### Added
 
 - Cortex-LM pipeline: Qwen3-0.6B keeps its first 3 and last 2 blocks, the middle
