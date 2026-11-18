@@ -1,5 +1,17 @@
 # NeuroSim GPU API Guide
 
+## Recommended mainline entry
+
+Start with the three-state core in the [mainline guide](mainline.md) and
+[research/API example](neuron-research-2026.md). `DendriticMatrixRuntime` is the
+portable numerical/training reference; `NativeDendriticMatrixRuntime` is the
+CUDA FP32 inference starting point. PELS is an explicit alternative.
+The unified inference runner is `python -m neurosim_gpu.simulate`.
+
+The point-neuron, chemistry, plasticity and task workflows below remain supported
+extensions/baselines. They are not automatically enabled by the mainline runner
+and must not be described as jointly integrated with its dendritic kernels.
+
 This guide covers the primary implemented workflows and runtime APIs. The model is a functional
 neurochemical network simulator, not a molecular or clinically validated brain
 model. Unless a section says otherwise, examples run on CPU or CUDA and use

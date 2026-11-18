@@ -5,273 +5,166 @@
 
 **中文** | [English](README.en.md)
 
-GPU 优先的稀疏神经仿真：固定拓扑神经核（`N` 个神经元、`M` 条突触），一个 tick
-就是一次稀疏矩阵乘法加少量向量运算，并在其上叠加持久突触电流（PELS）事件传播、
-区域多巴胺化学、资格迹可塑性与多速率调度。
+**GPU 优先的稀疏神经仿真。当前开发主线：胞体＋树突分区＋慢适应，配套矩阵/PELS 传播、融合 CUDA 推理与完整运行时状态恢复。**
 
-```text
-synaptic_current = W_csr @ state
-state = clamp(alpha * state + (1 - alpha) * gain * tanh(current + drive))
-```
+稳定版本：[v0.2.0](https://github.com/zxcAsD01-d/Neurosim-GPU/releases/tag/v0.2.0)。
+下述统一命令行入口是该版本之后的主线新增；请安装当前源码 checkout，而不是仅安装旧版 wheel。
 
-时间 `O(BM + BN)`，内存 `O(M + BN)`。化学、延迟、资格迹与结构发育各有独立状态、
-节奏与成本记录。
+> 未经生物数据拟合的速率代理模型，不是全脑、脉冲或多离子通道仿真。
+> “最优主线”指优先采用当前已验证的完整神经核与优化实现，不意味着所有硬件、图、
+> 活动率和任务上都最快。参考矩阵是数值基准，原生矩阵是 CUDA FP32 推理的首选起点；
+> PELS 必须结合误差与活动率实测选择。
 
-> **研究原型**：功能性仿真栈，不是经过生物学验证的脑模型。引用前请读
-> [docs/scope.md](docs/scope.md)。
+## 主线包含什么
 
-## 概览
+| 层次 | 当前推荐 | 契约 |
+|---|---|---|
+| 神经元 | `DendriticDynamics` | 胞体 `s`、有符号树突 `d`、慢适应 `a`，独立胞体/树突输入 |
+| 正确性与训练 | `DendriticMatrixRuntime` | CPU/CUDA 可微参考，不丢弃传播增量 |
+| GPU 推理起点 | `NativeDendriticMatrixRuntime` | CUDA FP32，一次 kernel 完成传播和三状态更新 |
+| 事件优化 | `NativeDendriticPELSRuntime` | 两次 kernel；显式阈值，非零阈值是近似路径 |
+| 事件参考 | `DendriticPELSRuntime` | 核对发射状态与持久电流；参考传播不保证事件加速 |
+| 恢复与复现 | checkpoint、JSON 配置、固定 seed | 保存三状态；PELS 额外保存发射状态、电流与阈值 |
 
-| | |
-|---|---|
-| 运行时 | 可移植矩阵 · 持久电流（PELS） · 融合 CUDA 矩阵 · 融合 CUDA 事件 |
-| 回归测试 | 204 个；原生 CUDA 测试需显式启用，缺少 CUDA/可选依赖时跳过相关测试 |
-| 依赖 | 仅 PyTorch ≥ 2.7（`cortex` 的 HF 路径需可选 `transformers`） |
-| Python | 3.10 – 3.13 |
-| 许可 | Apache-2.0 |
-| tick 成本 | 10–50M 边时为同参数 cuSPARSE 层的 0.74–0.82×（GPU） |
-| 状态 | v0.2.0 研究原型 |
+旧 `Dynamics` / `MatrixRuntime` 等点神经元 API 保持兼容，作为基线和历史实验入口，
+不再是首页推荐模型。没有静默改变现有用户的方程或 checkpoint 类型。
 
-## 快速开始
+## 快速开始：直接运行完整神经核
+
+在当前源码 checkout 安装（仅依赖 Python ≥3.10、PyTorch ≥2.7）：
 
 ```powershell
 python -m pip install -e .
-python -m unittest discover -s tests -q
+python -m neurosim_gpu.simulate --steps 100 --output runs/mainline/cpu.json
 ```
 
-第一个 tick（纯 CPU 即可）：
+默认 CPU、FP32、精确传播的树突矩阵参考，输出胞体/树突/适应三组状态统计。
+CPU 不需要编译器；该摘要不是性能基准。
+
+**CUDA 推理推荐起点**（需 CUDA 版 PyTorch 和本地编译工具链）：
+
+```powershell
+scripts\native_env.bat python -m neurosim_gpu.simulate --device cuda --backend native --steps 1000 --output runs/mainline/cuda-matrix.json
+scripts\native_env.bat python -m neurosim_gpu.simulate --device cuda --backend native --propagation pels --theta 0.02 --steps 1000 --output runs/mainline/cuda-pels.json
+```
+
+Windows 用工具链助手；Linux 配好 CUDA/C++ 环境后直接运行 `python -m …`。
+首次 native 调用会 JIT 编译；构建失败明确报错，不会伪装为 native 成功。
+`theta=0` 用于与矩阵核对；`theta>0` 不能解释为轨迹误差上界。
+
+**完整状态保存和接续**（相同图、模型、运行时类型及参数）：
+
+```powershell
+python -m neurosim_gpu.simulate --steps 50 --checkpoint runs/mainline/state.pt
+python -m neurosim_gpu.simulate --steps 50 --resume runs/mainline/state.pt --checkpoint runs/mainline/state.pt --output runs/mainline/resumed.json
+```
+
+相同恒定输入下等价于连续执行 100 ticks；`--steps` 是本次执行步数。
+checkpoint 不保存任意外部输入发生器、训练优化器或梯度图。
+
+### Python API
 
 ```python
 import torch
-from neurosim_gpu import Dynamics, MatrixRuntime, random_topology
+from neurosim_gpu import Dynamics, DendriticDynamics, DendriticMatrixRuntime, random_topology
 
-topology = random_topology(1000, 20_000, device="cpu", seed=0)
-dynamics = Dynamics(
-    alpha=torch.full((1000,), 0.72),
-    gain=torch.full((1000,), 1.05),
+graph = random_topology(1000, 20_000, device="cpu", seed=0)
+soma = Dynamics(torch.full((1000,), 0.72), torch.full((1000,), 0.8))
+model = DendriticDynamics.from_time_constants(
+    soma, dt=1.0, tau_dendrite=4.0, tau_adaptation=25.0,
+    coupling=0.5, adaptation_strength=0.2,
 )
-runtime = MatrixRuntime(topology, dynamics, torch.zeros(1, 1000))
-for _ in range(10):
-    state = runtime.step(drive=0.1)
-print(topology.n_edges, float(state.mean()))
+runtime = DendriticMatrixRuntime(graph, model, torch.zeros(1, 1000))
+for _ in range(100):
+    state = runtime.step(drive=0.2, dendritic_drive=0.1)
+print(state.shape, runtime.dendritic_state.mean().item(), runtime.adaptation_state.mean().item())
 ```
 
-更多：[上手指南](docs/getting-started.md) · [可运行 API](docs/api.md)。
+需要训练时使用 API，不使用推理 CLI。原生树突运行时在需要梯度时自动回退可微参考，
+可用 `last_backend` 检查；这不是原生训练加速。更多见[主线指南](docs/mainline.md)。
 
-新增可选的**树突分区＋慢适应神经元**：`DendriticDynamics`、
-`DendriticMatrixRuntime` 与 `DendriticPELSRuntime`，支持独立胞体/树突输入、
-异质时间常数及完整断点恢复。2025–2026 年文献依据、方程与示例见
-[近期研究与神经元模型](docs/neuron-research-2026.md)。这是未校准的速率代理模型；
-默认点神经元及下文原生性能数据保持原有含义。
+## 主线仿真对照
 
-**0.2.0 性能更新**：新增 `NativeDendriticMatrixRuntime`（单 CUDA kernel）与
-`NativeDendriticPELSRuntime`（双 kernel）。相同树突模型的矩阵路径在本机
-5 组配置下加速 1.32–23.84×；训练自动回退可微参考路径。
-硬件、误差、原始样本及限制见 [0.2.0 性能报告](docs/performance-0.2.0.md)。
+![主线神经元在持续输入和撤去输入后的六面板活动对照](results/compartmental_brainwaves.png)
 
-## 工作原理
+采用 v0.2.0 的 CUDA 原生矩阵内核，在同一张含 1,024 个神经元、20,295 条边的图上预热 512 步，
+再从相同的三状态出发，分别持续施加合成输入和同时撤去胞体与树突输入，各记录 4,096 步。
+最后 512 步的平均胞体活动分别为 0.16593 和 0。图中的 100 Hz 仅用于频轴显示换算。
+见[原始测量](results/compartmental_brainwaves.json)和[复现步骤](docs/mainline.md#activity-comparison)。
 
-```mermaid
-flowchart LR
-    A["state s_t"] --> B["W_csr · s_t + drive"]
-    B --> C["clamp(alpha·s_t + (1-alpha)·gain·tanh(·))"]
-    C --> D{"|Δs| >= theta ?"}
-    D -- yes --> E["发出增量, 事件散射<br/>O(BN + M_A)"]
-    D -- no --> F["矩阵回退<br/>O(BM)"]
-    E --> G["持久电流<br/>W · s_emit"]
-    F --> G
-    G --> A
-```
-
-多速率归属：
+## 模型与数值语义
 
 ```text
-每 tick：        神经动力学 · 延迟通信 · 迹/资格
-每 K_c tick：    区域化学 · 受体缓存 · 可选权重更新
-每 K_m tick：    迁移 / 区域重映射
-每 K_s tick：    候选打分 · 生成/修剪 · 拓扑重建
+j_t       = W @ s_t                          # PELS 为 W @ s_emit
+d_(t+1)   = rho_d*d_t + (1-rho_d)*tanh(j_t + dendritic_drive_t)
+u_t       = (1-c)*j_t + c*d_(t+1) - k*a_t
+s_(t+1)   = clip(alpha*s_t + (1-alpha)*gain*tanh(u_t + drive_t), 0, 1)
+a_(t+1)   = rho_a*a_t + (1-rho_a)*s_(t+1)
+rho       = exp(-dt/tau)
 ```
 
-原生内核需要 CUDA 版 PyTorch，首次调用时编译，见[原生构建](docs/native-build.md)。
-注意：启用 eligibility 时多巴胺运行时每个 tick 仍扫描全部 `M` 条边。
+三状态每 tick 都更新，只有胞体通过突触传播。PELS 无发射时**保持**持久电流，
+不是因为单个神经元低于阈值就自动切换矩阵。矩阵复杂度 `O(BM+BN)`，内存
+`O(M+BN)`；原生事件传播访问发射源出边，仍扫描 `B*N` 个源。
+`dt/tau` 使用同一任意单位，示例值不是实验校准值。
 
-## 性能
+文献、更新顺序与限制：[近期研究与神经元模型](docs/neuron-research-2026.md)。
 
-核心主张只有一句话：**一个完整神经 tick 的成本约等于一次同规模稀疏矩阵乘法。**
+## 已验证的主线性能：v0.2.0
 
-| N | M | batch | 完整神经 tick | 对比 cuSPARSE 原始 SpMM | 对比同参数自研 SpMM |
-|---:|---:|---:|---:|---:|---:|
-| 166k | 10.00M | 1 | 0.595 ms | **0.82×** | 1.07× |
-| 166k | 24.99M | 1 | 1.350 ms | **0.74×** | 1.03× |
-| 166k | 49.95M | 1 | 2.466 ms | **0.75×** | 0.92× |
-| 50k | 1.00M | 8 | 0.513 ms | 1.15× | 1.12× |
+相同树突模型、拓扑、参数与输入，RTX 5070 Laptop，FP32。单位 ms/tick：
 
-RTX 5070 Laptop、CUDA 13.1、FP32，warmup 后取中位数。神经更新（tanh、leak、gain、
-clip）只比同参数自研 SpMM 多 2.8–6.6%；batch=1 时融合 tick 反而快于 cuSPARSE
-分母，因为它把 cuSPARSE 无法融合的部分做在了同一个核里。
+| N | 实际 M | B | 参考矩阵 → 原生矩阵 | 加速 | 参考 PELS → 原生 PELS | 加速 |
+|---:|---:|---:|---:|---:|---:|---:|
+| 4,096 | 65,416 | 1 | 0.284 → 0.012 | 23.84× | 0.355 → 0.021 | 17.27× |
+| 50,000 | 999,787 | 1 | 0.327 → 0.063 | 5.19× | 0.423 → 0.041 | 10.20× |
+| 50,000 | 999,787 | 8 | 0.671 → 0.397 | 1.69× | 0.747 → 0.184 | 4.06× |
+| 166,000 | 9,998,214 | 1 | 0.769 → 0.489 | 1.57× | 0.848 → 0.347 | 2.44× |
+| 166,000 | 24,988,704 | 1 | 1.444 → 1.094 | 1.32× | 1.541 → 0.964 | 1.60× |
 
-- **事件稀疏**：`theta=0.05`、约 2.64% 的边发射时，原生事件核比矩阵 tick 快
-  **3.0–4.5×**（10M 边：0.200 ms vs 0.595 ms）。
-- **训练**：前向+反向是同参数稀疏 RNN 的 **1.075×**（93% 效率，原生逐点 adjoint）；
-  还差的是整段 rollout 的融合 adjoint。
-- **内存**：可变拓扑 24 B/突触，只读视图约 16 B/突触；125M 边外推为 3.0 GB /
-  2.0 GB。**125M 这个点本身尚未端到端跑过。**
-- **CPU 参考基线**（无需 GPU）：tick 仍是原始稀疏乘法的 1.18–1.82×，但 Python
-  事件散射比稠密路径慢 5–80×——事件稀疏是原生内核的性质，不是参考路径的。
+- 第一组 profiler：矩阵 **29→1**、PELS **36→2** kernel/tick；瞬时额外分配约减少 **57% / 17%**。
+- 矩阵最大绝对误差 `4.47e-7–5.96e-7`；非零阈值原生 PELS 对同阈值参考为 `5.27e-4–5.59e-4`，对精确矩阵约 `0.00386–0.00438`。均为观测值，不是一般保证。
+- PELS 分母是矩阵增量传播的同模型参考，不是旧点神经元 native event。没有外推训练速度、其他 GPU 或生物拟合质量。
 
-完整表格、方法论、成本模型与复现命令见[docs/performance.md](docs/performance.md)；
-带硬件的正式 GPU 数字见[docs/results.md](docs/results.md)。
+[性能报告](docs/performance-0.2.0.md) · [原始样本与源码 SHA256](results/compartmental_performance.json)。
+旧点神经元的 cuSPARSE、训练和 50M 边数据留在[历史报告](docs/performance.md)，
+不能当作新三状态模型的测量。
 
-### 真实任务上的验证
-
-这些探针验证"能不能学会/控制"，不是性能测量（详见[docs/experiments.md](docs/experiments.md)
-与 [results/REPORT.md](results/REPORT.md)）：
-
-| 实验 | 结果 |
-|---|---|
-| **MNIST：本仓库模型（全量 60k 训练 / 10k 测试）** | **99.58%**（5 种子 + TTA；单模型 99.55%，10,000 张错 42 张） |
-| MNIST：稀疏核路线（4,585 → 10,852 个可训练标量） | 91.1% → 96.4% |
-| MNIST：稀疏脑 vs 同参数 MLP | 91.1% vs 87.3%（4,585 个可训练标量） |
-| MNIST：稀疏脑 vs 逻辑回归 | 91.1% vs 91.8%——精度上没有优势 |
-| MNIST 高斯噪声 σ=0.3 | 72.9% vs 55.1%（宽 MLP）——稀疏核更抗噪 |
-| 倒立摆：行为克隆 | MLP 与稀疏脑都是 200/200 步；只有极端延迟/噪声才失败 |
-| 执行器突变下的在线三因子可塑性 | 无可测量收益；消融显示学到的递归权重近乎可省 |
-
-> MNIST 最优结果由 `experiments/mnist_optimized.py` 产出，细节与复现命令见
-> [results/MNIST_OPTIMIZATION_RESULTS.md](results/MNIST_OPTIMIZATION_RESULTS.md)。
-
-### Cortex-LM：Qwen3 3+2 × 神经元中段
-
-Qwen3-0.6B 的 28 层只保留前 3 层和后 2 层，中间 23 层删除，换成一个
-1024 神经元的稠密递归核；Qwen3 保留的全部权重冻结，只训练中段。中段的
-递归矩阵用被删 23 层的**线性化残差映射**初始化（`o@v + down@up` 组合），
-不是随机初始化。
-
-```text
-tokens → [embedding + 前 3 层] → [1024 神经元, W 1024×1024] → [后 2 层 + LM head]
-```
-
-![Cortex-LM 当前神经元结构、位置与连接](llm/results/cortex/current_structure.png)
-
-持续运行脑波测量（teacher-forced vs 零 drive 自主运行，含人类 EEG 频段参考）：
-[brainwaves.png](llm/results/cortex/brainwaves.png)。
-
-**状态：3+2、移植、20k 长训练、开环读出、空间/损失驱动重连、时序记忆、生物
-启发记忆和开环一致性训练已完成。** 20k 步 eval ppl **22.69**，能写通顺中文
-句子，但采样仍会跑题，**不能算会对话**。stage3 用短时突触资源、eligibility、
-多巴胺巩固和 homeostatic scaling，同配置 8-batch ppl **21.49**，比 stage2 的
-22.31 好约 3.7%，但仍未超过 dense 的 20.46；脑有效秩从 52.8 拉回 **56.5**，
-仍低于 dense 的 60.9。stage4 一次性加 8 步零 drive 开环损失，ppl 反而退化到
-**22.15**，辅助 loss 11.6→10.9 几乎不降。结论：生物启发方向有正信号，但
-长期记忆和开环解码都没解决。详见 [完整报告](llm/REPORT.md)、
-[技术记录](llm/docs/cortex-lm.md) 与 [意识级技术路线](llm/docs/consciousness-route.md)。
+## 验证与复现
 
 ```powershell
-$env:PYTHONPATH="src"
-.\.venv-str\Scripts\python.exe -m neurosim_gpu.cortex.train `
-  --config llm/configs/cortex_qwen3_3p2_minimind.json --dry-run --device cuda `
-  --set backbone.model_id=data/qwen3_06b `
-  --set backbone.tokenizer_id=data/qwen3_06b `
-  --set backbone.local_files_only=true
+python -m unittest discover -s tests -q
+python scripts/check_links.py
+$env:NEUROSIM_TEST_NATIVE="1"
+scripts\native_env.bat python -m unittest discover -s tests -p test_native_compartmental.py -v
+scripts\native_env.bat python benchmarks/compartmental.py --large --profile --output runs/mainline/performance.json
 ```
 
-## 可复现与数据
+v0.2.0 发布记录：**204 项 CUDA/native 测试通过**，memcheck / synccheck 各 10 项且
+0 errors，PR/main 的 Linux/Windows × Python 3.10/3.12 与文档 CI 通过；wheel
+编译 smoke、源码包和 6 个公开附件下载校验通过。当前 checkout 另有统一入口回归测试；
+以实际 discovery 数量为准，不将新增测试冒充旧发布结果。见[验证记录](docs/verification.md)。
 
-| 路径 | 内容 |
+## 主线、扩展与历史实验的边界
+
+| 范围 | 状态与入口 |
 |---|---|
-| [`results/raw/`](results/raw) | 182 份 JSON 载荷（105 次网格 + 77 次探索），含配置、指标、训练历史、逐条件结果 |
-| [`results/summary_*.csv`](results) | 每个套件的宽表，一行一次运行 |
-| [`results/TABLES.md`](results/TABLES.md) | 由原始载荷聚合出的全部数据表 |
-| [`results/REPORT.md`](results/REPORT.md) | 方法、结果、失败记录与局限 |
-| [`docs/verification.md`](docs/verification.md) | 发布验证记录 |
+| **主线基础仿真** | 三状态神经元 + 稀疏拓扑 + 矩阵/PELS + reference/native + checkpoint；[主线指南](docs/mainline.md) |
+| 多巴胺与可塑性 | 区域化学、D1/D2、资格迹、权重更新、调度/重放在已有点神经元运行时实现；尚未和树突 CUDA 主线统一，见 [API](docs/api.md) |
+| 延迟与结构发育 | 通信、迁移、候选连边/修剪有独立模块和测试；不自动包含在主线 CLI，见 [架构](docs/architecture.md) |
+| MNIST、倒立摆、五子棋 | 独立任务探针；历史精度/控制结果不是新模型的任务验证，见 [实验](docs/experiments.md) 与 [结果](results/REPORT.md) |
+| Cortex-LM | 独立语言模型研究，不作为基础仿真默认入口；未自动迁移到树突模型，见 [子项目](llm/README.md) 与 [报告](llm/REPORT.md) |
 
-```powershell
-python experiments/analyze.py                 # 从 results/raw 重建 TABLES.md
-python experiments/run_suite.py --list        # 12 个套件的网格
-python experiments/run_suite.py --suite all   # 重跑（CPU 约 40 分钟）
-```
+“完整”限于上述已接通的基础神经仿真闭环，不是所有实验模块都已融合。后续主线重点：
+联合化学/可塑性与树突核、活动率扫描与设备端选路、训练优化、125M 边端到端和任务对照。
+CUDA 源码已随 v0.2.0 wheel 打包，不再列为未完成项。
 
-MNIST 语料**不入库**：首次使用时下载官方 idx 文件并缓存在 `data/mnist/`
-（已 gitignore）；checkpoint 是缓存，同样忽略。精度与生存步数由种子确定，
-延迟不确定。
+## 导航与贡献
 
-## 目录结构
+- [上手](docs/getting-started.md) · [主线配置与选路](docs/mainline.md) · [全部文档](docs/index.md)
+- [研究与方程](docs/neuron-research-2026.md) · [原生构建](docs/native-build.md) · [范围](docs/scope.md)
+- `src/neurosim_gpu/` 核心包；`csrc/` 原生核；`benchmarks/` 测量；`experiments/` 任务；`llm/` 独立语言模型；`tests/` 回归。
+- [贡献指南](CONTRIBUTING.md) · [变更记录](CHANGELOG.md) · [引用](CITATION.cff) · [安全报告](SECURITY.md)
 
-```text
-src/neurosim_gpu/   包：运行时、拓扑、化学、多巴胺、调度器……
-llm/                Cortex-LM 子项目：源码、配置、脚本、报告、结果图
-csrc/               CUDA/C++ 扩展源码（按需编译）
-benchmarks/         GPU、成本模型、延迟、训练对齐、五子棋探针
-experiments/        MNIST 与倒立摆实验套件
-tests/              回归测试
-docs/               契约、测量与指南
-scripts/            原生构建助手、文档链接检查
-results/            报告、聚合表、原始载荷
-```
-
-## 文档
-
-从 [docs/index.md](docs/index.md) 开始（含阅读路径与文档权威表）：
-
-| 文档 | 内容 |
-|---|---|
-| [上手指南](docs/getting-started.md) | 安装、第一个 tick、常见问题 |
-| [API](docs/api.md) | 公共工作流、张量契约、错误 |
-| [设计](docs/design.md) · [架构](docs/architecture.md) | 数值契约、状态归属、运行时模式 |
-| [生物学语义](docs/biology.md) | 模型代表什么、类比在哪里停止 |
-| [成本模型](docs/efficiency.md) · [结果](docs/results.md) · [验证](docs/validation.md) | 成本公式、已测数字、验收标准 |
-| [实验](docs/experiments.md) · [五子棋协议](docs/gomoku-protocol.md) | 任务级实验与协议 |
-| [状态](docs/status.md) · [发布验证](docs/verification.md) | 里程碑记分卡、验证记录 |
-| [技术报告](paper/main.pdf) | 成本归一化评估论文；LaTeX 源码与生成脚本在 paper/ |
-
-## 边界声明
-
-本项目是研究原型，不主张生物真实性、全脑规模或自博弈强度；所有性能数字都与记录的
-硬件和图规模绑定。CPU 结果说明的是正确性与参数效率，不是吞吐。详见
-[docs/scope.md](docs/scope.md)。
-
-## 我们主张什么（可被反驳）
-
-一句话版本：
-
-> 在 GPU 上，固定拓扑稀疏神经模拟器可以把神经状态更新的额外开销压到同规模稀疏乘法的几个百分点，并在低活动率下用原生事件传播显著降低 tick 成本。
-
-完整账本在 [docs/claims.md](docs/claims.md)：每条主张的证据、状态（支持 / 部分 / 未验证 / 已反驳），以及什么结果会推翻它。其中三条仍未完成：125M 边端到端、活动率扫描与自动选路、与成熟模拟器的同任务对照。
-
-## 与同名项目的关系
-
-本项目与以下两个同名项目**无关**，问题定义也不同：
-
-- [grasp-lyrl/neurosim](https://github.com/grasp-lyrl/neurosim)：神经形态机器人感知模拟器；
-- [neurosim/neurosim](https://github.com/neurosim/neurosim)：存内计算硬件评估框架。
-
-NeuroSim-GPU 研究固定拓扑稀疏率动力学、持久突触电流事件传播与区域神经化学的成本/精度权衡，不与上述项目做性能排名。
-## 路线图
-
-- 跑通 125M 边的预构建拓扑端到端实验；
-- 用设备端选择器替代矩阵/事件策略，去掉主机同步；
-- 用整段 rollout 的自定义 adjoint 把训练对齐从 1.075× 降到 ≤ 1.05×；
-- 把 `csrc/` 打包进 wheel，让 `pip install` 用户也能编译内核；
-- 设计能让事件路径保持稀疏的 eligibility 表示。
-
-## 贡献与许可
-
-欢迎贡献，请先读 [CONTRIBUTING.md](CONTRIBUTING.md) 与[验证标准](docs/validation.md)；
-提交前保证测试全绿、文档链接可解析（`python scripts/check_links.py`）。
-
-采用 Apache License 2.0，见 [LICENSE](LICENSE)；引用信息见 [CITATION.cff](CITATION.cff)，
-变更记录见 [CHANGELOG.md](CHANGELOG.md)。安全问题请按 [SECURITY.md](SECURITY.md) 私下报告。
-
-## 常见问题
-
-**必须要 GPU 吗？** 不需要。所有可移植路径都能在 CPU 上跑，只有原生融合内核需要 CUDA。
-
-**能用我自己的连接组吗？** 可以。用 `SparseTopology.from_edges` 构造，或用
-`load_topology` 载入；重复边会被合并。
-
-**为什么 CPU 上稀疏路径比稠密 MLP 慢？** 几千条边时，每 tick 的 Python 调度与 CSR
-重建开销占主导；稀疏优势出现在更大的 `M` 且活动很低时，或使用原生内核时——
-见[docs/experiments.md](docs/experiments.md)。
-
-**多巴胺部分是生物学模型吗？** 是功能性代理：tonic/burst/dip、D1/D2 占用与三因子
-可塑性都已实现并测试，但没有用实验数据校准，见[docs/biology.md](docs/biology.md)。
+Apache-2.0，见 [LICENSE](LICENSE)。本仓库与 [grasp-lyrl/neurosim](https://github.com/grasp-lyrl/neurosim)
+和 [neurosim/neurosim](https://github.com/neurosim/neurosim) 无关，不与其做性能排名。

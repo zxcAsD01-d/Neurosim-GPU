@@ -1,125 +1,79 @@
 # Getting started
 
-## Requirements
+## Install the current mainline
 
-| Component | Requirement |
-|---|---|
-| Python | 3.10 or newer |
-| PyTorch | 2.7 or newer (`pip install torch`; a CUDA build is only needed for the native kernels) |
-| C++ toolchain | optional — only for the native CUDA/C++ extension, see [native-build](native-build.md) |
-
-The core package has no other runtime dependencies.
-
-## Install
-
-From a checkout:
+Python ≥3.10, PyTorch ≥2.7; no other core runtime dependencies. CPU needs no compiler.
+CUDA native inference needs CUDA PyTorch plus a compatible C++/CUDA build toolchain.
+See [native-build](native-build.md). The current mainline runner is newer than the
+0.2.0 wheel, so install from a source checkout:
 
 ```powershell
 python -m pip install -e .
+python -m neurosim_gpu.simulate --steps 100 --output runs/mainline/cpu.json
 ```
 
-`uv.lock` is provided for `uv` users (`uv sync`), but plain `pip` is enough.
+This runs the recommended soma–dendrite–adaptation model, not the older point-neuron
+baseline. The default is CPU FP32 matrix reference. It prints all three state
+statistics and the actual graph size; the JSON is not a performance benchmark.
 
-## Verify the install
+## Choose an execution path
+
+- CPU / training / correctness: `DendriticMatrixRuntime`.
+- CUDA FP32 inference starting point: `NativeDendriticMatrixRuntime`.
+- Low activity, approximation allowed: benchmark `NativeDendriticPELSRuntime`
+  against the matrix path on your workload; do not assume it is always faster.
+- `theta=0` checks PELS parity. Nonzero theta is not a full trajectory-error bound.
+
+```powershell
+scripts\native_env.bat python -m neurosim_gpu.simulate --device cuda --backend native --steps 1000
+scripts\native_env.bat python -m neurosim_gpu.simulate --device cuda --backend native --propagation pels --theta 0.02 --steps 1000
+```
+
+On Linux use Python directly with the configured compiler environment. Backend and
+propagation are explicit. Native build failures are surfaced, never silently hidden.
+For Python usage, copy the current [README example](../README.en.md); training uses
+the API, while the CLI always uses inference mode. Full options and checkpoint
+instructions: [mainline guide](mainline.md).
+
+## Verify
 
 ```powershell
 python -m unittest discover -s tests -v
+python scripts/check_links.py
 ```
 
-Expect `181 tests` with one skip when no CUDA device is visible (the skip is a
-CUDA topology-transfer check) and eleven optional-dependency skips when
-`transformers` is not installed. The suite takes a few seconds on CPU.
-
-Two warnings are expected and harmless on a CPU-only install:
-
-- `Failed to initialize NumPy` — PyTorch probes for NumPy; the project does not
-  require it.
-- `Sparse CSR tensor support is in beta state` — emitted whenever a CSR tensor
-  is constructed.
-
-## First tick
-
-A fixed random graph of 1,000 neurons and 20,000 candidate synapses (duplicate
-edges are coalesced, so the final count is slightly lower):
-
-```python
-import torch
-from neurosim_gpu import Dynamics, MatrixRuntime, random_topology
-
-topology = random_topology(1000, 20_000, device="cpu", seed=0)
-dynamics = Dynamics(
-    alpha=torch.full((1000,), 0.72),
-    gain=torch.full((1000,), 1.05),
-)
-runtime = MatrixRuntime(topology, dynamics, torch.zeros(1, 1000))
-
-for _ in range(10):
-    state = runtime.step(drive=0.1)
-
-print(topology.n_edges, float(state.mean()))
-```
-
-The state stays in `[0, 1]`; after ten ticks with a constant drive it settles
-near `drive`.
-
-To see the persistent-current/event variant, replace the runtime:
-
-```python
-from neurosim_gpu import HybridPELSRuntime
-
-runtime = HybridPELSRuntime(
-    topology, dynamics, torch.zeros(1, 1000),
-    theta=0.05,          # emit only state deltas at or above this threshold
-    propagation="matrix", # "matrix", "event" or "auto"
-)
-state, stats = runtime.step(drive=0.1, collect_stats=True)
-print(stats.path, stats.active_edges, stats.active_neurons)
-```
-
-`collect_stats=True` reads scalars back to the host; leave it off in latency
-measurements.
-
-## Task-level demos
-
-Both run on CPU in seconds and need no extra packages:
+The 0.2.0 release discovered 204 tests. Current mainline adds runner tests. Native
+checks require `NEUROSIM_TEST_NATIVE=1` and a configured toolchain; hardware and
+optional HF dependency skips depend on the environment. Report executed/skipped
+counts, rather than treating skips as passes. Sparse CSR beta warnings are expected.
 
 ```powershell
-python experiments/mnist_experiments.py --smoke
-python experiments/cartpole_experiments.py --smoke
+$env:NEUROSIM_TEST_NATIVE="1"
+scripts\native_env.bat python -m unittest discover -s tests -p test_native_compartmental.py -v
+scripts\native_env.bat python benchmarks/compartmental.py --large --profile --output runs/mainline/performance.json
 ```
 
-Full grids and the recorded results are described in [experiments](experiments.md).
+[Measured performance](performance-0.2.0.md) · [Verification record](verification.md).
+Older `benchmarks/performance_suite.py` and `benchmarks/benchmark.py` measure the
+point-neuron baseline, not the current three-state core.
 
-## Benchmarks
+## Extensions, not automatic mainline features
 
-A device-agnostic grid that runs on CPU or CUDA, and reports the tick cost
-against a raw sparse multiplication:
-
-```powershell
-python benchmarks/performance_suite.py --device cpu --json results/performance_cpu.json
-```
-
-The CUDA-only harness and the accepted numbers live in
-[results](results.md); the commands are in [efficiency](efficiency.md) and the
-interpretation in [performance](performance.md). A short version:
-
-```powershell
-python benchmarks/benchmark.py --neurons 100000 --edges 5000000 --steps 100
-```
-
-The native fused kernels are optional and require a CUDA build of PyTorch:
-see [native-build](native-build.md).
+Chemistry/plasticity, delay/development and Cortex-LM have separate entry points.
+They have not all been integrated into the dendritic core runner. See
+[architecture](architecture.md), [API](api.md) and [experiments](experiments.md).
+Existing point-neuron examples and task probes remain useful compatibility baselines.
 
 ## Troubleshooting
 
 | Symptom | Cause / fix |
 |---|---|
-| `RuntimeError: native inference kernels do not implement autograd` | Native runtimes are inference-only; use `MatrixRuntime`/`DopamineMatrixRuntime` for training, or the pointwise `native_advance_training` path |
-| `ValueError: native runtime requires CUDA float32 tensors` | The native runtimes only accept CUDA FP32 tensors |
-| `torch.cuda.is_available()` is `False` | CPU-only PyTorch build; every CPU path still works, the native kernels do not |
-| Edits to `src/` are not picked up | The package is installed editable; re-run `python -m pip install -e .` if you moved the checkout |
-| Native extension rebuilds on every run | `torch.utils.cpp_extension.load` caches under the torch extensions directory; a changing source tree invalidates it |
-
----
+| `No module named neurosim_gpu.simulate` | Install the current checkout, not only the older 0.2.0 wheel; check which Python environment is active |
+| Native build fails | Configure CUDA/C++ using [native-build](native-build.md), or explicitly choose `--backend reference` |
+| `--backend native requires --device cuda` | Native compartment kernels are CUDA FP32 only |
+| CUDA unavailable | CPU-only PyTorch or device/driver issue; use CPU reference |
+| Native API reports `reference-autograd` | Expected gradient-preserving fallback; no native training speedup is claimed |
+| Resume rejects parameters/type | Reuse the original graph/model/batch/runtime options; do not cross-load matrix/PELS or reference/native checkpoint classes |
+| Edits are not visible | Check interpreter and import path; reinstall editable from this checkout |
 
 [← Documentation index](index.md)

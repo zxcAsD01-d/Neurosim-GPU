@@ -11,7 +11,7 @@ promises, what has actually been measured, and what is explicitly out of scope.
 | Understand what this project is and is not | [scope](scope.md) → [biology](biology.md) |
 | Install it and run a first tick | [getting-started](getting-started.md) |
 | Use the public API | [api](api.md) |
-| Use the optional dendritic/adaptive neuron model | [recent research and model](neuron-research-2026.md) |
+| Run the recommended complete core | [mainline guide](mainline.md) → [research and model](neuron-research-2026.md) |
 | Check the 0.2.0 CUDA optimization | [performance and validation](performance-0.2.0.md) |
 | Understand the runtime and state ownership | [design](design.md) → [architecture](architecture.md) |
 | Build the CUDA kernels | [native-build](native-build.md) |
@@ -28,6 +28,8 @@ promises, what has actually been measured, and what is explicitly out of scope.
 |---|---|---|
 | [scope](scope.md) | everyone | Project scope, non-goals, claim boundaries |
 | [getting-started](getting-started.md) | new users | Install, first run, troubleshooting |
+| [mainline](mainline.md) | users, maintainers | Recommended three-state core, execution paths, checkpoint workflow and integration boundaries |
+| [performance-0.2.0](performance-0.2.0.md) | performance work | Three-state model measurements, source hashes and numerical limits |
 | [design](design.md) | core developers | Fixed-topology numerical and runtime contract |
 | [architecture](architecture.md) | core developers | State ownership, runtime modes, multi-rate schedule, integration status |
 | [biology](biology.md) | researchers | Functional biological semantics and where the analogy stops |
@@ -47,9 +49,10 @@ promises, what has actually been measured, and what is explicitly out of scope.
 
 ## Conventions
 
-- **Numbers have one home.** `results.md` is the source of record for accepted
-  measurements; `efficiency.md` interprets them; `validation.md` defines what
-  counts as acceptance. If prose in another document disagrees, those three win.
+- **Numbers have one home per model.** `performance-0.2.0.md` owns the three-state
+  mainline measurements; `results.md` owns historical point-neuron measurements.
+  Do not transfer performance claims between models. `validation.md` defines
+  acceptance and `verification.md` records actual checks.
 - **Every measurement names its stack.** Hardware, CUDA/PyTorch versions, graph
   size, batch, dtype and command are part of the result, not an afterthought.
 - **Claims are bounded.** `scope.md` and `biology.md` state which statements the

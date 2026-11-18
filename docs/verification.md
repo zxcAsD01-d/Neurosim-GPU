@@ -107,6 +107,55 @@ Same-model timings, kernel counts, allocation reduction and numerical limits
 are recorded in [0.2.0 performance](performance-0.2.0.md), with raw samples in
 [JSON](../results/compartmental_performance.json).
 
+## Post-0.2.0 mainline entry — 2026-11-18 (Asia/Shanghai)
+
+Documentation now recommends the three-state dendritic/adaptive core, and
+`python -m neurosim_gpu.simulate` supplies a complete inference/checkpoint workflow.
+This is a source-checkout update, not a replacement of the published 0.2.0 assets.
+No neuron equations or CUDA kernels were changed; performance tables retain the
+original measurement environment and are not new timing claims.
+
+Local stack: Windows, Python 3.12.13, PyTorch `2.12.0+cu130`, CUDA toolkit 13.1,
+RTX 5070 Laptop GPU. `PYTHONPATH=src`, `OMP_NUM_THREADS=1`, `MKL_NUM_THREADS=1`
+for the final suite/smokes. Native build cache was isolated under ignored `runs/`.
+
+| Check | Command / method | Observed result |
+|---|---|---|
+| Unchanged baseline | unittest discovery separately for `test_compartmental.py` and `test_checkpoint.py` | 13 + 6 passed |
+| New runner tests | `python -m unittest discover -s tests -p test_simulate.py -v` | 4 passed |
+| Full suite, native not enabled | `python -m unittest discover -s tests -q` | 208 discovered, 10 native skips, rest passed |
+| Native suite | `NEUROSIM_TEST_NATIVE=1`, `scripts\native_env.bat python -m unittest discover -s tests -p test_native_compartmental.py -v` | 10 passed |
+| Full suite including native | Same native environment, `python -m unittest discover -s tests -q` | 208 passed, no skips |
+| CLI CPU | README command, 100 ticks, default graph/model | PASS; all three states finite |
+| CLI native matrix / PELS | README CUDA commands, 1000 ticks each | PASS; both reported `backend=native` |
+| CLI checkpoint continuation | 50 ticks + file restore + 50 versus continuous 100 | All saved state tensors exactly equal on CPU |
+| README Python snippets | Extract and execute both language versions | Both passed |
+| Documentation links | `python scripts/check_links.py` | All 45 public Markdown files resolve |
+| Offline package build | `python -m build --no-isolation --outdir runs/mainline-20261118/dist` | Wheel/sdist built for local inspection only |
+
+The previous virtual environments referenced interpreters unavailable in this
+session. Checks used the working conda Python instead. Direct `tests.*` imports
+collided with an installed namespace; discovery avoids that collision. The first
+isolated package build could not install build requirements in the restricted
+network environment; the offline build used existing local dependencies. These
+failed attempts are retained in local logs and are not counted as successful checks.
+The link checker now excludes ignored `runs/` logs/backups, which are not published
+documentation. No fresh sanitizer run or performance remeasurement was needed for
+this documentation/runner-only change.
+
+## Mainline activity comparison — 2026-11-18 (Asia/Shanghai)
+
+The [six-panel figure](../results/compartmental_brainwaves.png) and [measurements](../results/compartmental_brainwaves.json)
+come from the native CUDA matrix runtime on the same RTX 5070 Laptop GPU stack.
+The [reproduction commands](mainline.md#activity-comparison) also ran successfully
+on the CPU reference. They shared the graph hash, seed, 512-tick warmup and
+4,096-tick observation window. The maximum GPU-to-CPU absolute difference was
+1.25e-7 for the population mean traces and 3.58e-7 for the eight group mean traces.
+The two conditions matched across all three states immediately before the split.
+
+The full suite with native CUDA enabled passed all 210 tests after the CLI gained
+two regression tests for preventing diagnostics from overwriting checkpoints.
+
 ## How to add an entry
 
 Record the date, the exact command, the environment (device, torch build,

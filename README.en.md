@@ -2,316 +2,171 @@
 
 [![CI](https://github.com/zxcAsD01-d/Neurosim-GPU/actions/workflows/ci.yml/badge.svg)](https://github.com/zxcAsD01-d/Neurosim-GPU/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 
 **English** | [中文](README.md)
 
-GPU-first sparse neural simulation. A fixed-topology neural core — `N` neurons,
-`M` synapses — whose tick is one sparse matrix multiplication plus a few vector
-operations, extended with persistent-current event propagation, regional dopamine
-chemistry, eligibility-based plasticity and a multi-rate scheduler.
+**GPU-first sparse neural simulation. The development mainline is the soma–dendrite–adaptation model, with matrix/PELS propagation, fused CUDA inference and complete runtime-state checkpoints.**
 
-```text
-synaptic_current = W_csr @ state
-state = clamp(alpha * state + (1 - alpha) * gain * tanh(current + drive))
-```
+Stable release: [v0.2.0](https://github.com/zxcAsD01-d/Neurosim-GPU/releases/tag/v0.2.0).
+The unified CLI below is a post-0.2.0 addition: install the current source checkout, not just the older release wheel.
 
-`O(BM + BN)` time and `O(M + BN)` memory per tick. Chemistry, delays,
-eligibility and structural development run at their own cadence with their own
-state and documented cost.
+> An uncalibrated rate surrogate, not a whole-brain, spiking or ion-channel model.
+> “Best mainline” means the current verified complete neural core and optimized implementations,
+> not a universal speed winner. Use reference matrix as the numerical baseline and native matrix
+> as the starting point for CUDA FP32 inference. Select PELS using measured activity and error.
 
-> **Research prototype.** A functional simulation stack, not a biologically
-> validated brain model. Read [docs/scope.md](docs/scope.md) before citing it.
+## Recommended stack
 
-## At a glance
+| Layer | Implementation | Contract |
+|---|---|---|
+| Neuron | `DendriticDynamics` | Soma `s`, signed dendrite `d`, slow adaptation `a`; separate external drives |
+| Correctness/training | `DendriticMatrixRuntime` | Differentiable CPU/CUDA reference, no thresholded propagation |
+| GPU inference starting point | `NativeDendriticMatrixRuntime` | One CUDA FP32 kernel for propagation and all three states |
+| Event optimization | `NativeDendriticPELSRuntime` | Two kernels; explicit threshold, approximate when nonzero |
+| Event reference | `DendriticPELSRuntime` | Emission/current semantics; portable propagation is not a speed guarantee |
+| Recovery | Checkpoints, JSON config, fixed seed | Three states, plus PELS emitted state/current/threshold |
 
-| | |
-|---|---|
-| Runtimes | portable matrix · persistent current (PELS) · native fused matrix · native event |
-| Regression tests | 204; native CUDA tests require explicit opt-in; hardware/optional dependency skips apply |
-| Dependencies | PyTorch ≥ 2.7; the `cortex` HF path needs optional `transformers` |
-| Python | 3.10 – 3.13 |
-| License | Apache-2.0 |
-| Tick cost | 0.74–0.82× a same-parameter cuSPARSE layer at 10–50M edges (GPU) |
-| Status | v0.2.0 research prototype |
+Point-neuron APIs (`Dynamics`, `MatrixRuntime`, etc.) remain compatible baseline and historical
+experiment paths. Promoting the new model does not silently change equations or checkpoint types.
 
-## Quick start
+## Quick start: the complete neural core
 
-Version 0.2.0 adds optional dendritic/adaptive neurons and fused CUDA matrix
-and event runtimes. The matrix path measured 1.32–23.84× faster than the same
-model's PyTorch reference over five configurations on the tested laptop GPU.
-Training falls back to the differentiable reference. See the
-[performance report](docs/performance-0.2.0.md) for raw data and limits.
+From the current checkout, with Python ≥3.10 and PyTorch ≥2.7:
 
 ```powershell
 python -m pip install -e .
-python -m unittest discover -s tests -q
+python -m neurosim_gpu.simulate --steps 100 --output runs/mainline/cpu.json
 ```
 
-A first tick — CPU is enough:
+Defaults: CPU FP32, non-thresholded matrix reference, all three compartment states.
+The summary is a functional diagnostic, not a latency benchmark. CPU needs no compiler.
+
+**CUDA inference starting point**, with CUDA PyTorch and a local build toolchain:
+
+```powershell
+scripts\native_env.bat python -m neurosim_gpu.simulate --device cuda --backend native --steps 1000 --output runs/mainline/cuda-matrix.json
+scripts\native_env.bat python -m neurosim_gpu.simulate --device cuda --backend native --propagation pels --theta 0.02 --steps 1000 --output runs/mainline/cuda-pels.json
+```
+
+Use the helper on Windows; on Linux configure CUDA/C++ and run `python -m …` directly.
+First use compiles the extension. Build failures are reported, not silently relabeled as native success.
+Use `theta=0` for matrix parity; a nonzero threshold is not a trajectory-error bound.
+
+**Save and resume all states**, with the same graph, model, runtime type and parameters:
+
+```powershell
+python -m neurosim_gpu.simulate --steps 50 --checkpoint runs/mainline/state.pt
+python -m neurosim_gpu.simulate --steps 50 --resume runs/mainline/state.pt --checkpoint runs/mainline/state.pt --output runs/mainline/resumed.json
+```
+
+With the same constant inputs this equals 100 continuous ticks. `--steps` counts this invocation's ticks.
+Arbitrary external input generators, optimizers and autograd graphs are not saved.
+
+### Python API
 
 ```python
 import torch
-from neurosim_gpu import Dynamics, MatrixRuntime, random_topology
+from neurosim_gpu import Dynamics, DendriticDynamics, DendriticMatrixRuntime, random_topology
 
-topology = random_topology(1000, 20_000, device="cpu", seed=0)
-dynamics = Dynamics(
-    alpha=torch.full((1000,), 0.72),
-    gain=torch.full((1000,), 1.05),
+graph = random_topology(1000, 20_000, device="cpu", seed=0)
+soma = Dynamics(torch.full((1000,), 0.72), torch.full((1000,), 0.8))
+model = DendriticDynamics.from_time_constants(
+    soma, dt=1.0, tau_dendrite=4.0, tau_adaptation=25.0,
+    coupling=0.5, adaptation_strength=0.2,
 )
-runtime = MatrixRuntime(topology, dynamics, torch.zeros(1, 1000))
-for _ in range(10):
-    state = runtime.step(drive=0.1)
-print(topology.n_edges, float(state.mean()))
+runtime = DendriticMatrixRuntime(graph, model, torch.zeros(1, 1000))
+for _ in range(100):
+    state = runtime.step(drive=0.2, dendritic_drive=0.1)
+print(state.shape, runtime.dendritic_state.mean().item(), runtime.adaptation_state.mean().item())
 ```
 
-More: [getting started](docs/getting-started.md) ·
-[runnable API workflows](docs/api.md).
+Train through the API, not the inference CLI. Native dendritic runtimes fall back to the differentiable
+reference when gradients are needed; inspect `last_backend`. This is not native training acceleration.
 
-## How it works
+## Mainline activity comparison
 
-```mermaid
-flowchart LR
-    A["state s_t"] --> B["W_csr · s_t + drive"]
-    B --> C["clamp(alpha·s_t + (1-alpha)·gain·tanh(·))"]
-    C --> D{"|Δs| >= theta ?"}
-    D -- yes --> E["emit delta, event scatter<br/>O(BN + M_A)"]
-    D -- no --> F["matrix fallback<br/>O(BM)"]
-    E --> G["persistent current<br/>W · s_emit"]
-    F --> G
-    G --> A
-```
+![Six-panel comparison of continued and withdrawn inputs in the mainline neuron model](results/compartmental_brainwaves.png)
 
-Multi-rate ownership:
+The v0.2.0 native CUDA matrix core warms both conditions for 512 ticks on the same graph
+of 1,024 neurons and 20,295 edges. From matching three-state snapshots, it records 4,096 ticks
+per condition while continuing the synthetic input or withdrawing both the soma and dendrite inputs.
+Mean soma activity in the final 512 ticks was 0.16593 and 0, respectively. The frequency axis uses
+a 100 Hz display convention. See the [measurements](results/compartmental_brainwaves.json)
+and [reproduction steps](docs/mainline.md#activity-comparison).
+
+## Dynamics
 
 ```text
-every tick:        neural dynamics · delayed communication · traces/eligibility
-every K_c ticks:   regional chemistry · receptor cache · optional weight update
-every K_m ticks:   migration / region remapping
-every K_s ticks:   candidate scoring · formation/pruning · topology rebuild
+j_t       = W @ s_t                          # W @ s_emit for PELS
+d_(t+1)   = rho_d*d_t + (1-rho_d)*tanh(j_t + dendritic_drive_t)
+u_t       = (1-c)*j_t + c*d_(t+1) - k*a_t
+s_(t+1)   = clip(alpha*s_t + (1-alpha)*gain*tanh(u_t + drive_t), 0, 1)
+a_(t+1)   = rho_a*a_t + (1-rho_a)*s_(t+1)
+rho       = exp(-dt/tau)
 ```
 
-| Runtime | Path | Notes |
-|---|---|---|
-| `MatrixRuntime`, `DopamineMatrixRuntime` | portable PyTorch CSR | readable reference, portable |
-| `HybridPELSRuntime`, `DopaminePersistentRuntime` | persistent synaptic current | propagates emitted deltas; the reference scatter is still a full SpMM |
-| `NativeCanonicalMatrixRuntime`, `NativeDopamineMatrixRuntime` | fused CUDA | destination-major reduction over one weight array |
-| `NativeEventPELSRuntime`, `DopamineEventRuntime` | fused CUDA event path | `O(BN + M_A)` propagation at low activity |
+All states advance every tick; only soma activity propagates. No emission means persistent current
+is retained, not an automatic matrix fallback. Matrix cost is `O(BM+BN)`, storage `O(M+BN)`.
+Native PELS scans `B*N` sources and traverses emitting sources' outgoing edges. Example time constants
+use arbitrary consistent units, not fitted milliseconds. [Research and equations](docs/neuron-research-2026.md).
 
-Native kernels need a CUDA build of PyTorch and compile on first use:
-[native build](docs/native-build.md). With eligibility enabled, the dopamine
-runtime still scans all `M` edges per tick — whole-tick event sparsity requires
-eligibility disabled and no weight update on that tick.
+## Verified mainline performance: v0.2.0
 
-## Performance
+Same dendritic model, topology, parameters and input, RTX 5070 Laptop, FP32; ms/tick:
 
-The core claim fits in one line: **a complete neural tick costs about the same
-as one sparse matrix multiplication of the same size.**
+| N | Actual M | B | Reference → native matrix | Speedup | Reference → native PELS | Speedup |
+|---:|---:|---:|---:|---:|---:|---:|
+| 4,096 | 65,416 | 1 | 0.284 → 0.012 | 23.84× | 0.355 → 0.021 | 17.27× |
+| 50,000 | 999,787 | 1 | 0.327 → 0.063 | 5.19× | 0.423 → 0.041 | 10.20× |
+| 50,000 | 999,787 | 8 | 0.671 → 0.397 | 1.69× | 0.747 → 0.184 | 4.06× |
+| 166,000 | 9,998,214 | 1 | 0.769 → 0.489 | 1.57× | 0.848 → 0.347 | 2.44× |
+| 166,000 | 24,988,704 | 1 | 1.444 → 1.094 | 1.32× | 1.541 → 0.964 | 1.60× |
 
-| N | M | batch | complete neural tick | vs cuSPARSE raw SpMM | vs matching custom SpMM |
-|---:|---:|---:|---:|---:|---:|
-| 166k | 10.00M | 1 | 0.595 ms | **0.82×** | 1.07× |
-| 166k | 24.99M | 1 | 1.350 ms | **0.74×** | 1.03× |
-| 166k | 49.95M | 1 | 2.466 ms | **0.75×** | 0.92× |
-| 50k | 1.00M | 8 | 0.513 ms | 1.15× | 1.12× |
+- First profile: **29→1** matrix and **36→2** PELS kernels/tick; extra transient allocation down about **57% / 17%**.
+- Matrix max absolute error: `4.47e-7–5.96e-7`. Native PELS versus same-threshold reference: `5.27e-4–5.59e-4`; versus exact matrix: about `0.00386–0.00438`. Observations, not general guarantees.
+- PELS denominator is the same-model matrix-delta reference, not the older point-neuron native event kernel. No training, cross-GPU or biological-fit extrapolation.
 
-RTX 5070 Laptop, CUDA 13.1, FP32, medians after warmup. The neural update
-(tanh, leak, gain, clip) adds 2.8–6.6% over the matching custom SpMM; at batch 1
-the fused tick beats the cuSPARSE denominator because it fuses work cuSPARSE
-cannot.
+[Protocol and report](docs/performance-0.2.0.md) · [Raw samples and source hashes](results/compartmental_performance.json).
+Older point-neuron SpMM/training/50M-edge numbers stay in [historical performance](docs/performance.md),
+not evidence for the new three-state model.
 
-- **Event sparsity:** with 2.64% of edges emitting (`theta=0.05`), the native
-  event kernel is **3.0–4.5×** faster than the matrix tick (0.200 ms vs
-  0.595 ms at 10M edges).
-- **Training:** forward + backward is **1.075×** a same-parameter sparse RNN with
-  the native pointwise adjoint (93% efficiency); the missing piece is a fused
-  whole-rollout adjoint.
-- **Memory:** 24 B/synapse mutable, ≈16 B/synapse read-only; 125M edges projects
-  to 3.0 GB / 2.0 GB. The 125M point itself has **not** been executed end to end.
-- **CPU reference baseline** (no GPU required): the tick stays at 1.18–1.82× a raw
-  sparse multiplication, but the Python event scatter is 5–80× slower than the
-  dense path — event sparsity is a native-kernel property, not a reference-path
-  one.
-
-Full tables, methodology, the cost model and the reproduction commands:
-[docs/performance.md](docs/performance.md). Accepted GPU numbers and their
-hardware: [docs/results.md](docs/results.md).
-
-### Validation on real tasks
-
-These probes check that the stack learns and controls; they are not performance
-measurements ([details](docs/experiments.md), [report](results/REPORT.md)):
-
-| Probe | Result |
-|---|---|
-| MNIST, sparse brain vs parameter-matched MLP | 91.1% vs 87.3% (4,585 trainable scalars) |
-| MNIST, sparse brain vs logistic regression | 91.1% vs 91.8% — no accuracy win |
-| MNIST under Gaussian noise σ=0.3 | 72.9% vs 55.1% (wide MLP) — sparse core is more noise-robust |
-| Inverted pendulum, behaviour cloning | 200/200 steps for both MLP and sparse brain; failures only under extreme delay/noise |
-| Online three-factor plasticity after a plant change | no measurable benefit; ablation shows the learned recurrence is nearly dispensable |
-
-### Cortex-LM: Qwen3 3+2 × neuron middle
-
-Qwen3-0.6B has 28 layers. Keep only the first 3 and last 2; replace the middle
-23 with a 1024-neuron dense recurrent core. All retained Qwen3 weights are
-frozen and only the middle is trained. The recurrent matrix is initialised from
-the **linearised residual map** of the removed blocks (`o@v + down@up`
-composition), not randomly.
-
-```text
-tokens → [embedding + first 3 blocks] → [1024 neurons, W 1024×1024] → [last 2 blocks + LM head]
-```
-
-![Cortex-LM current neuron structure, positions and connections](llm/results/cortex/current_structure.png)
-
-Continuous-run population activity (teacher-forced vs zero-drive autonomous,
-with human EEG band references): [brainwaves.png](llm/results/cortex/brainwaves.png).
-
-**Status: the 3+2 split, transplant, 20k run, open-loop readout, spatial /
-loss-driven rewiring, the temporal/memory stage, the biologically inspired
-memory stage and open-loop consistency training are complete.** The 20k run with
-decoder LoRA ended at eval perplexity **22.69** and writes fluent Chinese
-sentences, but samples still drift off-topic — **not conversational**. Stage3
-added short-term synaptic resources, an eligibility trace, dopamine-gated
-consolidation and homeostatic scaling. Its same-configuration 8-batch ppl is
-**21.49**, about 3.7% better than stage2's 22.31, but still not better than the
-dense diagnostic 20.46. Effective rank recovered from 52.8 to **56.5**, still
-below dense's 60.9. Stage4 added an 8-step zero-drive open-loop loss; ppl
-degraded to **22.15** and the auxiliary loss stayed at 11.6→10.9, so the naive
-open-loop objective failed. Long-term memory and open-loop decoding remain
-unsolved. See the [full report](llm/REPORT.md) and
-[technical record](llm/docs/cortex-lm.md) for details.
+## Validation and reproduction
 
 ```powershell
-$env:PYTHONPATH="src"
-.\.venv-str\Scripts\python.exe -m neurosim_gpu.cortex.train `
-  --config llm/configs/cortex_qwen3_3p2_minimind.json --dry-run --device cuda `
-  --set backbone.model_id=data/qwen3_06b `
-  --set backbone.tokenizer_id=data/qwen3_06b `
-  --set backbone.local_files_only=true
+python -m unittest discover -s tests -q
+python scripts/check_links.py
+$env:NEUROSIM_TEST_NATIVE="1"
+scripts\native_env.bat python -m unittest discover -s tests -p test_native_compartmental.py -v
+scripts\native_env.bat python benchmarks/compartmental.py --large --profile --output runs/mainline/performance.json
 ```
 
-## Reproducibility and data
+v0.2.0 release evidence: **204 CUDA/native tests passed**; memcheck and synccheck each passed
+10 tests with zero errors; all PR/main CI jobs passed on Linux/Windows × Python 3.10/3.12 plus docs.
+Installed-wheel native smoke, archive contents and six public asset downloads were verified.
+Current mainline adds runner tests; use actual discovery counts, not retroactive release claims.
+[Verification log](docs/verification.md).
 
-Everything needed to re-derive the tables is in the repository:
+## Mainline versus extensions
 
-| Path | Contents |
+| Scope | Status |
 |---|---|
-| [`results/raw/`](results/raw) | 182 JSON payloads (105 grid runs + 77 exploratory runs): config, metrics, history, per-condition rows |
-| [`results/summary_*.csv`](results) | one row per run, per suite |
-| [`results/TABLES.md`](results/TABLES.md) | aggregate tables generated from the raw payloads |
-| [`results/REPORT.md`](results/REPORT.md) | methodology, results, failure log, limitations |
-| [`docs/verification.md`](docs/verification.md) | release verification log (what ran, on which stack, what passed) |
+| **Mainline core** | Three-state neurons + sparse topology + matrix/PELS + reference/native + checkpoints; [guide](docs/mainline.md) |
+| Dopamine/plasticity | Chemistry, D1/D2, eligibility, weight updates, scheduler/replay exist with point-neuron runtimes; not yet unified with dendritic CUDA mainline; [API](docs/api.md) |
+| Delays/development | Communication, migration, formation/pruning have separate modules/tests; not automatically included in the CLI; [architecture](docs/architecture.md) |
+| MNIST/cart-pole/Gomoku | Independent task probes; historical accuracy/control results do not validate the new model; [experiments](docs/experiments.md), [results](results/REPORT.md) |
+| Cortex-LM | Separate LM research, not the core default and not automatically migrated; [subproject](llm/README.md), [report](llm/REPORT.md) |
 
-```powershell
-python experiments/analyze.py                 # rebuild results/TABLES.md from results/raw
-python experiments/run_suite.py --list        # the 12-suite grid
-python experiments/run_suite.py --suite all   # re-run it (~40 min on CPU)
-```
+“Complete” describes the connected core workflow, not a fusion of every experimental module. Next:
+jointly validate chemistry/plasticity with compartments, activity sweeps and device-side routing,
+training optimization, 125M edges end to end, and task comparisons. CUDA sources already ship in
+v0.2.0 wheels; that is no longer open work.
 
-The MNIST corpus is **not** committed: the official idx files are downloaded on
-first use and cached under `data/mnist/` (git-ignored). Checkpoints are caches
-and are ignored as well. Accuracy and survival metrics are seed-deterministic;
-latency is not.
+## Navigation and contributing
 
-## Repository layout
+- [Getting started](docs/getting-started.md) · [Mainline configuration](docs/mainline.md) · [Documentation](docs/index.md)
+- [Research](docs/neuron-research-2026.md) · [Native build](docs/native-build.md) · [Scope](docs/scope.md)
+- `src/neurosim_gpu/`: core; `csrc/`: kernels; `benchmarks/`: measurements; `experiments/`: tasks; `llm/`: independent LM; `tests/`: regressions.
+- [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Citation](CITATION.cff) · [Security](SECURITY.md)
 
-```text
-src/neurosim_gpu/   package: runtime, topology, chemistry, dopamine, scheduler, ...
-csrc/               CUDA/C++ extension sources (built on demand)
-benchmarks/         GPU, cost model, latency, training parity, Gomoku probes
-experiments/        MNIST and inverted-pendulum experiment suite
-tests/              regression suite
-docs/               contracts, measurements and guides
-scripts/            native build helper, documentation link check
-results/            report, aggregate tables, raw payloads
-```
-
-## Documentation
-
-Start at [docs/index.md](docs/index.md). The short version:
-
-| Document | Contents |
-|---|---|
-| [getting-started](docs/getting-started.md) | install, first tick, troubleshooting |
-| [api](docs/api.md) | public workflows, tensor contracts, errors |
-| [design](docs/design.md) · [architecture](docs/architecture.md) | numerical contract, state ownership, runtime modes |
-| [biology](docs/biology.md) | what the neurochemical model means and where the analogy stops |
-| [efficiency](docs/efficiency.md) · [results](docs/results.md) · [validation](docs/validation.md) | cost model, accepted measurements, acceptance criteria |
-| [experiments](docs/experiments.md) · [gomoku-protocol](docs/gomoku-protocol.md) | task-level probes and protocols |
-| [status](docs/status.md) · [verification](docs/verification.md) | milestone scorecard, release verification log |
-| [Technical report](paper/main.pdf) | cost-normalized evaluation paper; LaTeX source and generator in paper/ |
-
-中文说明见 [README.md](README.md)。
-
-## Scope
-
-This is a research prototype. It does not claim biological realism, whole-brain
-scale or self-play strength; its performance numbers are bound to the hardware
-and graph size recorded with them, and CPU results are about correctness and
-parameter efficiency rather than throughput. See [docs/scope.md](docs/scope.md).
-
-## What we claim (and what would refute it)
-
-One sentence:
-
-> On a GPU, a fixed-topology sparse neural simulator can keep the per-tick
-> neural-update overhead to a few percent of a same-size sparse multiplication,
-> and can cut tick cost at low activity with native event propagation.
-
-The full ledger — every claim, its status (supported / partial / unverified /
-refuted), the evidence, and the experiment that would falsify it — is in
-[docs/claims.md](docs/claims.md). Three items remain open: 125M synapses end to
-end, an activity sweep with automatic path selection, and a same-task comparison
-against a mature simulator.
-
-## Relationship to the other "NeuroSim" projects
-
-This repository is **unrelated** to, and does not compete with:
-
-- [grasp-lyrl/neurosim](https://github.com/grasp-lyrl/neurosim) — a simulator for
-  neuromorphic robot perception;
-- [neurosim/neurosim](https://github.com/neurosim/neurosim) — a compute-in-memory
-  hardware evaluation framework.
-
-NeuroSim-GPU studies the cost/accuracy trade-off of fixed-topology sparse rate
-dynamics, persistent-current event propagation and regional neurochemistry. No
-performance ranking against those projects is claimed.
-## Roadmap
-
-- Execute the 125M-edge prebuilt-topology point end to end.
-- Replace the matrix/event policy with a device-side selector that needs no
-  host synchronisation.
-- Move training parity from 1.075× to ≤ 1.05× with a whole-rollout custom adjoint.
-- Ship `csrc/` inside the wheel so `pip install` users can build the kernels.
-- Design an eligibility representation that keeps the event path sparse.
-
-## Contributing and license
-
-Contributions are welcome; start with [CONTRIBUTING.md](CONTRIBUTING.md) and the
-acceptance criteria in [docs/validation.md](docs/validation.md). The suite must
-stay green and documentation links must resolve
-(`python scripts/check_links.py`).
-
-Licensed under the Apache License 2.0 — see [LICENSE](LICENSE). Citation metadata
-is in [CITATION.cff](CITATION.cff); release notes are in
-[CHANGELOG.md](CHANGELOG.md). Report security issues privately as described in [SECURITY.md](SECURITY.md).
-
-## FAQ
-
-**Do I need a GPU?** No. Every portable path runs on CPU; only the native fused
-kernels require CUDA.
-
-**Can I use my own connectome?** Yes. Build a `SparseTopology` with
-`SparseTopology.from_edges`, or load one with `load_topology`; duplicate edges
-are coalesced.
-
-**Why is the sparse path slower than a dense MLP on CPU?** At a few thousand
-edges, per-tick Python and CSR-construction overhead dominates. The sparse
-advantage appears at larger `M` with low activity, or with the native kernels —
-see [docs/experiments.md](docs/experiments.md).
-
-**Is the dopamine subsystem a biological model?** It is a functional proxy:
-tonic/burst/dip chemistry, D1/D2 occupancy and three-factor plasticity are
-implemented and tested, but not calibrated to recordings. See
-[docs/biology.md](docs/biology.md).
+Apache-2.0, see [LICENSE](LICENSE). Unrelated to [grasp-lyrl/neurosim](https://github.com/grasp-lyrl/neurosim)
+and [neurosim/neurosim](https://github.com/neurosim/neurosim); no performance ranking against them is claimed.

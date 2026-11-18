@@ -6,6 +6,23 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Promote the verified soma/dendrite/adaptation core to the recommended project
+  mainline in both READMEs, onboarding and documentation navigation. Keep older
+  point-neuron APIs and measurements as explicitly labeled baselines.
+- Separate integrated core capabilities from chemistry/development extensions
+  and Cortex-LM; remove stale test counts and completed wheel-packaging roadmap work.
+
+### Added
+
+- `python -m neurosim_gpu.simulate`: an explicit reference/native, matrix/PELS
+  inference runner with complete runtime checkpoints and JSON diagnostics.
+- Runner tests for three-state execution, zero-threshold parity, matrix/PELS
+  checkpoint continuation, output records and invalid-option rejection.
+- Six-panel native CUDA activity comparison for continued versus withdrawn
+  input, with a reproduction script and measured traces.
+
 ## [0.2.0] - 2026-11-17
 
 ### Added

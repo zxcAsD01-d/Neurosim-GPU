@@ -3,7 +3,19 @@
 The target is a neural simulation tick whose cost is comparable to a model with
 the same `M` sparse parameters acting on an `N`-dimensional state.
 
-## Current Scorecard
+## Mainline: soma / dendrite / adaptation
+
+The recommended core is now the three-state model and its complete reference/native,
+matrix/PELS, checkpoint workflow. See [mainline](mainline.md). Version 0.2.0 measured
+1.32–23.84x matrix and 1.60–17.27x PELS speedups over the same-model references on
+the recorded GPU; [performance-0.2.0](performance-0.2.0.md) owns these measurements.
+Training uses the differentiable reference, not a fused native adjoint. Chemistry,
+plasticity and structural development are not yet jointly integrated with this core.
+
+The post-release CLI and README changes do not change or retag the published 0.2.0
+artifacts. CUDA sources already ship in its wheel.
+
+## Historical point-neuron / extension scorecard
 
 | Area | Target | Current result | Status |
 |---|---:|---:|---|
@@ -28,8 +40,8 @@ the same `M` sparse parameters acting on an `N`-dimensional state.
 | Runtime checkpoint | episode/preemption resume | PELS, chemistry, delay history and topology version | Achieved |
 | Continual embodied loop | replay + multi-rate boundaries | Scheduler and deterministic replay controller | Achieved |
 
-The current regression suite contains 181 tests (169 pass plus 1 CUDA-only and
-11 optional `transformers` skips on a base CPU install), including topology
+The 0.2.0 release discovered 204 tests; post-release mainline adds runner tests.
+Hardware/optional-dependency skips depend on the active environment. Coverage includes topology
 serialization, runtime/communication checkpoints, scheduler boundaries,
 replay-buffer resume determinism, the Gomoku environment/CSR-view checks, and
 the Cortex-LM contract/dry-run tests.
@@ -114,9 +126,9 @@ Absolute performance remeasurement is pending because the measurement device was
 shared with an unrelated GPU workload during the 2026-09-27 session; correctness
 and native/reference comparisons passed under that contention.
 
-The next milestone is not another forward micro-optimization. It is an actual
-125M-edge prebuilt topology run plus a whole-rollout custom adjoint that moves
-training parity from 1.075x to at most 1.05x.
+Mainline priorities are joint dendritic/chemistry/plasticity validation, measured
+activity-aware routing, training optimization and the 125M-edge scale point. The
+historical 1.075x training ratio is a point-neuron target, not a three-state result.
 
 ---
 

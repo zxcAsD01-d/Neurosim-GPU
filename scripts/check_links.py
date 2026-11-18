@@ -16,7 +16,7 @@ import re
 import sys
 from pathlib import Path
 
-SKIP_DIRS = {".git", ".venv", "data", "node_modules", "__pycache__", "build", "dist"}
+SKIP_DIRS = {".git", ".venv", "data", "node_modules", "__pycache__", "build", "dist", "runs"}
 LINK = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 FENCE = re.compile(r"```.*?```", re.DOTALL)
 

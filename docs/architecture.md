@@ -1,5 +1,10 @@
 # Runtime Architecture
 
+The recommended development mainline is the soma/dendrite/adaptation core; see
+[mainline guide](mainline.md). The point-neuron dopamine stack and standalone
+development primitives below remain separate extensions, not implicitly enabled
+features of the dendritic runner.
+
 ## Objective
 
 For `N` neurons and `M` fixed synapses, the fast neural tick must remain a
@@ -76,7 +81,7 @@ operators and is not the production latency path.
 persistent-current semantics. Their delta propagation is a full SpMM, so they
 validate bounded error but do not provide event-sparse edge cost.
 
-### Optional compartment dynamics
+### Mainline compartment dynamics
 
 `DendriticMatrixRuntime` and `DendriticPELSRuntime` add signed dendritic
 filtering and a slow activity-feedback state. They use the portable PyTorch
@@ -163,6 +168,9 @@ ticks.
 ## Integrated Versus Standalone
 
 Integrated today:
+
+The following list describes the existing point-neuron dopamine stack, not a
+single all-features dendritic runtime:
 
 - sparse neural dynamics;
 - regional dopamine, D1/D2 modulation, delay and multirate chemistry;
