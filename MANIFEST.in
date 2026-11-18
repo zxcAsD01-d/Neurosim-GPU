@@ -25,6 +25,10 @@ include results/compartmental_brainwaves.png
 include results/compartmental_brainwaves.json
 include results/precision_compartmental.json
 include results/precision_native.json
+include results/precision_drift.json
+include results/precision_drift.json.gz
+include results/precision_drift_native.png
+include results/precision_drift_reference.png
 recursive-include tests *.py
 recursive-include paper *.tex *.bib *.csv *.md *.py
 include paper/main.pdf

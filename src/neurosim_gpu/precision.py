@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Literal, cast
 
 import torch
@@ -11,6 +12,22 @@ Precision = Literal["fp32", "fp16", "fp8", "nvfp4"]
 PRECISIONS = ("fp32", "fp16", "fp8", "nvfp4")
 _E2M1_LEVELS = (0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0)
 _E2M1_MIDPOINTS = (0.25, 0.75, 1.25, 1.75, 2.5, 3.5, 5.0)
+
+
+@lru_cache(maxsize=None)
+def _e2m1_constants(
+    device: torch.device, dtype: torch.dtype,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Reuse immutable device tables; initialize during CUDA graph warmup.
+
+    Normal tensors allow an inference-mode warmup to precede training. Keeping
+    the tables on device also avoids a host-to-device copy on every NVFP4 tick.
+    """
+    with torch.inference_mode(False), torch.no_grad():
+        return (
+            torch.tensor(_E2M1_MIDPOINTS, device=device, dtype=dtype),
+            torch.tensor(_E2M1_LEVELS, device=device, dtype=dtype),
+        )
 
 
 def validate_precision(value: str) -> Precision:
@@ -49,7 +66,7 @@ def _encode_e2m1(value: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch
     normalized = abs_blocks / torch.where(denominator > 0, denominator, 1.0)
 
     # Bucketize in O(numel) memory. Exact ties round to the even E2M1 code.
-    midpoints = value.new_tensor(_E2M1_MIDPOINTS)
+    midpoints, _ = _e2m1_constants(value.device, value.dtype)
     nearest = torch.bucketize(normalized, midpoints)
     on_odd_boundary = (nearest % 2 == 1) & (normalized == midpoints[nearest.clamp_max(6)])
     code = (nearest + on_odd_boundary).to(torch.uint8) | (blocks.signbit().to(torch.uint8) << 3)
@@ -88,7 +105,7 @@ def quantize_dequantize(value: torch.Tensor, precision: Precision) -> torch.Tens
     else:
         vector = value.detach() if value.ndim else value.detach().reshape(1)
         codes, block_scales, scale = _encode_e2m1(vector)
-        levels = value.new_tensor(_E2M1_LEVELS)
+        _, levels = _e2m1_constants(value.device, value.dtype)
         magnitude = levels[(codes & 7).long()] * (block_scales.float() * scale).unsqueeze(-1)
         decoded = torch.where(codes >= 8, -magnitude, magnitude).flatten(-2)
         decoded = decoded[..., :vector.shape[-1]].reshape(value.shape)

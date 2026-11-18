@@ -27,11 +27,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   runtime. The CLI selects the mode with `--precision` and reports the execution path.
 - Reproducible precision benchmarks with synchronized timings, payload sizes,
   GPU allocator measurements, trajectory errors and gradient probes.
+- Long-horizon precision drift probe with same-backend FP32 controls, three
+  input/dynamics scenarios, sampled three-state errors and seed-range figures.
 
 ### Fixed
 
 - Preserve whether a PELS current needs refreshing when resuming a checkpoint
   taken immediately after a sparse weight update.
+- Cache the immutable NVFP4 format tables on device, avoiding per-tick constant
+  copies and allowing warmed quantization to participate in CUDA graph replay.
 
 ## [0.2.0] - 2026-11-17
 

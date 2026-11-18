@@ -91,6 +91,10 @@ python -m neurosim_gpu.simulate --backend reference --precision nvfp4 --propagat
 
 ### Fused matrix inference
 
+The following speed tables were measured at commit `72ccdc2`, before the later
+NVFP4 constant-table cache used by the long-horizon probe. They are historical
+measurements; throughput has not been remeasured for that cache change.
+
 RTX 5070 Laptop GPU, batch 8. Median synchronized wall time in ms/tick after
 warming the extension and preparing the weight cache.
 
@@ -126,6 +130,73 @@ quantization increased it relative to FP32. PELS used `theta=0`.
 ```powershell
 python benchmarks/precision_compartmental.py --neurons 4096 --edges 65536 --batch 8 --iterations 100 --warmup 30 --repeats 7 --train-warmup 3 --train-steps 16 --train-rollout 8 --output runs/mainline/precision-reference.json
 scripts\native_env.bat python benchmarks/precision_native.py --output runs/mainline/precision-native.json
+```
+
+### Long-horizon drift
+
+The [drift probe](../benchmarks/precision_drift.py) compares FP16, FP8 and NVFP4
+against FP32 separately within the native and reference matrix backends. It
+freezes weights and shares the graph, initial state and deterministic inputs
+between formats. All three states remain FP32. A separate native-FP32 versus
+reference-FP32 control records differences from arithmetic and reduction order.
+The experiment measures fixed-weight inference in the matrix backends.
+
+The default protocol uses 1,024 neurons, 16,384 candidate edges, batch 4, graph
+seeds 11/23/47, and 100,000 ticks per case. Three scenarios distinguish ordinary
+fixed-bias behavior from more demanding dynamics:
+
+| Scenario | Input and dynamics |
+|---|---|
+| Stable drive | Weak recurrence with deterministic oscillating, spatially heterogeneous inputs |
+| Slow adaptation | Adaptation time constant 5,000 ticks; 8,000 ticks of input followed by 16,000 ticks of withdrawal, repeated |
+| Recurrent stress | Weight scale 1.7 and stronger gain; constant spatially heterogeneous input supports sustained recurrent activity |
+
+Snapshots include per-state RMSE, MAE, maximum absolute error, signed bias,
+population statistics and clamp fractions. The probe samples every 256 ticks,
+with extra early checkpoints and input boundaries. Reported peaks are **sampled
+peaks**, not bounds between checkpoints. Early/late-window RMS summaries
+integrate linearly interpolated squared RMSE between samples. Native compressed
+weights and reference Q/DQ propagation are different approximations and should
+be read as separate experiments.
+
+CUDA graph replay uses the existing runtime operations and checks their outputs
+bitwise against eager execution before each case, including an eager tail followed
+by replay. Time is measured in model ticks, with no biological millisecond or EEG
+calibration.
+
+The compact [summary](../results/precision_drift.json) records the configuration,
+source hashes and aggregate metrics. The [compressed samples](../results/precision_drift.json.gz)
+retain every measured checkpoint; the summary records the sample file and its
+SHA-256. The plotting script opens that file automatically. The native-FP32 versus
+reference-FP32 curve is an arithmetic control: divergence in a sensitive recurrent
+scenario is not sufficient by itself to attribute the entire difference to
+quantization. Read the population statistics alongside trajectory error.
+
+On the measured stable-drive cases, final soma RMSE across the three graph seeds
+was approximately `3.1–3.9e-6` (FP16), `4.08–5.06e-4` (FP8), and `1.50–2.31e-3`
+(NVFP4), with ranges spanning both backends. Their late/early-window soma RMSE
+ratios stayed near one (about `0.98–1.01`), consistent with a small settled
+trajectory bias rather than steadily increasing error in this scenario. Under
+slow adaptation and repeated input withdrawal, the late/early ratio was lower
+(roughly `0.74–0.77`), so those trajectory errors declined during the late
+window. These results are specific to this graph, schedule and model.
+
+The recurrent-stress soma errors are much larger (final RMSE roughly `0.29–0.32`
+for all three reduced formats), with late/early ratios around `0.99–1.05`.
+The native-FP32 versus reference-FP32 control also reaches `0.27–0.32` final
+soma RMSE, showing that the recurrent trajectories are sensitive to small
+arithmetic differences. Across all reduced formats, backends and seeds, the
+absolute difference from the same-backend FP32 population mean soma state,
+averaged over the last 20,000 ticks, was at most `0.0038`.
+
+The figures show per-state RMSE over time, median across graph seeds and the
+seed range: [native](../results/precision_drift_native.png) and
+[reference](../results/precision_drift_reference.png).
+
+```powershell
+scripts\native_env.bat python benchmarks/precision_drift.py --steps 100000 --neurons 1024 --edges 16384 --batch 4 --seeds 11 23 47 --output runs/mainline/precision-drift-full.json
+python benchmarks/package_precision_drift.py --input runs/mainline/precision-drift-full.json --output runs/mainline/precision-drift.json
+python benchmarks/plot_precision_drift.py --input runs/mainline/precision-drift.json --output runs/mainline/precision-drift
 ```
 
 ## Activity comparison

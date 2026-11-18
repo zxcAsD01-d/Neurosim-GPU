@@ -94,6 +94,10 @@ Half CSR 前向，FP8 和 NVFP4 使用量化感知训练，量化后解码为 FP
 各低精度路径都以 FP32 更新胞体、树突和慢适应状态。原生 PELS 仍使用 FP32。
 执行路径、训练 API、实测速度和显存见[精度与测速](docs/mainline.md#precision-and-benchmarks)。
 
+低精度的[长时程漂移核验](docs/mainline.md#long-horizon-drift)覆盖稳定驱动、慢适应撤除输入和
+持续递归活动三个场景，以同后端 FP32 为基准，分别检查胞体、树突与适应状态。默认协议为
+100,000 tick、三个图种子；tick 不代表生物毫秒，采样峰值也不是逐步误差上界。
+
 ## 主线仿真对照
 
 ![主线神经元在持续输入和撤去输入后的六面板活动对照](results/compartmental_brainwaves.png)

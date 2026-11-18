@@ -96,6 +96,12 @@ use quantization-aware training with dequantized FP32 sparse multiplication. All
 paths update the three compartment states in FP32. Native PELS remains FP32.
 See [execution paths, training API and benchmarks](docs/mainline.md#precision-and-benchmarks).
 
+The [long-horizon drift probe](docs/mainline.md#long-horizon-drift) covers stable drive,
+slow adaptation with input withdrawal, and sustained recurrent activity. It compares soma,
+dendrite and adaptation errors against FP32 within each backend. The default protocol uses
+100,000 ticks and three graph seeds; ticks are not biological milliseconds, and sampled
+peaks do not bound errors between checkpoints.
+
 ## Mainline activity comparison
 
 ![Six-panel comparison of continued and withdrawn inputs in the mainline neuron model](results/compartmental_brainwaves.png)
