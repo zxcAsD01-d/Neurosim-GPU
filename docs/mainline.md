@@ -17,12 +17,12 @@ own APIs/tests; joint integration with the dendritic native core remains open.
 | Workload | Start with | Why / caveat |
 |---|---|---|
 | CPU, numerical oracle, training | `DendriticMatrixRuntime` | Portable differentiable reference; no threshold approximation |
-| CUDA FP32 inference | `NativeDendriticMatrixRuntime` | Fused one-kernel baseline; requires local JIT toolchain |
+| CUDA matrix inference | `NativeDendriticMatrixRuntime` | Fused one-kernel path with FP32 or compressed weights |
 | Sparse changes, approximation allowed | `NativeDendriticPELSRuntime` | Two-kernel event route; benchmark activity, latency and trajectory error |
 | PELS semantics/debugging | `DendriticPELSRuntime` | Reference delta propagation, not guaranteed event acceleration |
 
-Native classes use reference operations when gradients are needed; `last_backend`
-reports the route. Native PELS statistics requests also use the reference path.
+The FP32 native classes use reference operations when gradients are needed.
+`last_backend` reports the route. Native PELS statistics requests use the reference path.
 The CLI is inference-only. Backend selection is explicit: no hidden autotuner,
 no native-to-reference fallback that conceals a build failure, no model switch.
 
@@ -56,6 +56,78 @@ and `--adaptation-strength`. The output stores all supplied configuration plus
 actual runtime/backend/device, graph size and three-state statistics. There is no
 claim of output accuracy improvement merely because all three states are enabled.
 
+## Precision and benchmarks
+
+Set `--precision fp32|fp16|fp8|nvfp4` for inference. The default is FP32.
+The JSON fields `precision` and `precision_execution` identify the selected format
+and the executed arithmetic. Every reduced-precision mode keeps FP32 master weights
+and advances the soma, dendrite and adaptation states in FP32.
+
+| Format | Differentiable reference matrix and PELS | Fused CUDA matrix inference |
+|---|---|---|
+| FP32 | CPU/CUDA CSR | FP32 weights and FMA |
+| FP16 | CUDA Half CSR forward with FP32 sparse backward on the rounded operands | FP16 weight storage, FP32 FMA |
+| FP8 | Scaled E4M3 weights and sources, dequantized for FP32 CSR, gradients via a straight-through estimator | E4M3 weight bytes and one FP32 scale, FP32 FMA |
+| NVFP4 | E2M1 values in 16-element blocks, E4M3 block scales and an FP32 global scale, dequantized for FP32 CSR, gradients via a straight-through estimator | Two E2M1 weight codes per byte with block/global scales, FP32 FMA |
+
+FP8 and NVFP4 reference quantization runs on CPU and CUDA. Native PELS supports
+FP32. Reduced-precision reference PELS requires `propagation="matrix"` in the API
+and recomputes the current from the full emitted state each tick. The reference
+CLI sets this automatically for `--propagation pels`.
+
+FP16 weights must stay in the finite Half range. The reference FP16 implementation
+also returns the sparse multiplication result in Half before casting it to FP32.
+
+Use `DendriticMatrixRuntime(graph, model, initial, precision="fp16")` for CUDA
+training. For FP8 or NVFP4 quantization-aware training, set `precision="fp8"` or
+`precision="nvfp4"`. The benchmark provides an end-to-end SGD example that
+rebuilds the CSR values via a differentiable gather from the FP32 leaf weights
+on each optimizer step. Use a fresh runtime for each rollout. [Training example](../benchmarks/precision_compartmental.py)
+
+```powershell
+scripts\native_env.bat python -m neurosim_gpu.simulate --device cuda --backend native --precision fp8 --steps 1000
+python -m neurosim_gpu.simulate --backend reference --precision nvfp4 --propagation pels --theta 0.02 --steps 100
+```
+
+### Fused matrix inference
+
+RTX 5070 Laptop GPU, batch 8. Median synchronized wall time in ms/tick after
+warming the extension and preparing the weight cache.
+
+| Format | 1,024 neurons / 16,273 edges | 50,000 neurons / 999,787 edges | Large-graph weight payload (bytes) |
+|---|---:|---:|---:|
+| FP32 | 0.0221 | 0.4510 | 3,999,148 |
+| FP16 | 0.0255 | 0.4480 | 1,999,574 |
+| FP8 | 0.0206 | 0.4446 | 999,791 |
+| NVFP4 | 0.0249 | 0.4999 | 562,385 |
+
+The payload measures the format consumed by the kernel. These runtimes also retain
+the FP32 topology, so total GPU allocation includes that topology and any separate
+encoded cache. The JSON reports allocator measurements and three-state trajectory
+errors alongside payload sizes. [Fused benchmark samples](../results/precision_native.json)
+
+### Reference inference and training
+
+RTX 5070 Laptop GPU, 4,096 neurons, 65,416 edges, batch 8. Median synchronized wall times
+over seven interleaved repeats. Each training step includes an eight-tick rollout,
+backward and SGD updates to the sparse weights and six sets of dynamics parameters.
+
+| Format | Matrix inference (ms/tick) | Matrix training (ms/step) | PELS inference (ms/tick) | PELS training (ms/step) |
+|---|---:|---:|---:|---:|
+| FP32 | 0.407 | 22.217 | 0.602 | 25.205 |
+| FP16 | 0.480 | 17.238 | 0.587 | 19.684 |
+| FP8 | 0.577 | 31.981 | 0.947 | 35.827 |
+| NVFP4 | 1.350 | 46.224 | 1.511 | 49.852 |
+
+FP16 reduced training step time on both reference paths. FP8 and NVFP4
+quantization increased it relative to FP32. PELS used `theta=0`.
+[Timing samples, allocator measurements, trajectory and gradient errors](../results/precision_compartmental.json)
+
+```powershell
+python benchmarks/precision_compartmental.py --neurons 4096 --edges 65536 --batch 8 --iterations 100 --warmup 30 --repeats 7 --train-warmup 3 --train-steps 16 --train-rollout 8 --output runs/mainline/precision-reference.json
+scripts\native_env.bat python benchmarks/precision_native.py --output runs/mainline/precision-native.json
+```
+
 ## Activity comparison
 
 The [six-panel figure](../results/compartmental_brainwaves.png) plots measured soma activity
@@ -82,7 +154,7 @@ python -m neurosim_gpu.simulate --steps 50 --resume runs/mainline/state.pt --che
 ```
 
 Reconstruct the same graph (seed, N, candidate edges), model parameters, batch,
-propagation and runtime class before restoring. The checkpoint checks graph structure,
+propagation, precision and runtime class before restoring. The checkpoint checks graph structure,
 model signature and tensor shape/type; it restores weights and all runtime state.
 It does not construct a different class or convert matrix checkpoints into PELS.
 The JSON records invocation config; arbitrary external input schedules, optimizers,

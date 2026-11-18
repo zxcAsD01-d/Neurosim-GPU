@@ -3,7 +3,8 @@
 std::vector<torch::Tensor> dendritic_step_cuda(
     torch::Tensor, torch::Tensor, torch::Tensor, std::vector<torch::Tensor>,
     torch::Tensor, torch::Tensor, torch::Tensor,
-    std::optional<torch::Tensor>, double, std::optional<torch::Tensor>, double, int64_t);
+    std::optional<torch::Tensor>, double, std::optional<torch::Tensor>, double, int64_t,
+    std::optional<torch::Tensor>, std::optional<torch::Tensor>);
 std::vector<torch::Tensor> dendritic_event_cuda(
     torch::Tensor, torch::Tensor, torch::Tensor, std::vector<torch::Tensor>,
     torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor,
@@ -133,7 +134,12 @@ torch::Tensor dopamine_weight_update_cuda(
     int64_t stream_handle);
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, module) {
-  module.def("dendritic_step", &dendritic_step_cuda, "Fused sparse compartment tick (CUDA)");
+  module.def("dendritic_step", &dendritic_step_cuda, "Fused sparse compartment tick (CUDA)",
+    pybind11::arg("state"), pybind11::arg("dendrite"), pybind11::arg("adaptation"),
+    pybind11::arg("params"), pybind11::arg("rowptr"), pybind11::arg("source"),
+    pybind11::arg("weight"), pybind11::arg("input"), pybind11::arg("input_scalar"),
+    pybind11::arg("dendritic_input"), pybind11::arg("dendritic_scalar"), pybind11::arg("width"),
+    pybind11::arg("block_scales") = pybind11::none(), pybind11::arg("global_scale") = pybind11::none());
   module.def("dendritic_event", &dendritic_event_cuda, "Compartment update and event scatter (CUDA)");
   module.def("advance", &advance_cuda, "Fused neural state advance (CUDA)");
   module.def(

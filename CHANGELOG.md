@@ -22,6 +22,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   checkpoint continuation, output records and invalid-option rejection.
 - Six-panel native CUDA activity comparison for continued versus withdrawn
   input, with a reproduction script and measured traces.
+- FP16 CSR propagation and FP8/NVFP4 quantization-aware training for the three-state
+  reference runtimes, plus compressed-weight inference in the fused CUDA matrix
+  runtime. The CLI selects the mode with `--precision` and reports the execution path.
+- Reproducible precision benchmarks with synchronized timings, payload sizes,
+  GPU allocator measurements, trajectory errors and gradient probes.
+
+### Fixed
+
+- Preserve whether a PELS current needs refreshing when resuming a checkpoint
+  taken immediately after a sparse weight update.
 
 ## [0.2.0] - 2026-11-17
 

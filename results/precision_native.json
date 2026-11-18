@@ -1,0 +1,558 @@
+{
+  "environment": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.13",
+    "torch": "2.12.0+cu130",
+    "cuda_runtime": "13.0",
+    "gpu": "NVIDIA GeForce RTX 5070 Laptop GPU",
+    "compute_capability": [
+      12,
+      0
+    ]
+  },
+  "protocol": {
+    "seed": 23,
+    "warmup_ticks": 12,
+    "iterations_per_repeat": 60,
+    "repeats": 5,
+    "timer": "CUDA events and synchronized wall clock",
+    "timed": "Fused steady-state ticks after extension loading and weight cache preparation",
+    "arithmetic": "Sparse propagation decodes weights to FP32 and updates states in FP32",
+    "resident_memory": "CUDA allocator delta after construction and the first tick; baseline includes the graph, model and input",
+    "weight_storage_bytes": "Logical inference weight payload; all modes retain the original FP32 topology"
+  },
+  "source_sha256": {
+    "csrc/bindings.cpp": "10e40e1ba25b3ab7daa7a61b1d34d5195df1c6ef8321bde4a8bf8a860153ee47",
+    "csrc/runtime.cu": "a661b21aae9a0a8b1f1a3fbb861a0a1378c8fc9815016bb0fd4ca6156a9e09ed",
+    "csrc/compartmental.cu": "887828ee05f6ec4b862f6c3281fb886caa9b5f6669df55768ccdb9b21d6043a3",
+    "src/neurosim_gpu/compartmental.py": "f938b30e286a0347133ece12f6cfc949d819463153f4c31e9775cffc92b92b16",
+    "src/neurosim_gpu/native.py": "d318a99249df5dd74ab461d92041d430ea3952660b72620c56f835f8637d130f",
+    "src/neurosim_gpu/topology.py": "ad5f71b1fdca44e4ea7b374f086dadad740bd92bfd6e252cffa5965ba506a818",
+    "src/neurosim_gpu/precision.py": "cb1f2f973251369a6d2194a38b4da428218c3c40209ab0c05108c0d6014adc18",
+    "src/neurosim_gpu/native_compartmental.py": "29f074c6f6c78dbe6716f4a982498f9115369ad3e028519a870c67682f2405e8",
+    "benchmarks/precision_compartmental.py": "318b42ec8ce6c26658184a8bf7809bba77d6d434207f31968dd4474930b50718",
+    "benchmarks/precision_native.py": "43f3c27cf1011c111089b5cc9334130455fae4590b9413d3f83e587871c68d4e"
+  },
+  "workloads": {
+    "small": {
+      "neurons": 1024,
+      "candidate_edges": 16384,
+      "edges": 16273,
+      "batch": 8,
+      "sample_order": [
+        [
+          "fp16",
+          "nvfp4",
+          "fp8",
+          "fp32"
+        ],
+        [
+          "fp32",
+          "fp8",
+          "nvfp4",
+          "fp16"
+        ],
+        [
+          "fp16",
+          "fp32",
+          "nvfp4",
+          "fp8"
+        ],
+        [
+          "nvfp4",
+          "fp16",
+          "fp32",
+          "fp8"
+        ],
+        [
+          "fp32",
+          "fp8",
+          "fp16",
+          "nvfp4"
+        ]
+      ],
+      "precisions": {
+        "fp32": {
+          "gpu_ms_per_tick_samples": [
+            0.02464480002721151,
+            0.03531573216120402,
+            0.02097866733868917,
+            0.016749332348505657,
+            0.01861813267072042
+          ],
+          "wall_ms_per_tick_samples": [
+            0.02814999994977067,
+            0.03869833308272064,
+            0.022075000257852178,
+            0.017303333152085543,
+            0.019116666711245973
+          ],
+          "median_gpu_ms_per_tick": 0.02097866733868917,
+          "median_wall_ms_per_tick": 0.022075000257852178,
+          "peak_extra_allocated_bytes_samples": [
+            98304,
+            98304,
+            98304,
+            98304,
+            98304
+          ],
+          "median_peak_extra_allocated_bytes": 98304,
+          "execution": "native",
+          "threads_per_row": 8,
+          "weight_storage_bytes": 65092,
+          "trajectory_error_vs_fp32": {
+            "state": {
+              "max_abs_error": 0.0,
+              "mean_abs_error": 0.0,
+              "final_max_abs_error": 0.0
+            },
+            "dendritic_state": {
+              "max_abs_error": 0.0,
+              "mean_abs_error": 0.0,
+              "final_max_abs_error": 0.0
+            },
+            "adaptation_state": {
+              "max_abs_error": 0.0,
+              "mean_abs_error": 0.0,
+              "final_max_abs_error": 0.0
+            }
+          },
+          "trajectory_probe_ticks": 72,
+          "resident_extra_allocated_bytes_after_first_tick_samples": [
+            98304,
+            98304,
+            98304,
+            98304,
+            98304
+          ],
+          "speedup_wall_vs_fp32": 1.0
+        },
+        "fp16": {
+          "gpu_ms_per_tick_samples": [
+            0.016671466827392577,
+            0.021798932552337648,
+            0.021980800231297812,
+            0.01871466636657715,
+            0.01644053359826406
+          ],
+          "wall_ms_per_tick_samples": [
+            0.02619333293599387,
+            0.02553999947849661,
+            0.025966666483630736,
+            0.01927333263059457,
+            0.01693833328317851
+          ],
+          "median_gpu_ms_per_tick": 0.01871466636657715,
+          "median_wall_ms_per_tick": 0.02553999947849661,
+          "peak_extra_allocated_bytes_samples": [
+            98304,
+            98304,
+            98304,
+            98304,
+            98304
+          ],
+          "median_peak_extra_allocated_bytes": 98304,
+          "execution": "native-fp16-weight",
+          "threads_per_row": 8,
+          "weight_storage_bytes": 32546,
+          "trajectory_error_vs_fp32": {
+            "state": {
+              "max_abs_error": 1.6480684280395508e-05,
+              "mean_abs_error": 2.2406247808248736e-06,
+              "final_max_abs_error": 1.4290213584899902e-05
+            },
+            "dendritic_state": {
+              "max_abs_error": 2.2251158952713013e-05,
+              "mean_abs_error": 3.1481956739298766e-06,
+              "final_max_abs_error": 2.053007483482361e-05
+            },
+            "adaptation_state": {
+              "max_abs_error": 1.4021992683410645e-05,
+              "mean_abs_error": 1.6585084949838347e-06,
+              "final_max_abs_error": 1.4021992683410645e-05
+            }
+          },
+          "trajectory_probe_ticks": 72,
+          "resident_extra_allocated_bytes_after_first_tick_samples": [
+            131072,
+            131072,
+            131072,
+            131072,
+            131072
+          ],
+          "speedup_wall_vs_fp32": 0.8643304897652098
+        },
+        "fp8": {
+          "gpu_ms_per_tick_samples": [
+            0.022732800245285033,
+            0.024769065777460735,
+            0.01625173290570577,
+            0.017233065764109292,
+            0.020036800702412923
+          ],
+          "wall_ms_per_tick_samples": [
+            0.026558332804900903,
+            0.026003333429495495,
+            0.0195733339448149,
+            0.017760000385654468,
+            0.020566666110729177
+          ],
+          "median_gpu_ms_per_tick": 0.020036800702412923,
+          "median_wall_ms_per_tick": 0.020566666110729177,
+          "peak_extra_allocated_bytes_samples": [
+            98304,
+            98304,
+            98304,
+            98304,
+            98304
+          ],
+          "median_peak_extra_allocated_bytes": 98304,
+          "execution": "native-fp8-weight",
+          "threads_per_row": 8,
+          "weight_storage_bytes": 16277,
+          "trajectory_error_vs_fp32": {
+            "state": {
+              "max_abs_error": 0.0021050497889518738,
+              "mean_abs_error": 0.00030299994978122413,
+              "final_max_abs_error": 0.0018227249383926392
+            },
+            "dendritic_state": {
+              "max_abs_error": 0.002809448167681694,
+              "mean_abs_error": 0.0004255130479577929,
+              "final_max_abs_error": 0.0025924723595380783
+            },
+            "adaptation_state": {
+              "max_abs_error": 0.0017879679799079895,
+              "mean_abs_error": 0.00022434908896684647,
+              "final_max_abs_error": 0.0017879679799079895
+            }
+          },
+          "trajectory_probe_ticks": 72,
+          "resident_extra_allocated_bytes_after_first_tick_samples": [
+            115200,
+            115200,
+            115200,
+            115200,
+            115200
+          ],
+          "speedup_wall_vs_fp32": 1.073338777369276
+        },
+        "nvfp4": {
+          "gpu_ms_per_tick_samples": [
+            0.02702346642812093,
+            0.021240532398223877,
+            0.024394667148590087,
+            0.018027732769648235,
+            0.017192000150680543
+          ],
+          "wall_ms_per_tick_samples": [
+            0.029224999404201906,
+            0.024868333518194657,
+            0.02562999919367333,
+            0.01876500027719885,
+            0.01785166678018868
+          ],
+          "median_gpu_ms_per_tick": 0.021240532398223877,
+          "median_wall_ms_per_tick": 0.024868333518194657,
+          "peak_extra_allocated_bytes_samples": [
+            98304,
+            98304,
+            98304,
+            98304,
+            98304
+          ],
+          "median_peak_extra_allocated_bytes": 98304,
+          "execution": "native-nvfp4-weight",
+          "threads_per_row": 8,
+          "weight_storage_bytes": 9159,
+          "trajectory_error_vs_fp32": {
+            "state": {
+              "max_abs_error": 0.00562884658575058,
+              "mean_abs_error": 0.0011467229342088103,
+              "final_max_abs_error": 0.004890657961368561
+            },
+            "dendritic_state": {
+              "max_abs_error": 0.007533141877502203,
+              "mean_abs_error": 0.0016110754804685712,
+              "final_max_abs_error": 0.006969965994358063
+            },
+            "adaptation_state": {
+              "max_abs_error": 0.004797056317329407,
+              "mean_abs_error": 0.0008489720639772713,
+              "final_max_abs_error": 0.004797056317329407
+            }
+          },
+          "trajectory_probe_ticks": 72,
+          "resident_extra_allocated_bytes_after_first_tick_samples": [
+            108032,
+            108032,
+            108032,
+            108032,
+            108032
+          ],
+          "speedup_wall_vs_fp32": 0.8876750925710898
+        }
+      }
+    },
+    "large": {
+      "neurons": 50000,
+      "candidate_edges": 1000000,
+      "edges": 999787,
+      "batch": 8,
+      "sample_order": [
+        [
+          "fp16",
+          "nvfp4",
+          "fp8",
+          "fp32"
+        ],
+        [
+          "fp32",
+          "fp8",
+          "nvfp4",
+          "fp16"
+        ],
+        [
+          "fp16",
+          "fp32",
+          "nvfp4",
+          "fp8"
+        ],
+        [
+          "nvfp4",
+          "fp16",
+          "fp32",
+          "fp8"
+        ],
+        [
+          "fp32",
+          "fp8",
+          "fp16",
+          "nvfp4"
+        ]
+      ],
+      "precisions": {
+        "fp32": {
+          "gpu_ms_per_tick_samples": [
+            0.4496586799621582,
+            0.4494319915771484,
+            0.4497338612874349,
+            0.4499903996785482,
+            0.44988587697347004
+          ],
+          "wall_ms_per_tick_samples": [
+            0.45097833305286866,
+            0.45074666656243306,
+            0.45157333370298147,
+            0.4513549996772781,
+            0.45089333337576437
+          ],
+          "median_gpu_ms_per_tick": 0.4497338612874349,
+          "median_wall_ms_per_tick": 0.45097833305286866,
+          "peak_extra_allocated_bytes_samples": [
+            4800000,
+            4800000,
+            4800000,
+            4800000,
+            4800000
+          ],
+          "median_peak_extra_allocated_bytes": 4800000,
+          "execution": "native",
+          "threads_per_row": 16,
+          "weight_storage_bytes": 3999148,
+          "trajectory_error_vs_fp32": {
+            "state": {
+              "max_abs_error": 0.0,
+              "mean_abs_error": 0.0,
+              "final_max_abs_error": 0.0
+            },
+            "dendritic_state": {
+              "max_abs_error": 0.0,
+              "mean_abs_error": 0.0,
+              "final_max_abs_error": 0.0
+            },
+            "adaptation_state": {
+              "max_abs_error": 0.0,
+              "mean_abs_error": 0.0,
+              "final_max_abs_error": 0.0
+            }
+          },
+          "trajectory_probe_ticks": 72,
+          "resident_extra_allocated_bytes_after_first_tick_samples": [
+            4800000,
+            4800000,
+            4800000,
+            4800000,
+            4800000
+          ],
+          "speedup_wall_vs_fp32": 1.0
+        },
+        "fp16": {
+          "gpu_ms_per_tick_samples": [
+            0.45900853474934894,
+            0.44570773442586265,
+            0.4445130666097005,
+            0.44542827606201174,
+            0.44314292271931965
+          ],
+          "wall_ms_per_tick_samples": [
+            0.4606483329553157,
+            0.44823166681453586,
+            0.44621666602324694,
+            0.44795833334016305,
+            0.44441500018971664
+          ],
+          "median_gpu_ms_per_tick": 0.44542827606201174,
+          "median_wall_ms_per_tick": 0.44795833334016305,
+          "peak_extra_allocated_bytes_samples": [
+            4800000,
+            4800000,
+            4800000,
+            4800000,
+            4800000
+          ],
+          "median_peak_extra_allocated_bytes": 4800000,
+          "execution": "native-fp16-weight",
+          "threads_per_row": 16,
+          "weight_storage_bytes": 1999574,
+          "trajectory_error_vs_fp32": {
+            "state": {
+              "max_abs_error": 1.7449259757995605e-05,
+              "mean_abs_error": 2.4183480036299443e-06,
+              "final_max_abs_error": 1.4975666999816895e-05
+            },
+            "dendritic_state": {
+              "max_abs_error": 2.341310027986765e-05,
+              "mean_abs_error": 3.3970193271670723e-06,
+              "final_max_abs_error": 2.138037234544754e-05
+            },
+            "adaptation_state": {
+              "max_abs_error": 1.4699995517730713e-05,
+              "mean_abs_error": 1.790547912605689e-06,
+              "final_max_abs_error": 1.4699995517730713e-05
+            }
+          },
+          "trajectory_probe_ticks": 72,
+          "resident_extra_allocated_bytes_after_first_tick_samples": [
+            6799872,
+            6799872,
+            6799872,
+            6799872,
+            6799872
+          ],
+          "speedup_wall_vs_fp32": 1.0067416978052115
+        },
+        "fp8": {
+          "gpu_ms_per_tick_samples": [
+            0.44250879287719724,
+            0.44550879796346027,
+            0.4437557220458984,
+            0.4432026545206706,
+            0.44356374740600585
+          ],
+          "wall_ms_per_tick_samples": [
+            0.4439700006817778,
+            0.4481933341594413,
+            0.44539833324961364,
+            0.44460666734570015,
+            0.4445216666984682
+          ],
+          "median_gpu_ms_per_tick": 0.44356374740600585,
+          "median_wall_ms_per_tick": 0.44460666734570015,
+          "peak_extra_allocated_bytes_samples": [
+            4800000,
+            4800000,
+            4800000,
+            4800000,
+            4800000
+          ],
+          "median_peak_extra_allocated_bytes": 4800000,
+          "execution": "native-fp8-weight",
+          "threads_per_row": 16,
+          "weight_storage_bytes": 999791,
+          "trajectory_error_vs_fp32": {
+            "state": {
+              "max_abs_error": 0.002381831407546997,
+              "mean_abs_error": 0.0003088829689659178,
+              "final_max_abs_error": 0.0020507872104644775
+            },
+            "dendritic_state": {
+              "max_abs_error": 0.003200134728103876,
+              "mean_abs_error": 0.00043391520739533007,
+              "final_max_abs_error": 0.002927974332123995
+            },
+            "adaptation_state": {
+              "max_abs_error": 0.002010531723499298,
+              "mean_abs_error": 0.00022869683743920177,
+              "final_max_abs_error": 0.002010531723499298
+            }
+          },
+          "trajectory_probe_ticks": 72,
+          "resident_extra_allocated_bytes_after_first_tick_samples": [
+            5800448,
+            5800448,
+            5800448,
+            5800448,
+            5800448
+          ],
+          "speedup_wall_vs_fp32": 1.0143310169980295
+        },
+        "nvfp4": {
+          "gpu_ms_per_tick_samples": [
+            0.5144762674967448,
+            0.49772745768229165,
+            0.4981306711832682,
+            0.49786774317423504,
+            0.4955685297648112
+          ],
+          "wall_ms_per_tick_samples": [
+            0.5161516669128711,
+            0.5006799998227507,
+            0.49939166638068855,
+            0.49991833317714435,
+            0.4969149992878859
+          ],
+          "median_gpu_ms_per_tick": 0.49786774317423504,
+          "median_wall_ms_per_tick": 0.49991833317714435,
+          "peak_extra_allocated_bytes_samples": [
+            4800000,
+            4800000,
+            4800000,
+            4800000,
+            4800000
+          ],
+          "median_peak_extra_allocated_bytes": 4800000,
+          "execution": "native-nvfp4-weight",
+          "threads_per_row": 16,
+          "weight_storage_bytes": 562385,
+          "trajectory_error_vs_fp32": {
+            "state": {
+              "max_abs_error": 0.008232876658439636,
+              "mean_abs_error": 0.0011139942798763514,
+              "final_max_abs_error": 0.0070539116859436035
+            },
+            "dendritic_state": {
+              "max_abs_error": 0.01118670403957367,
+              "mean_abs_error": 0.0015648367116227746,
+              "final_max_abs_error": 0.010189920663833618
+            },
+            "adaptation_state": {
+              "max_abs_error": 0.006907075643539429,
+              "mean_abs_error": 0.0008247995283454657,
+              "final_max_abs_error": 0.006907075643539429
+            }
+          },
+          "trajectory_probe_ticks": 72,
+          "resident_extra_allocated_bytes_after_first_tick_samples": [
+            5363712,
+            5363712,
+            5363712,
+            5363712,
+            5363712
+          ],
+          "speedup_wall_vs_fp32": 0.9021040100425084
+        }
+      }
+    }
+  }
+}

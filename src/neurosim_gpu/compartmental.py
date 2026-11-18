@@ -13,8 +13,55 @@ import math
 import torch
 
 from .dynamics import Dynamics
+from .precision import Precision, quantize_dequantize, validate_precision
 from .runtime import HybridPELSRuntime, MatrixRuntime, PropagationMode, RuntimeStats
 from .topology import SparseTopology
+
+
+
+def _csr(row: torch.Tensor, col: torch.Tensor, values: torch.Tensor) -> torch.Tensor:
+    n = row.numel() - 1
+    return torch.sparse_csr_tensor(row, col, values, size=(n, n), check_invariants=False)
+
+
+class _FP16SpMM(torch.autograd.Function):
+    """FP16 cuSPARSE forward and FP32 derivatives using the rounded operands."""
+
+    @staticmethod
+    def forward(ctx, weights, source, matrix, topology):
+        source_half = source.half()
+        ctx.save_for_backward(matrix, source_half)
+        ctx.topology = topology
+        return torch.sparse.mm(matrix, source_half.T).T.float()
+
+    @staticmethod
+    def backward(ctx, gradient):
+        matrix, source_half = ctx.saved_tensors
+        topology = ctx.topology
+        edge_gradient = source_gradient = None
+        with torch.autocast(device_type="cuda", enabled=False):
+            if ctx.needs_input_grad[0]:
+                # CUDA's sampled_addmm lacks Half support. SDDMM computes only
+                # the stored CSR entries and never materializes an N-by-N gradient.
+                edge_gradient = torch.sparse.sampled_addmm(
+                    matrix.float(), gradient.T.contiguous(), source_half.float().contiguous(),
+                    beta=0.0,
+                ).values()
+            if ctx.needs_input_grad[1]:
+                transposed = _csr(
+                    topology.out_rowptr, topology.dst,
+                    matrix.values().float().index_select(0, topology.out_weight_index),
+                )
+                source_gradient = torch.sparse.mm(transposed, gradient.T).T
+        return edge_gradient, source_gradient, None, None
+
+
+_PRECISION_EXECUTION = {
+    "fp32": "torch-csr-input-dtype",
+    "fp16": "torch-csr-fp16-forward-fp32-backward",
+    "fp8": "torch-csr-fp32-with-fp8-e4m3-qdq-emulation",
+    "nvfp4": "torch-csr-fp32-with-nvfp4-e2m1-qdq-emulation",
+}
 
 
 @dataclass(frozen=True)
@@ -144,6 +191,45 @@ class _CompartmentState:
     dendritic_state: torch.Tensor
     adaptation_state: torch.Tensor
 
+    @property
+    def precision_execution(self) -> str:
+        return _PRECISION_EXECUTION[self.precision]
+
+    def _init_precision(self, initial_state: torch.Tensor, precision: str) -> None:
+        self.precision: Precision = validate_precision(precision)
+        if self.precision != "fp32" and initial_state.dtype != torch.float32:
+            raise ValueError("reduced precision requires FP32 master weights and states")
+        if self.precision == "fp16" and not initial_state.is_cuda:
+            raise ValueError("FP16 CSR propagation requires CUDA")
+        self._invalidate_precision_cache()
+
+    def _invalidate_precision_cache(self) -> None:
+        self._precision_cache = None
+
+    def _propagate(self, source: torch.Tensor) -> torch.Tensor:
+        if self.precision == "fp32":
+            return super()._propagate(source)
+        topology = self.topology
+        train_weight = torch.is_grad_enabled() and topology.in_weight.requires_grad
+        version = topology.weight_version
+        cached = self._precision_cache
+        grad = torch.is_grad_enabled() and (train_weight or source.requires_grad)
+        if (not train_weight and cached is not None and cached[0] == version
+                and not (grad and cached[1].is_inference())):
+            matrix = cached[1]
+        else:
+            values = (topology.in_weight.detach().half() if self.precision == "fp16" else
+                      quantize_dequantize(topology.in_weight, self.precision))
+            matrix = _csr(topology.in_rowptr, topology.in_col, values)
+            if not train_weight:
+                self._precision_cache = (version, matrix)
+        with torch.autocast(device_type=source.device.type, enabled=False):
+            if self.precision == "fp16":
+                return (_FP16SpMM.apply(topology.in_weight, source, matrix, topology) if grad else
+                        torch.sparse.mm(matrix, source.half().T).T.float())
+            operand = quantize_dequantize(source, self.precision)
+            return torch.sparse.mm(matrix, operand.T).T
+
     def _init_compartments(
         self, topology: SparseTopology, dynamics: DendriticDynamics,
         initial_state: torch.Tensor,
@@ -168,6 +254,8 @@ class _CompartmentState:
     ) -> torch.Tensor:
         for name, value in (("drive", drive), ("dendritic_drive", dendritic_drive)):
             if isinstance(value, torch.Tensor):
+                if self.precision != "fp32" and (value.dtype != self.state.dtype or value.device != self.state.device):
+                    raise ValueError(f"{name} must match state device and dtype")
                 try:
                     shape = torch.broadcast_shapes(value.shape, self.state.shape)
                 except RuntimeError as error:
@@ -192,7 +280,8 @@ class DendriticMatrixRuntime(_CompartmentState, MatrixRuntime):
     """
 
     def __init__(self, topology: SparseTopology, dynamics: DendriticDynamics,
-                 initial_state: torch.Tensor) -> None:
+                 initial_state: torch.Tensor, *, precision: str = "fp32") -> None:
+        self._init_precision(initial_state, precision)
         self._init_compartments(topology, dynamics, initial_state)
         super().__init__(topology, dynamics.soma, initial_state)
 
@@ -218,7 +307,11 @@ class DendriticPELSRuntime(_CompartmentState, HybridPELSRuntime):
         initial_state: torch.Tensor, *, theta: float | torch.Tensor,
         propagation: PropagationMode = "auto", event_edge_fraction: float = 0.12,
         policy_interval: int = 16,
+        precision: str = "fp32",
     ) -> None:
+        self._init_precision(initial_state, precision)
+        if self.precision != "fp32" and propagation != "matrix":
+            raise ValueError("reduced-precision PELS requires propagation='matrix'")
         self._init_compartments(topology, dynamics, initial_state)
         super().__init__(
             topology, dynamics.soma, initial_state, theta=theta,
@@ -234,4 +327,22 @@ class DendriticPELSRuntime(_CompartmentState, HybridPELSRuntime):
         state = self._advance_compartments(
             self.persistent_current, drive, dendritic_drive
         )
+        if self.precision != "fp32":
+            residual = state - self.emitted_state
+            active = residual.detach().abs() >= self.theta
+            self.emitted_state = torch.where(active, state, self.emitted_state)
+            self.state = state
+            self.persistent_current = self._propagate(self.emitted_state).contiguous()
+            self._tick += 1
+            if not collect_stats:
+                return self.state
+            active_pairs = torch.nonzero(active, as_tuple=False)
+            active_edges = int(
+                self.topology.out_degree[active_pairs[:, 1]].sum().item()
+            ) if active_pairs.numel() else 0
+            return self.state, RuntimeStats(
+                path="matrix-precision",
+                active_neurons=int(active.sum().item()),
+                active_edges=active_edges,
+            )
         return self._emit(state, collect_stats=collect_stats)

@@ -8,7 +8,7 @@
 **GPU-first sparse neural simulation. The development mainline is the soma–dendrite–adaptation model, with matrix/PELS propagation, fused CUDA inference and complete runtime-state checkpoints.**
 
 Stable release: [v0.2.0](https://github.com/zxcAsD01-d/Neurosim-GPU/releases/tag/v0.2.0).
-The unified CLI below is a post-0.2.0 addition: install the current source checkout, not just the older release wheel.
+The unified CLI and reduced-precision support are available in the post-0.2.0 source checkout.
 
 > An uncalibrated rate surrogate, not a whole-brain, spiking or ion-channel model.
 > “Best mainline” means the current verified complete neural core and optimized implementations,
@@ -21,7 +21,7 @@ The unified CLI below is a post-0.2.0 addition: install the current source check
 |---|---|---|
 | Neuron | `DendriticDynamics` | Soma `s`, signed dendrite `d`, slow adaptation `a`; separate external drives |
 | Correctness/training | `DendriticMatrixRuntime` | Differentiable CPU/CUDA reference, no thresholded propagation |
-| GPU inference starting point | `NativeDendriticMatrixRuntime` | One CUDA FP32 kernel for propagation and all three states |
+| GPU inference starting point | `NativeDendriticMatrixRuntime` | One CUDA kernel for propagation and all three states, with four weight formats |
 | Event optimization | `NativeDendriticPELSRuntime` | Two kernels; explicit threshold, approximate when nonzero |
 | Event reference | `DendriticPELSRuntime` | Emission/current semantics; portable propagation is not a speed guarantee |
 | Recovery | Checkpoints, JSON config, fixed seed | Three states, plus PELS emitted state/current/threshold |
@@ -52,7 +52,7 @@ Use the helper on Windows; on Linux configure CUDA/C++ and run `python -m …` d
 First use compiles the extension. Build failures are reported, not silently relabeled as native success.
 Use `theta=0` for matrix parity; a nonzero threshold is not a trajectory-error bound.
 
-**Save and resume all states**, with the same graph, model, runtime type and parameters:
+**Save and resume all states**, with the same graph, model, runtime type, precision and parameters:
 
 ```powershell
 python -m neurosim_gpu.simulate --steps 50 --checkpoint runs/mainline/state.pt
@@ -80,8 +80,21 @@ for _ in range(100):
 print(state.shape, runtime.dendritic_state.mean().item(), runtime.adaptation_state.mean().item())
 ```
 
-Train through the API, not the inference CLI. Native dendritic runtimes fall back to the differentiable
-reference when gradients are needed; inspect `last_backend`. This is not native training acceleration.
+Use the reference API for training with `precision="fp16"`, `"fp8"`, or `"nvfp4"`. FP32 native
+runtimes fall back to the reference when gradients are needed. Inspect `last_backend` to see the route.
+The native compressed-weight path is for inference only.
+
+### FP16, FP8 and NVFP4
+
+```powershell
+scripts\native_env.bat python -m neurosim_gpu.simulate --device cuda --backend native --precision nvfp4 --steps 1000
+```
+
+FP32 is the default. Native matrix inference decodes compressed weights inside the CUDA kernel
+and uses FP32 multiply-adds. Reference FP16 runs CUDA Half CSR in the forward pass. FP8 and NVFP4
+use quantization-aware training with dequantized FP32 sparse multiplication. All reduced-precision
+paths update the three compartment states in FP32. Native PELS remains FP32.
+See [execution paths, training API and benchmarks](docs/mainline.md#precision-and-benchmarks).
 
 ## Mainline activity comparison
 

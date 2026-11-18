@@ -68,6 +68,34 @@ class NativeCompartmentTests(unittest.TestCase):
                     reference.step(0.2)
                 self.assert_states(native, reference)
 
+    def test_fp16_weight_storage_matches_rounded_fp32_and_refreshes(self):
+        graph, model, state = self.make()
+        rounded = SparseTopology.from_edges(graph.n_neurons, graph.src, graph.dst,
+                                            graph.weight.half().float())
+        for width in (8, 16, 32):
+            native = NativeDendriticMatrixRuntime(graph, model, state.clone(),
+                extension=self.extension, threads_per_row=width, weight_dtype=torch.float16)
+            reference = NativeDendriticMatrixRuntime(rounded, model, state.clone(),
+                extension=self.extension, threads_per_row=width)
+            with torch.inference_mode():
+                for tick in range(12):
+                    if tick == 6:
+                        graph.apply_source_weights_(graph.weight * 0.7)
+                        rounded.apply_source_weights_(graph.weight.half().float())
+                    native.step(0.2, dendritic_drive=0.1)
+                    reference.step(0.2, dendritic_drive=0.1)
+                    for field in ("state", "dendritic_state", "adaptation_state"):
+                        torch.testing.assert_close(getattr(native, field), getattr(reference, field),
+                                                   atol=0, rtol=0)
+                self.assertEqual(native.last_backend, "native-fp16-weight")
+            # A separate runtime uses normal tensors for autograd validation.
+        native = NativeDendriticMatrixRuntime(graph, model, state.clone(),
+            extension=self.extension, weight_dtype=torch.float16)
+        drive = torch.tensor(0.3, device="cuda", requires_grad=True)
+        with self.assertRaisesRegex(RuntimeError, "inference-only"):
+            native.step(drive)
+        torch.testing.assert_close(native.state, state, atol=0, rtol=0)
+
     def test_theta_zero_long_rollout_matches_matrix(self):
         graph, model, state = self.make(1024, 2, 16000)
         native = NativeDendriticPELSRuntime(graph, model, state.clone(), theta=0,
@@ -80,6 +108,36 @@ class NativeCompartmentTests(unittest.TestCase):
         self.assert_states(native, reference, atol=8e-6)
         torch.testing.assert_close(native.persistent_current,
             native._propagate(native.emitted_state), rtol=2e-4, atol=1e-5)
+
+    def test_packed_weights_match_decoded_fp32(self):
+        from neurosim_gpu.precision import quantize_dequantize
+
+        for fmt in ("fp8", "nvfp4"):
+            for edge_count in (0, 605):
+                graph, model, state = self.make(edges=edge_count)
+                if edge_count and graph.n_edges % 2 == 0:
+                    graph = SparseTopology.from_edges(graph.n_neurons, graph.src[:-1],
+                                                      graph.dst[:-1], graph.weight[:-1])
+                decoded = SparseTopology.from_edges(graph.n_neurons, graph.src, graph.dst,
+                                                    graph.weight)
+                for width in (8, 16, 32):
+                    native = NativeDendriticMatrixRuntime(graph, model, state.clone(),
+                        extension=self.extension, threads_per_row=width, weight_format=fmt)
+                    reference = NativeDendriticMatrixRuntime(decoded, model, state.clone(),
+                        extension=self.extension, threads_per_row=width)
+                    with torch.inference_mode():
+                        for tick in range(6):
+                            if tick == 3:
+                                graph.apply_source_weights_(graph.weight * 0.7)
+                            if tick in (0, 3):
+                                csr = quantize_dequantize(graph.in_weight, fmt)
+                                decoded.apply_source_weights_(csr[graph.out_weight_index.long()])
+                            native.step(0.2, dendritic_drive=0.1)
+                            reference.step(0.2, dendritic_drive=0.1)
+                            self.assert_states(native, reference, atol=2e-7)
+                    self.assertEqual(native.last_backend, f"native-{fmt}-weight")
+                    self.assertEqual(native.weight_storage_bytes, sum(
+                        v.numel() * v.element_size() for v in native._packed_weight if v is not None))
 
     def test_nonzero_threshold_emission_and_weight_mutation(self):
         graph, model, state = self.make()

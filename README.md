@@ -8,7 +8,7 @@
 **GPU 优先的稀疏神经仿真。当前开发主线：胞体＋树突分区＋慢适应，配套矩阵/PELS 传播、融合 CUDA 推理与完整运行时状态恢复。**
 
 稳定版本：[v0.2.0](https://github.com/zxcAsD01-d/Neurosim-GPU/releases/tag/v0.2.0)。
-下述统一命令行入口是该版本之后的主线新增；请安装当前源码 checkout，而不是仅安装旧版 wheel。
+统一命令行入口和低精度支持随 v0.2.0 之后的主线源码提供。请安装当前源码 checkout。
 
 > 未经生物数据拟合的速率代理模型，不是全脑、脉冲或多离子通道仿真。
 > “最优主线”指优先采用当前已验证的完整神经核与优化实现，不意味着所有硬件、图、
@@ -21,7 +21,7 @@
 |---|---|---|
 | 神经元 | `DendriticDynamics` | 胞体 `s`、有符号树突 `d`、慢适应 `a`，独立胞体/树突输入 |
 | 正确性与训练 | `DendriticMatrixRuntime` | CPU/CUDA 可微参考，不丢弃传播增量 |
-| GPU 推理起点 | `NativeDendriticMatrixRuntime` | CUDA FP32，一次 kernel 完成传播和三状态更新 |
+| GPU 推理起点 | `NativeDendriticMatrixRuntime` | 单次 CUDA kernel 完成传播和三状态更新，支持四种权重精度 |
 | 事件优化 | `NativeDendriticPELSRuntime` | 两次 kernel；显式阈值，非零阈值是近似路径 |
 | 事件参考 | `DendriticPELSRuntime` | 核对发射状态与持久电流；参考传播不保证事件加速 |
 | 恢复与复现 | checkpoint、JSON 配置、固定 seed | 保存三状态；PELS 额外保存发射状态、电流与阈值 |
@@ -52,7 +52,7 @@ Windows 用工具链助手；Linux 配好 CUDA/C++ 环境后直接运行 `python
 首次 native 调用会 JIT 编译；构建失败明确报错，不会伪装为 native 成功。
 `theta=0` 用于与矩阵核对；`theta>0` 不能解释为轨迹误差上界。
 
-**完整状态保存和接续**（相同图、模型、运行时类型及参数）：
+**完整状态保存和接续**（相同图、模型、运行时类型、精度及参数）：
 
 ```powershell
 python -m neurosim_gpu.simulate --steps 50 --checkpoint runs/mainline/state.pt
@@ -80,8 +80,19 @@ for _ in range(100):
 print(state.shape, runtime.dendritic_state.mean().item(), runtime.adaptation_state.mean().item())
 ```
 
-需要训练时使用 API，不使用推理 CLI。原生树突运行时在需要梯度时自动回退可微参考，
-可用 `last_backend` 检查；这不是原生训练加速。更多见[主线指南](docs/mainline.md)。
+用参考运行时训练，可传入 `precision="fp16"`、`"fp8"` 或 `"nvfp4"`。原生 FP32
+运行时需要梯度时会回退到参考实现，可用 `last_backend` 检查。原生压缩权重路径仅用于推理。
+
+### FP16、FP8 与 NVFP4
+
+```powershell
+scripts\native_env.bat python -m neurosim_gpu.simulate --device cuda --backend native --precision nvfp4 --steps 1000
+```
+
+FP32 仍为默认。原生矩阵在 CUDA 核内解码压缩权重，使用 FP32 乘加。参考 FP16 使用 CUDA
+Half CSR 前向，FP8 和 NVFP4 使用量化感知训练，量化后解码为 FP32 执行稀疏乘法。
+各低精度路径都以 FP32 更新胞体、树突和慢适应状态。原生 PELS 仍使用 FP32。
+执行路径、训练 API、实测速度和显存见[精度与测速](docs/mainline.md#precision-and-benchmarks)。
 
 ## 主线仿真对照
 

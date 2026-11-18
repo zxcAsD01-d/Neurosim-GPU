@@ -195,6 +195,9 @@ class MultiRateScheduler:
         runtime.topology = replacement
         if hasattr(runtime, "weight"):
             runtime.weight = replacement_matrix
+        invalidate = getattr(runtime, "_invalidate_precision_cache", None)
+        if invalidate is not None:
+            invalidate()
         if hasattr(runtime, "_src"):
             runtime._src = replacement.src.to(torch.int64)
             runtime._dst = replacement.dst.to(torch.int64)
@@ -205,11 +208,11 @@ class MultiRateScheduler:
                 device=runtime.state.device,
             )
         if hasattr(runtime, "persistent_current"):
-            runtime.persistent_current = torch.sparse.mm(
-                replacement_matrix,
-                runtime.emitted_state.T,
-            ).T.contiguous()
-            runtime._weight_version = replacement.weight_version
+            if getattr(runtime, "precision", "fp32") != "fp32":
+                current = runtime._propagate(runtime.emitted_state)
+            else:
+                current = torch.sparse.mm(replacement_matrix, runtime.emitted_state.T).T
+            runtime.persistent_current = current.contiguous()
         if hasattr(runtime, "_weight_version"):
             runtime._weight_version = replacement.weight_version
         self.communication = replacement_communication

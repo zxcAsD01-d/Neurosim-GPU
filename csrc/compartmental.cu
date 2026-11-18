@@ -3,6 +3,7 @@
 #include <c10/cuda/CUDAStream.h>
 #include <c10/cuda/CUDAException.h>
 #include <cuda_runtime.h>
+#include <cuda_fp8.h>
 #include <algorithm>
 
 namespace {
@@ -88,11 +89,40 @@ __device__ void advance(float current, int64_t row, int64_t n, int64_t count,
   output[2 * count + row] = ra * a.get(b, n) + (1.0f - ra) * next;
 }
 
-template<int width>
+template<typename T>
+struct PlainWeights {
+  const T* data;
+  __device__ float get(int64_t edge) const { return static_cast<float>(data[edge]); }
+};
+
+__device__ float decode_e4m3(uint8_t code) {
+  __nv_fp8_e4m3 value;
+  value.__x = code;
+  return static_cast<float>(value);
+}
+
+template<bool packed>
+struct QuantizedWeights {
+  const uint8_t* codes;
+  const uint8_t* scales;
+  const float* global_scale;
+
+  __device__ float get(int64_t edge) const {
+    if constexpr (!packed) return decode_e4m3(codes[edge]) * *global_scale;
+    const unsigned code = (codes[edge / 2] >> ((edge % 2) * 4)) & 15u;
+    // Twice each positive E2M1 magnitude, indexed by its three-bit code.
+    constexpr unsigned magnitudes = 0xC8643210u;
+    const float magnitude = 0.5f * ((magnitudes >> ((code & 7u) * 4)) & 15u);
+    const float block_scale = decode_e4m3(scales[edge / 16]) * *global_scale;
+    return (code & 8u ? -magnitude : magnitude) * block_scale;
+  }
+};
+
+template<int width, typename Weight>
 __global__ void matrix_kernel(Matrix s, Matrix d, Matrix a, Matrix input,
                                Matrix dendritic_input, Parameters p,
                                const int32_t* rowptr, const int32_t* source,
-                               const float* weights, float* output,
+                               Weight weights, float* output,
                                int64_t neurons, int64_t count) {
   const int lane = threadIdx.x % width;
   for (int64_t row = (static_cast<int64_t>(blockIdx.x) * blockDim.x + threadIdx.x) / width;
@@ -100,7 +130,7 @@ __global__ void matrix_kernel(Matrix s, Matrix d, Matrix a, Matrix input,
     const int64_t b = row / neurons, n = row % neurons;
     float current = 0;
     for (int64_t e = static_cast<int64_t>(rowptr[n]) + lane; e < rowptr[n + 1]; e += width)
-      current = fmaf(weights[e], s.get(b, source[e]), current);
+      current = fmaf(weights.get(e), s.get(b, source[e]), current);
     const unsigned mask = __activemask();
     for (int offset = width / 2; offset; offset /= 2)
       current += __shfl_down_sync(mask, current, offset, width);
@@ -147,26 +177,59 @@ std::vector<at::Tensor> dendritic_step_cuda(
     at::Tensor state, at::Tensor dendrite, at::Tensor adaptation,
     std::vector<at::Tensor> params, at::Tensor rowptr, at::Tensor source,
     at::Tensor weight, std::optional<at::Tensor> input, double input_scalar,
-    std::optional<at::Tensor> dendritic_input, double dendritic_scalar, int64_t width) {
+    std::optional<at::Tensor> dendritic_input, double dendritic_scalar, int64_t width,
+    std::optional<at::Tensor> block_scales, std::optional<at::Tensor> global_scale) {
   check_state(state);
   const c10::cuda::CUDAGuard guard(state.device());
   const auto s = matrix(state, state), d = matrix(dendrite, state), a = matrix(adaptation, state);
   const auto p = parameters(params, state);
   const auto u = drive(input, input_scalar, state), v = drive(dendritic_input, dendritic_scalar, state);
-  check_index(rowptr, state); check_index(source, state); check_float(weight, state);
-  TORCH_CHECK(rowptr.numel() == state.size(1) + 1 && weight.numel() == source.numel()
-              && weight.is_contiguous() && weight.dim() == 1, "invalid CSR geometry");
+  check_index(rowptr, state); check_index(source, state);
+  const auto edges = source.numel();
+  const bool quantized = weight.scalar_type() == at::kByte;
+  TORCH_CHECK(weight.device() == state.device() && weight.is_contiguous() && weight.dim() == 1,
+              "CSR weights must be a contiguous vector on the state device");
+  TORCH_CHECK(rowptr.numel() == state.size(1) + 1, "invalid CSR geometry");
+  if (quantized) {
+    TORCH_CHECK(global_scale, "quantized CSR weights require a global scale");
+    check_float(*global_scale, state);
+    TORCH_CHECK(global_scale->numel() == 1, "global scale must have one value");
+    TORCH_CHECK(weight.numel() == (block_scales ? (edges + 1) / 2 : edges),
+                "invalid quantized CSR weight count");
+    if (block_scales) {
+      TORCH_CHECK(block_scales->device() == state.device() &&
+                  block_scales->scalar_type() == at::kByte && block_scales->is_contiguous() &&
+                  block_scales->dim() == 1 && block_scales->numel() == (edges + 15) / 16,
+                  "invalid NVFP4 block scales");
+    }
+  } else {
+    TORCH_CHECK(!block_scales && !global_scale && weight.numel() == edges &&
+                (weight.scalar_type() == at::kFloat || weight.scalar_type() == at::kHalf),
+                "invalid floating-point CSR weights");
+  }
   TORCH_CHECK(width == 8 || width == 16 || width == 32, "width must be 8, 16 or 32");
   auto output = at::empty({3, state.size(0), state.size(1)}, state.options());
   const int64_t count = state.numel();
   if (count) {
     const int blocks = static_cast<int>(std::min<int64_t>(4096, (count * width + threads - 1) / threads));
     const auto stream = c10::cuda::getCurrentCUDAStream(state.get_device());
-#define LAUNCH(W) matrix_kernel<W><<<blocks, threads, 0, stream>>>(s,d,a,u,v,p, rowptr.data_ptr<int32_t>(),source.data_ptr<int32_t>(),weight.data_ptr<float>(),output.data_ptr<float>(),state.size(1),count)
-    if (width == 8) { LAUNCH(8); }
-    else if (width == 16) { LAUNCH(16); }
-    else { LAUNCH(32); }
+    auto launch = [&](auto weights) {
+#define LAUNCH(W) matrix_kernel<W><<<blocks, threads, 0, stream>>>(s,d,a,u,v,p, rowptr.data_ptr<int32_t>(),source.data_ptr<int32_t>(),weights,output.data_ptr<float>(),state.size(1),count)
+      if (width == 8) { LAUNCH(8); }
+      else if (width == 16) { LAUNCH(16); }
+      else { LAUNCH(32); }
 #undef LAUNCH
+    };
+    if (block_scales) {
+      launch(QuantizedWeights<true>{weight.data_ptr<uint8_t>(),
+                                   block_scales->data_ptr<uint8_t>(), global_scale->data_ptr<float>()});
+    } else if (quantized) {
+      launch(QuantizedWeights<false>{weight.data_ptr<uint8_t>(), nullptr, global_scale->data_ptr<float>()});
+    } else if (weight.scalar_type() == at::kHalf) {
+      launch(PlainWeights<at::Half>{weight.data_ptr<at::Half>()});
+    } else {
+      launch(PlainWeights<float>{weight.data_ptr<float>()});
+    }
     C10_CUDA_KERNEL_LAUNCH_CHECK();
   }
   return {output.select(0, 0), output.select(0, 1), output.select(0, 2)};

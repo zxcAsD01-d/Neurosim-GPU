@@ -16,6 +16,7 @@ from .compartmental import DendriticDynamics, DendriticMatrixRuntime, DendriticP
 from .dynamics import Dynamics
 from .native_compartmental import NativeDendriticMatrixRuntime, NativeDendriticPELSRuntime
 from .checkpoint import load_runtime_checkpoint, save_runtime_checkpoint
+from .precision import PRECISIONS
 from .topology import random_topology
 
 
@@ -23,6 +24,8 @@ def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(description=__doc__)
     result.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
     result.add_argument("--backend", choices=("reference", "native"), default="reference")
+    result.add_argument("--precision", choices=PRECISIONS, default="fp32",
+                        help="reference propagation mode, or native matrix weight storage")
     result.add_argument("--propagation", choices=("matrix", "pels"), default="matrix")
     result.add_argument("--neurons", type=int, default=1000)
     result.add_argument("--edges", type=int, default=20_000, help="candidate edges before coalescing")
@@ -54,6 +57,10 @@ def build_runtime(args: argparse.Namespace):
         raise ValueError("theta applies only to --propagation pels")
     if args.backend == "native" and args.device != "cuda":
         raise ValueError("--backend native requires --device cuda and a CUDA build toolchain")
+    if args.backend == "native" and args.propagation == "pels" and args.precision != "fp32":
+        raise ValueError("native PELS supports FP32 only; use native matrix or reference PELS")
+    if args.precision == "fp16" and args.device != "cuda":
+        raise ValueError("--precision fp16 requires --device cuda")
     if args.device == "cuda" and not torch.cuda.is_available():
         raise ValueError("CUDA is unavailable; use --device cpu --backend reference")
     graph = random_topology(args.neurons, args.edges, device=args.device, seed=args.seed)
@@ -66,12 +73,18 @@ def build_runtime(args: argparse.Namespace):
     )
     initial = torch.zeros(args.batch, args.neurons, device=args.device)
     if args.propagation == "matrix":
-        cls = NativeDendriticMatrixRuntime if args.backend == "native" else DendriticMatrixRuntime
-        return cls(graph, model, initial)
+        if args.backend == "native":
+            return NativeDendriticMatrixRuntime(
+                graph, model, initial,
+                weight_dtype=torch.float16 if args.precision == "fp16" else torch.float32,
+                weight_format=args.precision if args.precision in ("fp8", "nvfp4") else None,
+            )
+        return DendriticMatrixRuntime(graph, model, initial, precision=args.precision)
     if args.backend == "native":
         return NativeDendriticPELSRuntime(graph, model, initial, theta=args.theta)
-    # Full SpMM on emitted deltas is a portable reference, not a sparse event kernel.
-    return DendriticPELSRuntime(graph, model, initial, theta=args.theta, propagation="matrix")
+    # Reference PELS uses SpMM (FP32 deltas or low-precision emitted snapshots).
+    return DendriticPELSRuntime(graph, model, initial, theta=args.theta,
+                               propagation="matrix", precision=args.precision)
 
 
 def run(args: argparse.Namespace) -> dict:
@@ -107,10 +120,11 @@ def run(args: argparse.Namespace) -> dict:
         "model": "soma-dendrite-adaptation", "runtime": type(runtime).__name__,
         "backend": getattr(runtime, "last_backend", "reference"),
         "device": str(runtime.state.device), "dtype": str(runtime.state.dtype),
+        "precision": args.precision, "precision_execution": runtime.precision_execution,
         "torch": torch.__version__, "propagation": args.propagation,
         "neurons": runtime.topology.n_neurons, "actual_edges": runtime.topology.n_edges,
         "steps_this_run": args.steps, "theta": args.theta,
-        "approximate": args.propagation == "pels" and args.theta > 0,
+        "approximate": args.precision != "fp32" or (args.propagation == "pels" and args.theta > 0),
         "resumed": args.resume is not None,
         "config": {name: str(value) if isinstance(value, Path) else value
                     for name, value in vars(args).items()},

@@ -65,9 +65,20 @@ class MainlineSimulationTests(unittest.TestCase):
                       ("--neurons", "0"), ("--edges", "-1"),
                       ("--steps", "0"), ("--batch", "0"),
                       ("--tau-dendrite", "0"), ("--coupling", "2"),
-                      ("--propagation", "pels", "--theta", "-1")):
+                      ("--propagation", "pels", "--theta", "-1"),
+                      ("--precision", "fp16"),
+                      ("--device", "cuda", "--backend", "native", "--propagation", "pels",
+                       "--precision", "nvfp4")):
             with self.subTest(extra=extra), self.assertRaises(ValueError):
                 build_runtime(self.args(*extra))
+
+    def test_cpu_quantized_simulation_reports_execution(self):
+        for name in ("fp8", "nvfp4"):
+            result = run(self.args("--precision", name, "--propagation", "pels"))
+            self.assertEqual(result["precision"], name)
+            self.assertIn("qdq-emulation", result["precision_execution"])
+            self.assertEqual(result["dtype"], "torch.float32")
+            self.assertTrue(result["approximate"])
 
     def test_summary_cannot_overwrite_checkpoint_or_resume(self):
         with tempfile.TemporaryDirectory() as tmp:

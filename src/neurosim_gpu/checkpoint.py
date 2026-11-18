@@ -54,6 +54,10 @@ def _cpu_clone(value: torch.Tensor) -> torch.Tensor:
     return value.detach().to(device="cpu").clone()
 
 
+def _precision(runtime: Any) -> str:
+    return getattr(runtime, "checkpoint_precision", getattr(runtime, "precision", "fp32"))
+
+
 def _runtime_signature(runtime: Any) -> str:
     """Hash immutable dynamics/chemistry/receptor/config parameters."""
 
@@ -108,6 +112,9 @@ def _runtime_signature(runtime: Any) -> str:
         add_value(runtime.config)
     if hasattr(runtime, "theta"):
         add_value(runtime.theta)
+    precision = _precision(runtime)
+    if precision != "fp32":
+        digest.update(f"precision={precision}".encode())
     return digest.hexdigest()
 
 
@@ -125,6 +132,7 @@ def capture_runtime(
         "format": FORMAT,
         "version": VERSION,
         "runtime_type": type(runtime).__name__,
+        "precision": _precision(runtime),
         "runtime_signature": _runtime_signature(runtime),
         "topology": topology_to_dict(topology),
         "tensors": {},
@@ -195,11 +203,15 @@ def restore_runtime(
     """Restore a captured payload into an already-constructed runtime.
 
     Topology structure must match. Weights are restored through the topology
-    mutation API, then the saved version is applied so persistent caches can
-    detect later external changes normally.
+    mutation API. The saved current's freshness is mapped to the target graph's
+    new version so other runtimes sharing the graph also detect the change.
     """
 
     _validate_payload(payload)
+    saved_precision = payload.get("precision", "fp32")
+    target_precision = _precision(runtime)
+    if saved_precision != target_precision:
+        raise ValueError("checkpoint precision does not match target runtime")
     # Reject incomplete compartment checkpoints before mutating topology/state.
     if hasattr(runtime, "compartment_dynamics"):
         if payload.get("runtime_type") != type(runtime).__name__:
@@ -216,7 +228,9 @@ def restore_runtime(
     saved_signature = payload.get("runtime_signature")
     if saved_signature is not None and saved_signature != _runtime_signature(runtime):
         raise ValueError("checkpoint runtime parameters differ from target runtime")
-    saved_topology = topology_from_dict(payload["topology"], device="cpu")
+    saved_topology = topology_from_dict(
+        payload["topology"], device="cpu", reset_weight_version=False,
+    )
     target_topology = getattr(runtime, "topology", None)
     if not isinstance(target_topology, SparseTopology):
         raise ValueError("runtime must own a SparseTopology")
@@ -231,19 +245,25 @@ def restore_runtime(
         ):
             raise ValueError(f"checkpoint topology structure differs in {name}")
 
-    target_topology.apply_source_weights_(
-        saved_topology.weight.to(device=target_topology.weight.device)
-    )
-    saved_version = int(payload["scalars"].get("_weight_version", 0))
-    object.__setattr__(target_topology, "weight_version", saved_version)
+    restored_weight = saved_topology.weight.to(device=target_topology.weight.device)
+    if restored_weight.dtype != target_topology.weight.dtype:
+        raise ValueError("checkpoint topology weight dtype does not match runtime")
+    # A no-op restore must not force peers sharing this graph to recompute a
+    # current that they have been accumulating incrementally.
+    if not torch.equal(target_topology.weight, restored_weight):
+        target_topology.apply_source_weights_(restored_weight)
+    invalidate = getattr(runtime, "_invalidate_precision_cache", None)
+    if invalidate is not None:
+        invalidate()
 
     with torch.no_grad():
         for name, value in payload["tensors"].items():
             _copy_tensor_field(runtime, name, value)
     for name, value in payload["scalars"].items():
-        if name == "_weight_version":
-            continue
         if hasattr(runtime, name):
+            if name == "_weight_version":
+                stale = value != saved_topology.weight_version
+                value = target_topology.weight_version - int(stale)
             setattr(runtime, name, value)
 
     # Rebuild derived receptor caches from restored concentration rather than
