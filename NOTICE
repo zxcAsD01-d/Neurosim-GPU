@@ -1,8 +1,11 @@
-NeuroSim GPU
+Neurosim-GPU
 Copyright 2026 The NeuroSim GPU authors
 
-This product is licensed under the Apache License, Version 2.0.
-See the LICENSE file for the full text.
+Required Notice: Copyright 2026 The NeuroSim GPU authors.
+Original software within the rights holders' licensing authority is offered under
+PolyForm Noncommercial License 1.0.0. See LICENSE and LICENSING.md.
+Earlier license grants, third-party licenses and all existing attributions remain valid.
+Third-party software, models, data and media are not relicensed by this notice.
 
 Third-party runtime dependencies are not vendored in this repository:
 PyTorch (BSD-style license) is installed separately by the user.
