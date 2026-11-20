@@ -1,7 +1,7 @@
 # NeuroSim GPU
 
 [![CI](https://github.com/zxcAsD01-d/Neurosim-GPU/actions/workflows/ci.yml/badge.svg)](https://github.com/zxcAsD01-d/Neurosim-GPU/actions/workflows/ci.yml)
-[![License: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/license-PolyForm--Noncommercial--1.0.0-blue.svg)](LICENSE)
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC--BY--NC--4.0-blue.svg)](LICENSE)
 
 **中文** | [English](README.en.md)
 
@@ -181,7 +181,7 @@ CUDA 源码已随 v0.2.0 wheel 打包，不再列为未完成项。
 - `src/neurosim_gpu/` 核心包；`csrc/` 原生核；`benchmarks/` 测量；`experiments/` 任务；`llm/` 独立语言模型；`tests/` 回归。
 - [贡献指南](CONTRIBUTING.md) · [变更记录](CHANGELOG.md) · [引用](CITATION.cff) · [安全报告](SECURITY.md)
 
-项目权利人有权许可的原创代码自本次许可变更起采用 [PolyForm Noncommercial 1.0.0](LICENSE)。允许用途及机构例外以原文为准；超出许可允许范围的商业用途须另行取得书面授权，见 [商业授权](COMMERCIAL.md)。历史版本与第三方权利不变，详见 [授权范围](LICENSING.md) 和 [第三方声明](THIRD_PARTY_NOTICES.md)。这是公开源码的非商业许可项目。
+项目权利人有权许可的原创软件采用 [CC BY-NC 4.0](LICENSE)（知识共享署名—非商业性使用 4.0 国际），具体条件以原文为准；分享时须履行署名等义务并标明修改。超出许可允许范围的商业使用须另行取得书面授权，见 [商业授权](COMMERCIAL.md)。授权范围及历史权利见 [LICENSING.md](LICENSING.md)，第三方例外见 [第三方声明](THIRD_PARTY_NOTICES.md)。这是公开源码的非商业许可项目。
 
 本仓库与 [grasp-lyrl/neurosim](https://github.com/grasp-lyrl/neurosim)
 和 [neurosim/neurosim](https://github.com/neurosim/neurosim) 无关，不与其做性能排名。

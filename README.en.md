@@ -1,7 +1,7 @@
 # NeuroSim GPU
 
 [![CI](https://github.com/zxcAsD01-d/Neurosim-GPU/actions/workflows/ci.yml/badge.svg)](https://github.com/zxcAsD01-d/Neurosim-GPU/actions/workflows/ci.yml)
-[![License: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/license-PolyForm--Noncommercial--1.0.0-blue.svg)](LICENSE)
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC--BY--NC--4.0-blue.svg)](LICENSE)
 
 **English** | [中文](README.md)
 
@@ -187,7 +187,7 @@ v0.2.0 wheels; that is no longer open work.
 - `src/neurosim_gpu/`: core; `csrc/`: kernels; `benchmarks/`: measurements; `experiments/`: tasks; `llm/`: independent LM; `tests/`: regressions.
 - [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Citation](CITATION.cff) · [Security](SECURITY.md)
 
-Original software that the project rights holders are entitled to license is offered under [PolyForm Noncommercial 1.0.0](LICENSE) from this licensing change. The license text controls permitted purposes, including its organization exceptions. Commercial uses outside those permissions require a separate written agreement; see [commercial licensing](COMMERCIAL.md). Prior grants and third-party rights remain unchanged; see [scope and history](LICENSING.md) and [third-party notices](THIRD_PARTY_NOTICES.md). This is source-available software under a noncommercial license.
+Original software that the project rights holders are entitled to license is offered under [CC BY-NC 4.0](LICENSE): attribution and noncommercial use, subject to the full license terms. Indicate modifications when sharing adapted material. Commercial uses outside the license permissions require separate written authorization. See [scope and history](LICENSING.md), [commercial licensing](COMMERCIAL.md) and [third-party notices](THIRD_PARTY_NOTICES.md). Prior grants and third-party rights remain unchanged. This is source-available software under a noncommercial license.
 
 Unrelated to [grasp-lyrl/neurosim](https://github.com/grasp-lyrl/neurosim)
 and [neurosim/neurosim](https://github.com/neurosim/neurosim); no performance ranking against them is claimed.
