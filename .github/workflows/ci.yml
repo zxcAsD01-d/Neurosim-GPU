@@ -47,6 +47,22 @@ jobs:
           python -m build
           python scripts/check_distribution.py
 
+  neurobody:
+    name: NeuroBody offline adapter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install optional demo dependencies
+        run: |
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e .
+          python -m pip install -r demo/requirements.txt
+      - name: NeuroBody regressions
+        run: python -m unittest discover -s demo/tests -p test_vnext.py -v
+
   docs:
     name: documentation link check
     runs-on: ubuntu-latest

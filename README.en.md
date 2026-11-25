@@ -173,6 +173,7 @@ Current mainline adds runner tests; use actual discovery counts, not retroactive
 | Dopamine/plasticity | Chemistry, D1/D2, eligibility, weight updates, scheduler/replay exist with point-neuron runtimes; not yet unified with dendritic CUDA mainline; [API](docs/api.md) |
 | Delays/development | Communication, migration, formation/pruning have separate modules/tests; not automatically included in the CLI; [architecture](docs/architecture.md) |
 | MNIST/cart-pole/Gomoku | Independent task probes; historical accuracy/control results do not validate the new model; [experiments](docs/experiments.md), [results](results/REPORT.md) |
+| NeuroBody | Offline servo adapter uses the public dendritic/adaptation update; viewer not migrated, no PD-beating claim; [source and review](demo/README.md) |
 | Cortex-LM | Separate LM research, not the core default and not automatically migrated; [subproject](llm/README.md), [report](llm/REPORT.md) |
 
 “Complete” describes the connected core workflow, not a fusion of every experimental module. Next:

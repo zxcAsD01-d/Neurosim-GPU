@@ -1,0 +1,23 @@
+{
+  "task": "goals",
+  "policy": "vnext",
+  "seed": 0,
+  "ticks": 4500,
+  "cycles": 1,
+  "metrics": {
+    "postureError": 0.02963859649995963,
+    "effort": 0.019854848583539326,
+    "rootDrift": 0.02839730369548003,
+    "goalFirst": 0.06629289438327153,
+    "goalLast": 0.06622794270515442,
+    "goalPeak": 0.13056781888008118,
+    "goalDrift": -6.495167811711629e-05,
+    "postureErrorStd": 0.00033434201359820183,
+    "effortStd": 5.4144155169555e-06,
+    "rootDriftStd": 0.015317378588266517,
+    "goalFirstStd": 0.0023991822436001875,
+    "goalLastStd": 8.372567085712097e-05,
+    "goalPeakStd": 0.005098852305307006,
+    "goalDriftStd": 0.002366541481246756
+  }
+}

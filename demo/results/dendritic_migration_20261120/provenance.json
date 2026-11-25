@@ -1,0 +1,83 @@
+{
+  "experiment_date": "2026-11-20",
+  "publication_date": "2026-11-25",
+  "scope": "headless NeuroBody training and optional VRM clip exporter; viewer integration remains incomplete",
+  "base_commit": "7db22ed659340c9d8e00f6c64dace70773610bf5",
+  "original_source_hashes": [
+    {
+      "path": "demo/neurobody/embodied.py",
+      "sha256": "d81144887f6dee23095f03046891afb64d9bf06e74f8008919b219c61eeacc2a"
+    },
+    {
+      "path": "demo/neurobody/vnext.py",
+      "sha256": "c36e825f6f6d77f80e86d4a6ef1edd45f5b4f82edb4b33d178eb41b8da03e3f8"
+    },
+    {
+      "path": "demo/neurobody/vnext_run.py",
+      "sha256": "7c15b8c8f75f87b32a7d4b837889198686160a1411bd69d29a28be0f1ce46be7"
+    },
+    {
+      "path": "demo/neurobody/rollout_vnext.py",
+      "sha256": "57bc8ccd12afc4bef325dcb407157cd1d65178772052e88e374dbc9b1acef5eb"
+    },
+    {
+      "path": "demo/tests/test_vnext.py",
+      "sha256": "d084b994fd40000e3dc3aaff54df9403b7e8d4387dedfe2e66474b13c5c8cffa"
+    },
+    {
+      "path": "src/neurosim_gpu/compartmental.py",
+      "sha256": "6b34e18485e8ba0773d3f36c7b0395781de8472fc850010985023a4ae237f40f"
+    }
+  ],
+  "local_checkpoints": [
+    {
+      "condition": "goals_random_dendritic_s0",
+      "file": "model.pt",
+      "bytes": 17537486,
+      "sha256": "61069fec00e089bb0ca48daac3d964280641b1c12f451ed3bfa18c6c7b04da5c",
+      "published": false
+    },
+    {
+      "condition": "goals_random_point_s0",
+      "file": "model.pt",
+      "bytes": 17439842,
+      "sha256": "68a7a3a17aa0fc3f3cb7dd251c74bd4e301d3b7b771b6cb0c60d061bfab8dc6d",
+      "published": false
+    },
+    {
+      "condition": "goals_random_point_dale_s0",
+      "file": "model.pt",
+      "bytes": 17440903,
+      "sha256": "49e6d44d5aa8a1bcd6e5ad5d6cd0bfbbfc1ea17a397c0d7f16e8f1aaafbe8c52",
+      "published": false
+    }
+  ],
+  "excluded_diagnostics": [
+    "eval_horizon_pre_metadata_repair.json: wrong point+Dale load metadata",
+    "repeat_evaluation_stdout_record.json: missing evaluation invocation/protocol",
+    "goals_random_dendritic_s0_unseeded: PyTorch RNG not controlled"
+  ],
+  "published_source_hashes": {
+    "demo/neurobody/__init__.py": "6f13a035d4beb9339e90ea839d64ec61cd2544ef29ceafbe6b96b2f0fccf3ced",
+    "demo/neurobody/amass.py": "34dc08ff74f46afdd0a81ec534e240e800960c5b4b45a91d11735c3072910408",
+    "demo/neurobody/body.py": "a4037ea502a1f6f277f84a7dfe44959c6cb4cb84e51e6b5eae47e43777bd29e4",
+    "demo/neurobody/celltypes.py": "63c5ba102d926eba666ccbb2d97d427a583d8d182ad0b35ee76b1fd1d8f4946a",
+    "demo/neurobody/device.py": "1063f7f1f443fb23c1288720b94d408fb0e8f1948acd0fb3a79f370d9b318580",
+    "demo/neurobody/embodied.py": "80eac9407ac6798aa530c01c8c15eaede356c7ecd24e44a45d1686dcee49b957",
+    "demo/neurobody/nervous.py": "918fb5f2f04c1b94d708dec5e013a631a6ca63978e4be568ae65fbfbbc01696e",
+    "demo/neurobody/rollout_vnext.py": "9d9ae7edc481c5a4b0fe39f5f38c5cdd1c851f11918bdbf3d1bf93f488a237b5",
+    "demo/neurobody/rotations.py": "033711473ca4c5c97a947911b894671edff4d3cdd8127b7f410427a468435940",
+    "demo/neurobody/sensory.py": "c90e9e75c2855ed678ee487b5e77a1e100c2abbdf19bbefec389af921ee9a5cb",
+    "demo/neurobody/vision.py": "13e551d98747322323ffba8c546c904cdacda34bd117252dd82df92e5db7b17d",
+    "demo/neurobody/vnext.py": "08d391ace834df85b6e4d7541928a28e5be0356d5e961342c89f3ff8e8230b59",
+    "demo/neurobody/vnext_run.py": "12367f32bd69ad9717de8d924f9525ad5482aee9d569b84aa0bf5f8ff8706351",
+    "demo/neurobody/vrm_rig.py": "9f5ec5d015728f4138492588e6c120147924f63b79c8f354cff3f5b277606e49",
+    "demo/tests/test_vnext.py": "4aa0991df8fca61b717c4a756c73b8973faeb87a951d6daa2251821502db6c9c"
+  },
+  "publication_notes": [
+    "Public core preserved from origin/main; no replacement of the newer native/precision implementation.",
+    "Optional exporter requires an explicit local checkpoint and avatar configuration.",
+    "Historical demo discovery count corrected: 26 discovered = 22 passed + 1 failed + 3 skipped."
+  ],
+  "publication_validation": "publication_validation.json"
+}

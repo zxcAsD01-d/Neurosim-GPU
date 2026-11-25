@@ -195,6 +195,19 @@ learning loop: environment step, transition capture, replay sampling, episode
 counter, and deterministic resume. They deliberately do not prescribe an
 optimizer, policy loss, or environment API.
 
+## Optional NeuroBody control adapter
+
+[NeuroBody](../demo/README.md) uses the public DendriticDynamics update inside
+a fixed-topology PyTorch CSR controller. The controller owns its soma, dendrite
+and adaptation tensors across ticks; episode reset clears all three and TBPTT
+detaches all three. Only soma activity drives the action readout.
+
+This is an offline kinematic-servo adapter with demo-only NumPy/Pillow
+dependencies, not a native-kernel benchmark or an integration with gravity,
+contact, chemistry or the browser viewer. Graph-sign constraints, direct-error
+gating, stored CSR checkpoint restoration and core choice are explicit.
+See the [failure review](../demo/docs/neurobody-dendritic-migration-20261120.md).
+
 ## Safety And Performance Modes
 
 `validate_inputs=True` rejects non-finite RPE and invalid release before any

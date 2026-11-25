@@ -165,3 +165,28 @@ artifacts rather than pasting large outputs. If a check was skipped, say why.
 ---
 
 [← Documentation index](index.md)
+
+
+## NeuroBody adapter publication — 2026-11-25
+
+The adapter was prepared on latest GitHub main (7db22ed); the newer public
+core, precision implementations and licensing files are preserved.
+Environment: Windows, Python 3.13.0, PyTorch 2.13.0.dev20260514+cu132.
+The archived November 20 GPU metrics are not new publication-run measurements.
+
+| Check | Invocation | Observed result |
+|---|---|---|
+| Public core regression, CUDA disabled | python -m unittest discover -s tests -q | 231 discovered; 210 passed, 21 skipped |
+| Optional NeuroBody regressions | python -m unittest discover -s demo/tests -p test_vnext.py -q | 18 passed |
+| CPU adapter pipeline | vnext_run.py, dendritic, 8 ticks, batch 1 | Completed; one optimizer update, 6,020 neurons |
+| Source/wheel build | uv build | Both artifacts built; optional adapter ships in sdist |
+| Distribution integrity | python scripts/check_distribution.py | Version/source checks passed |
+| Documentation links | python scripts/check_links.py | All local links resolve (51 Markdown files) |
+| Compile and exporter CLI | compileall; rollout_vnext.py --help | Passed |
+
+The [adapter report](../demo/docs/neurobody-dendritic-migration-20261120.md)
+owns the offline metrics and known legacy viewer failure. The historical local
+demo suite discovered 26 tests: 22 passed, 1 failed, 3 skipped. The failure is
+the old tracking clip binding, and viewer migration remains incomplete.
+[Publication commands and results](../demo/results/dendritic_migration_20261120/publication_validation.json)
+record the current checks, including the recovered omitted lazy import.

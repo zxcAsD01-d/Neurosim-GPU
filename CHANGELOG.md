@@ -16,6 +16,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Optional NeuroBody servo experiment using public soma/dendrite/adaptation
+  equations, persistent three-state TBPTT, source-sign constraints, reproducible
+  runner seeds, legacy CSR checkpoint restoration and regression tests.
+- Archived offline control comparisons and a failure review; the new model has
+  not demonstrated an advantage over PD, and viewer integration remains open.
+
 - `python -m neurosim_gpu.simulate`: an explicit reference/native, matrix/PELS
   inference runner with complete runtime checkpoints and JSON diagnostics.
 - Runner tests for three-state execution, zero-threshold parity, matrix/PELS
@@ -31,6 +37,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   input/dynamics scenarios, sampled three-state errors and seed-range figures.
 
 ### Fixed
+
+- NeuroBody's error-to-motor flag now gates both explicit graph edges and the
+  direct error readout. Checkpoints preserve the independent Dale constraint.
 
 - Preserve whether a PELS current needs refreshing when resuming a checkpoint
   taken immediately after a sparse weight update.
