@@ -1,0 +1,23 @@
+{
+  "task": "goals",
+  "policy": "pd",
+  "seed": 7,
+  "ticks": 4500,
+  "cycles": 1,
+  "metrics": {
+    "postureError": 0.05518011127909025,
+    "effort": 0.0199639480561018,
+    "rootDrift": 0.03123192737499873,
+    "goalFirst": 0.048561333368221916,
+    "goalLast": 0.056835064043601356,
+    "goalPeak": 0.3038322826226552,
+    "goalDrift": 0.008273730675379435,
+    "postureErrorStd": 0.002574969740605158,
+    "effortStd": 0.0001245649932361553,
+    "rootDriftStd": 0.007975552395416818,
+    "goalFirstStd": 0.0004102429376658118,
+    "goalLastStd": 0.0025038266847227366,
+    "goalPeakStd": 0.0014080936073938828,
+    "goalDriftStd": 0.0020955694920671976
+  }
+}

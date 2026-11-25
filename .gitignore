@@ -15,8 +15,11 @@ results/checkpoints/
 runs/
 *.log
 
-# local, machine-specific demo assets (contain host paths)
-demo/
+# NeuroBody sources are public; machine-local assets and generated checkpoints stay local
+demo/assets/
+demo/config/
+demo/runs/
+demo/web/
 
 # local exploratory probe images
 results/str_samples/

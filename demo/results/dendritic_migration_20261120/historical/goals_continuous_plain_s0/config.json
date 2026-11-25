@@ -1,0 +1,23 @@
+{
+  "task": "goals",
+  "policy": "plain",
+  "ticks": 6000,
+  "batch": 8,
+  "lr": 0.001,
+  "seed": 0,
+  "episodes": 3,
+  "m1_to_motor": 8,
+  "motor_recurrence": 0.1,
+  "reflex_gain": 0.0,
+  "velocity_scale": 0.3,
+  "switch_b_scale": 1.0,
+  "switch_cycles": 1,
+  "curriculum": false,
+  "loss_variant": "balanced",
+  "goal_mode": "continuous",
+  "goal_dwell": 150,
+  "eval_ticks": 4500,
+  "eval_cycles": 1,
+  "episode_ticks": 450,
+  "device": "cuda:0"
+}

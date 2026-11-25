@@ -1,0 +1,97 @@
+{
+  "protocol": "repaired checkpoint metadata; same task/reset/noise seeds; independent horizon episodes, three per horizon; one training seed",
+  "conditions": {
+    "dendritic": {
+      "dale_constrained": true,
+      "dynamics": "dendritic",
+      "horizons": {
+        "450": {
+          "postureError": 0.04974291225274404,
+          "goalFirst": 0.06631864110628764,
+          "goalLast": 0.05437870199481646,
+          "goalDrift": -0.011939939111471176,
+          "postureErrorStd": 0.0010083849496898174,
+          "goalDriftStd": 0.0033007227754963545
+        },
+        "900": {
+          "postureError": 0.15281468133131662,
+          "goalFirst": 0.06631864110628764,
+          "goalLast": 0.16341927647590637,
+          "goalDrift": 0.09710063536961873,
+          "postureErrorStd": 0.0017838357706183195,
+          "goalDriftStd": 0.007884953413336202
+        },
+        "1800": {
+          "postureError": 0.08520140126347542,
+          "goalFirst": 0.06631864110628764,
+          "goalLast": 0.09014012664556503,
+          "goalDrift": 0.023821485539277393,
+          "postureErrorStd": 0.04916091360589773,
+          "goalDriftStd": 0.05152336576216284
+        },
+        "3000": {
+          "postureError": 0.08925706148147583,
+          "goalFirst": 0.06631864110628764,
+          "goalLast": 0.10309360797206561,
+          "goalDrift": 0.03677496686577797,
+          "postureErrorStd": 0.04408463016265549,
+          "goalDriftStd": 0.05151417328196155
+        },
+        "4500": {
+          "postureError": 0.08946833883722623,
+          "goalFirst": 0.06631864110628764,
+          "goalLast": 0.09500032911698024,
+          "goalDrift": 0.028681688010692596,
+          "postureErrorStd": 0.046790095185624346,
+          "goalDriftStd": 0.04872457335651232
+        }
+      }
+    },
+    "point_dale": {
+      "dale_constrained": true,
+      "dynamics": "neurosim",
+      "horizons": {
+        "450": {
+          "postureError": 0.052930680414040886,
+          "goalFirst": 0.05772914861639341,
+          "goalLast": 0.05019906535744667,
+          "goalDrift": -0.007530083258946736,
+          "postureErrorStd": 0.0014722158158421796,
+          "goalDriftStd": 0.001518714700481285
+        },
+        "900": {
+          "postureError": 0.1766777684291204,
+          "goalFirst": 0.05772914861639341,
+          "goalLast": 0.18320936461289725,
+          "goalDrift": 0.12548021599650383,
+          "postureErrorStd": 0.0010045783848006717,
+          "goalDriftStd": 0.0034885498637677037
+        },
+        "1800": {
+          "postureError": 0.09505634134014447,
+          "goalFirst": 0.05772914861639341,
+          "goalLast": 0.09406394014755885,
+          "goalDrift": 0.03633479153116544,
+          "postureErrorStd": 0.05865429605399782,
+          "goalDriftStd": 0.06304402703289566
+        },
+        "3000": {
+          "postureError": 0.10495300218462944,
+          "goalFirst": 0.05772914861639341,
+          "goalLast": 0.10928353418906529,
+          "goalDrift": 0.05155438557267189,
+          "postureErrorStd": 0.051864286347507095,
+          "goalDriftStd": 0.058407771707504025
+        },
+        "4500": {
+          "postureError": 0.1047748476266861,
+          "goalFirst": 0.05772914861639341,
+          "goalLast": 0.10724996402859688,
+          "goalDrift": 0.04952081541220347,
+          "postureErrorStd": 0.05351361786424589,
+          "goalDriftStd": 0.05630469223970335
+        }
+      }
+    }
+  }
+}

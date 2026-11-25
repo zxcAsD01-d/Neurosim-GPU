@@ -15,6 +15,15 @@ plasticity and structural development are not yet jointly integrated with this c
 The post-release CLI and README changes do not change or retag the published 0.2.0
 artifacts. CUDA sources already ship in its wheel.
 
+## NeuroBody offline adapter
+
+The optional [NeuroBody source](../demo/README.md) now uses the public
+three-state dynamics in offline servo training and preserves legacy checkpoint
+topology. Single-training-seed comparisons still trail PD. Viewer/clip wiring
+and physics validation remain open; no completed visual demo is claimed.
+The [review](../demo/docs/neurobody-dendritic-migration-20261120.md) records
+these limitations and the known historical clip-contract failure.
+
 ## Historical point-neuron / extension scorecard
 
 | Area | Target | Current result | Status |

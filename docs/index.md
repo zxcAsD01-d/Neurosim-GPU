@@ -16,6 +16,7 @@ promises, what has actually been measured, and what is explicitly out of scope.
 | Understand the runtime and state ownership | [design](design.md) → [architecture](architecture.md) |
 | Build the CUDA kernels | [native-build](native-build.md) |
 | Run the task-level experiments | [experiments](experiments.md) |
+| Run the optional NeuroBody servo experiment | [NeuroBody](../demo/README.md) → [failure review](../demo/docs/neurobody-dendritic-migration-20261120.md) |
 | Build the brain-in-the-middle LM pipeline | [cortex-lm](../llm/docs/cortex-lm.md) |
 | Check a performance number | [performance](performance.md) → [results](results.md) → [efficiency](efficiency.md) → [validation](validation.md) |
 | Know what is claimed, and what would refute it | [claims](claims.md) |

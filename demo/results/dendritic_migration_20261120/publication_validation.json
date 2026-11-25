@@ -1,0 +1,94 @@
+{
+  "date": "2026-11-25",
+  "base_commit": "7db22ed659340c9d8e00f6c64dace70773610bf5",
+  "scope": "latest-main publication checkout, not a new 6000-tick training",
+  "environment": {
+    "os": "Windows",
+    "python": "3.13.0",
+    "torch": "2.13.0.dev20260514+cu132",
+    "cuda_build": "13.2"
+  },
+  "checks": [
+    {
+      "name": "core_regressions_cpu",
+      "command": "CUDA_VISIBLE_DEVICES=-1 PYTHONPATH=src python -m unittest discover -s tests -q",
+      "exit_code": 0,
+      "discovered": 231,
+      "passed": 210,
+      "skipped": 21,
+      "result": "OK (skipped=21); native/GPU optional tests not executed in this CPU run"
+    },
+    {
+      "name": "neurobody_regressions",
+      "command": "PYTHONPATH=src python -m unittest discover -s demo/tests -p test_vnext.py -q",
+      "exit_code": 0,
+      "discovered": 18,
+      "passed": 18,
+      "skipped": 0,
+      "result": "Ran 18 tests in 4.985s; OK"
+    },
+    {
+      "name": "cpu_training_smoke",
+      "command": "python demo/neurobody/vnext_run.py --task goals --policy dendritic --ticks 8 --batch 1 --episodes 1 --goal-dwell 4 --device cpu --allow-cpu --seed 0 --out demo/runs/publication_cpu_smoke",
+      "exit_code": 0,
+      "ticks": 8,
+      "updates": 1,
+      "neuron_count": 6020,
+      "edges": 585641,
+      "note": "Uses cycle goals and reflex_gain=1 default; only a pipeline smoke, excluded from quality comparisons."
+    },
+    {
+      "name": "package_build",
+      "command": "uv build --out-dir dist",
+      "exit_code": 0,
+      "result": "sdist and wheel built; demo source and compact records in sdist only"
+    },
+    {
+      "name": "documentation_links",
+      "command": "python scripts/check_links.py",
+      "exit_code": 0,
+      "result": "all local links resolve (51 Markdown files)"
+    },
+    {
+      "name": "distribution_integrity",
+      "command": "python scripts/check_distribution.py",
+      "exit_code": 0,
+      "result": "0.2.0 wheel and sdist versions/sources: PASS"
+    },
+    {
+      "name": "python_compile",
+      "command": "python -m compileall -q demo/neurobody demo/tests",
+      "exit_code": 0,
+      "result": "all adapter modules compiled"
+    },
+    {
+      "name": "exporter_cli",
+      "command": "python demo/neurobody/rollout_vnext.py --help",
+      "exit_code": 0,
+      "result": "help loads with explicit required checkpoint and local avatar config"
+    },
+    {
+      "name": "publication_content_scan",
+      "command": "scan optional demo source/results for host user paths, credential tokens and private-key headers",
+      "exit_code": 0,
+      "result": "no matches"
+    }
+  ],
+  "frontend": {
+    "migrated": false,
+    "reason": "Local avatar asset missing; legacy viewer/clip not distributed."
+  },
+  "historical_demo_failure": {
+    "date": "2026-11-20",
+    "discovered": 26,
+    "passed": 22,
+    "failed": 1,
+    "skipped": 3,
+    "test": "test_clip_is_vnext_goals",
+    "reason": "runtime tracking != vnext-goals"
+  },
+  "initial_publication_check": {
+    "result": "failed before retry",
+    "reason": "Selective source copy initially omitted lazy-import sensory.py; included it before rerunning all 18 adapter tests and CPU smoke."
+  }
+}

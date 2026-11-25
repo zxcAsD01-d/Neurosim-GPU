@@ -168,6 +168,7 @@ v0.2.0 发布记录：**204 项 CUDA/native 测试通过**，memcheck / syncchec
 | 多巴胺与可塑性 | 区域化学、D1/D2、资格迹、权重更新、调度/重放在已有点神经元运行时实现；尚未和树突 CUDA 主线统一，见 [API](docs/api.md) |
 | 延迟与结构发育 | 通信、迁移、候选连边/修剪有独立模块和测试；不自动包含在主线 CLI，见 [架构](docs/architecture.md) |
 | MNIST、倒立摆、五子棋 | 独立任务探针；历史精度/控制结果不是新模型的任务验证，见 [实验](docs/experiments.md) 与 [结果](results/REPORT.md) |
+| NeuroBody | 离线运动学控制已接公共树突＋慢适应方程；前端未接入、未胜过 PD，见 [源码与复盘](demo/README.md) |
 | Cortex-LM | 独立语言模型研究，不作为基础仿真默认入口；未自动迁移到树突模型，见 [子项目](llm/README.md) 与 [报告](llm/REPORT.md) |
 
 “完整”限于上述已接通的基础神经仿真闭环，不是所有实验模块都已融合。后续主线重点：

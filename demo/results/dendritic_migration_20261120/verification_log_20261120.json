@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-20",
+  "shell": "PowerShell",
+  "records": [
+    {
+      "command": ".venv-str\\Scripts\\python.exe -m unittest demo.tests.test_vnext -q",
+      "exit_code": 0,
+      "output_lines": [
+        "vnext.py:161: UserWarning: Sparse invariant checks implicitly disabled.",
+        "vnext.py:161: UserWarning: Sparse CSR tensor support is in beta state.",
+        "tick 8 loss 0.11335 updates 4 1.2s",
+        "tick 8 loss 0.10604 updates 1 0.5s",
+        "tick 16 loss 0.10883 updates 2 0.9s",
+        "Ran 18 tests in 6.992s",
+        "OK"
+      ]
+    },
+    {
+      "command": ".venv-str\\Scripts\\python.exe -m unittest tests.test_compartmental tests.test_runtime tests.test_checkpoint -q",
+      "exit_code": 0,
+      "output_lines": [
+        "topology.py:126: UserWarning: Sparse invariant checks implicitly disabled.",
+        "topology.py:126: UserWarning: Sparse CSR tensor support is in beta state.",
+        "Ran 30 tests in 24.794s",
+        "OK"
+      ]
+    },
+    {
+      "command": ".venv-str\\Scripts\\python.exe -m unittest discover -s demo\\tests -q",
+      "exit_code": 1,
+      "output_lines": [
+        "vnext.py:161: UserWarning: Sparse invariant checks implicitly disabled.",
+        "vnext.py:161: UserWarning: Sparse CSR tensor support is in beta state.",
+        "tick 8 loss 0.11335 updates 4 0.5s",
+        "tick 8 loss 0.10604 updates 1 0.4s",
+        "tick 16 loss 0.10883 updates 2 0.8s",
+        "FAIL: test_clip_is_vnext_goals",
+        "AssertionError: runtime tracking != vnext-goals",
+        "Ran 26 tests in 5.347s",
+        "FAILED (failures=1, skipped=3)"
+      ]
+    },
+    {
+      "command": ".venv-str\\Scripts\\python.exe -m py_compile demo\\neurobody\\embodied.py demo\\neurobody\\vnext.py demo\\neurobody\\vnext_run.py demo\\neurobody\\rollout_vnext.py",
+      "exit_code": 0,
+      "output_lines": []
+    },
+    {
+      "command": ".venv-str\\Scripts\\python.exe -m unittest demo.tests.test_frontend_contract.FrontendContractTests.test_meta_points_at_vnext demo.tests.test_frontend_contract.FrontendContractTests.test_layout_is_vnext_6020 -q",
+      "exit_code": 0,
+      "output_lines": [
+        "Ran 2 tests in 0.054s",
+        "OK"
+      ]
+    }
+  ],
+  "output_note": "Transcribed command/result summaries from the November 20 GPU session; warnings/formatting abbreviated. Historical full demo suite: 26 discovered, 22 passed, 1 failed, 3 skipped."
+}

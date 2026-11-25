@@ -29,6 +29,12 @@ include results/precision_drift.json
 include results/precision_drift.json.gz
 include results/precision_drift_native.png
 include results/precision_drift_reference.png
+recursive-include demo/neurobody *.py
+recursive-include demo/tests *.py
+recursive-include demo/docs *.md
+recursive-include demo/results *.json *.jsonl
+include demo/README.md
+include demo/requirements.txt
 recursive-include tests *.py
 recursive-include paper *.tex *.bib *.csv *.md *.py
 include paper/main.pdf

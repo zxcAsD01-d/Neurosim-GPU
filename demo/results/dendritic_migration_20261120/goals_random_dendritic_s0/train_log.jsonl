@@ -1,0 +1,8 @@
+{"tick": 750, "loss": 0.030989907681941986, "updates": 93, "seconds": 24.78}
+{"tick": 1500, "loss": 0.033035729080438614, "updates": 187, "seconds": 32.55}
+{"tick": 2250, "loss": 0.07006347179412842, "updates": 281, "seconds": 40.2}
+{"tick": 3000, "loss": 0.04672455042600632, "updates": 375, "seconds": 48.07}
+{"tick": 3750, "loss": 0.00846046581864357, "updates": 468, "seconds": 55.63}
+{"tick": 4500, "loss": 0.04741132631897926, "updates": 562, "seconds": 63.21}
+{"tick": 5250, "loss": 0.01650911197066307, "updates": 656, "seconds": 71.14}
+{"tick": 6000, "loss": 0.0097782202064991, "updates": 750, "seconds": 79.2}
